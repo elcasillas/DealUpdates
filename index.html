@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostopia - Deal Notes Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <img src="assets/logo.png" alt="Hostopia - HostPapa" class="header-logo">
+        <p class="subtitle">Deal Notes Dashboard</p>
+    </header>
+
+    <main>
+        <!-- File Upload Zone -->
+        <section id="upload-zone" class="upload-zone">
+            <div class="upload-content">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>Drag & drop CSV file here</p>
+                <p class="upload-or">or</p>
+                <label class="upload-btn">
+                    Choose File
+                    <input type="file" id="file-input" accept=".csv" hidden>
+                </label>
+            </div>
+        </section>
+
+        <!-- Summary Stats -->
+        <section id="stats-section" class="stats-section hidden">
+            <h2 class="section-title">Overall Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Total Deals</span>
+                    <span class="stat-value" id="stat-total">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total ACV (CAD)</span>
+                    <span class="stat-value" id="stat-acv">$0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Avg Days Since Update</span>
+                    <span class="stat-value" id="stat-avg-days">0</span>
+                </div>
+                <div class="stat-card stat-card--warning">
+                    <span class="stat-label">Stale Deals (30+ days)</span>
+                    <span class="stat-value" id="stat-stale">0</span>
+                </div>
+            </div>
+
+            <h2 class="section-title">By Deal Owner</h2>
+            <div id="owner-cards" class="owner-cards-grid">
+                <!-- Owner cards will be generated dynamically -->
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section id="filters-section" class="filters-section hidden">
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label for="search-input">Search</label>
+                    <input type="text" id="search-input" placeholder="Search all fields...">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-owner">Deal Owner</label>
+                    <select id="filter-owner">
+                        <option value="">All Owners</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-stage">Stage</label>
+                    <select id="filter-stage">
+                        <option value="">All Stages</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-urgency">Urgency</label>
+                    <select id="filter-urgency">
+                        <option value="">All</option>
+                        <option value="fresh">Fresh (0-14 days)</option>
+                        <option value="warning">Warning (15-30 days)</option>
+                        <option value="stale">Stale (31-60 days)</option>
+                        <option value="critical">Critical (60+ days)</option>
+                    </select>
+                </div>
+                <button id="clear-data-btn" class="clear-btn" title="Clear all data">Clear Data</button>
+            </div>
+        </section>
+
+        <!-- Data Table -->
+        <section id="table-section" class="table-section hidden">
+            <div class="table-container">
+                <table id="deals-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="dealOwner">Deal Owner <span class="sort-indicator"></span></th>
+                            <th data-sort="dealName">Deal Name <span class="sort-indicator"></span></th>
+                            <th data-sort="stage">Stage <span class="sort-indicator"></span></th>
+                            <th data-sort="acv">ACV (CAD) <span class="sort-indicator"></span></th>
+                            <th data-sort="closingDate">Closing Date <span class="sort-indicator"></span></th>
+                            <th data-sort="modifiedDate">Modified Date <span class="sort-indicator"></span></th>
+                            <th data-sort="daysSince">Days Since <span class="sort-indicator"></span></th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deals-tbody">
+                    </tbody>
+                </table>
+            </div>
+            <div id="no-results" class="no-results hidden">
+                No deals match your filters.
+            </div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
