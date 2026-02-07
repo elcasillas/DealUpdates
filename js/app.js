@@ -11,6 +11,7 @@
         warning: 30,
         stale: 60
     };
+    const CLOSING_SOON_DAYS = 14;
 
     // Column mappings for CSV parsing
     const COLUMN_MAPPINGS = {
@@ -41,11 +42,14 @@
         filterOwner: document.getElementById('filter-owner'),
         filterStage: document.getElementById('filter-stage'),
         filterUrgency: document.getElementById('filter-urgency'),
+        exportBtn: document.getElementById('export-csv-btn'),
         clearBtn: document.getElementById('clear-data-btn'),
+        rowCount: document.getElementById('row-count'),
         statTotal: document.getElementById('stat-total'),
         statAcv: document.getElementById('stat-acv'),
         statAvgDays: document.getElementById('stat-avg-days'),
         statStale: document.getElementById('stat-stale'),
+        statOverdue: document.getElementById('stat-overdue'),
         ownerCards: document.getElementById('owner-cards')
     };
 
@@ -204,6 +208,10 @@
         deal.daysSince = calculateDaysSince(deal.modifiedDate);
         deal.urgency = getUrgencyLevel(deal.daysSince);
 
+        // Closing date awareness
+        deal.daysUntilClosing = calculateDaysUntilClosing(deal.closingDate);
+        deal.closingStatus = getClosingStatus(deal.daysUntilClosing);
+
         // Strip HTML from notes
         deal.noteContent = stripHTML(deal.noteContent);
 
@@ -257,6 +265,21 @@
         if (days <= URGENCY_THRESHOLDS.warning) return 'warning';
         if (days <= URGENCY_THRESHOLDS.stale) return 'stale';
         return 'critical';
+    }
+
+    function calculateDaysUntilClosing(date) {
+        if (!date) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diffTime = date - today;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getClosingStatus(daysUntil) {
+        if (daysUntil === null) return null;
+        if (daysUntil < 0) return 'overdue';
+        if (daysUntil <= CLOSING_SOON_DAYS) return 'soon';
+        return 'normal';
     }
 
     function stripHTML(html) {
@@ -323,13 +346,21 @@
             if (data) {
                 const deals = JSON.parse(data);
                 // Restore Date objects
-                return deals.map(deal => ({
-                    ...deal,
-                    closingDate: deal.closingDate ? new Date(deal.closingDate) : null,
-                    modifiedDate: deal.modifiedDate ? new Date(deal.modifiedDate) : null,
-                    daysSince: calculateDaysSince(deal.modifiedDate ? new Date(deal.modifiedDate) : null),
-                    urgency: getUrgencyLevel(calculateDaysSince(deal.modifiedDate ? new Date(deal.modifiedDate) : null))
-                }));
+                return deals.map(deal => {
+                    const closingDate = deal.closingDate ? new Date(deal.closingDate) : null;
+                    const modifiedDate = deal.modifiedDate ? new Date(deal.modifiedDate) : null;
+                    const daysSince = calculateDaysSince(modifiedDate);
+                    const daysUntilClosing = calculateDaysUntilClosing(closingDate);
+                    return {
+                        ...deal,
+                        closingDate,
+                        modifiedDate,
+                        daysSince,
+                        urgency: getUrgencyLevel(daysSince),
+                        daysUntilClosing,
+                        closingStatus: getClosingStatus(daysUntilClosing)
+                    };
+                });
             }
         } catch (e) {
             console.error('Failed to load from localStorage:', e);
@@ -367,11 +398,13 @@
             ? Math.round(deals.reduce((sum, d) => sum + d.daysSince, 0) / deals.length)
             : 0;
         const staleDeals = deals.filter(d => d.daysSince > 30).length;
+        const overdueDeals = deals.filter(d => d.closingStatus === 'overdue').length;
 
         elements.statTotal.textContent = totalDeals.toLocaleString();
         elements.statAcv.textContent = formatCurrency(totalACV);
         elements.statAvgDays.textContent = avgDays;
         elements.statStale.textContent = staleDeals;
+        elements.statOverdue.textContent = overdueDeals;
 
         // Render owner cards
         renderOwnerCards(deals);
@@ -387,12 +420,14 @@
                     name: owner,
                     deals: 0,
                     totalACV: 0,
-                    totalDays: 0
+                    totalDays: 0,
+                    overdue: 0
                 };
             }
             ownerStats[owner].deals++;
             ownerStats[owner].totalACV += deal.acv || 0;
             ownerStats[owner].totalDays += deal.daysSince || 0;
+            if (deal.closingStatus === 'overdue') ownerStats[owner].overdue++;
         }
 
         // Convert to array and sort by total ACV descending
@@ -405,7 +440,7 @@
 
         // Render cards
         elements.ownerCards.innerHTML = owners.map(owner => `
-            <div class="owner-card">
+            <div class="owner-card" data-owner="${escapeHTML(owner.name)}">
                 <div class="owner-card__name">${escapeHTML(owner.name)}</div>
                 <div class="owner-card__stats">
                     <div class="owner-card__stat">
@@ -420,9 +455,35 @@
                         <span class="owner-card__stat-value">${owner.avgDays}</span>
                         <span class="owner-card__stat-label">Avg Days</span>
                     </div>
+                    <div class="owner-card__stat">
+                        <span class="owner-card__stat-value${owner.overdue > 0 ? ' owner-card__stat-value--danger' : ''}">${owner.overdue}</span>
+                        <span class="owner-card__stat-label">Overdue</span>
+                    </div>
                 </div>
             </div>
         `).join('');
+
+        // Attach click handlers to owner cards
+        elements.ownerCards.querySelectorAll('.owner-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const ownerName = card.dataset.owner;
+                if (elements.filterOwner.value === ownerName) {
+                    elements.filterOwner.value = '';
+                } else {
+                    elements.filterOwner.value = ownerName;
+                }
+                applyFilters();
+            });
+        });
+
+        updateOwnerCardActiveState();
+    }
+
+    function updateOwnerCardActiveState() {
+        const activeOwner = elements.filterOwner.value;
+        elements.ownerCards.querySelectorAll('.owner-card').forEach(card => {
+            card.classList.toggle('owner-card--active', card.dataset.owner === activeOwner);
+        });
     }
 
     function formatCurrencyCompact(value) {
@@ -450,7 +511,7 @@
                 <td>${escapeHTML(deal.dealName)}</td>
                 <td>${escapeHTML(deal.stage)}</td>
                 <td class="acv-value">${deal.acvFormatted}</td>
-                <td class="date-value">${formatDate(deal.closingDate)}</td>
+                <td class="date-value">${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' : deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : ''}</td>
                 <td class="date-value">${formatDate(deal.modifiedDate)}</td>
                 <td>
                     <span class="urgency-badge urgency-badge--${deal.urgency}">
@@ -495,10 +556,60 @@
         });
     }
 
+    // ==================== Export ====================
+    function escapeCSVField(value) {
+        const str = String(value == null ? '' : value);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+    }
+
+    function exportToCSV() {
+        const headers = ['Deal Owner', 'Deal Name', 'Stage', 'ACV (CAD)', 'Closing Date', 'Modified Date', 'Days Since', 'Notes'];
+        const rows = filteredDeals.map(deal => [
+            escapeCSVField(deal.dealOwner),
+            escapeCSVField(deal.dealName),
+            escapeCSVField(deal.stage),
+            escapeCSVField(deal.acv),
+            escapeCSVField(deal.closingDate ? formatDate(deal.closingDate) : ''),
+            escapeCSVField(deal.modifiedDate ? formatDate(deal.modifiedDate) : ''),
+            escapeCSVField(deal.daysSince),
+            escapeCSVField(deal.noteContent)
+        ].join(','));
+
+        const csv = [headers.join(','), ...rows].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const today = new Date().toISOString().slice(0, 10);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `deal-updates-${today}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function updateRowCount() {
+        const total = allDeals.length;
+        const shown = filteredDeals.length;
+        const hasFilters = elements.searchInput.value ||
+            elements.filterOwner.value ||
+            elements.filterStage.value ||
+            elements.filterUrgency.value;
+
+        if (hasFilters) {
+            elements.rowCount.textContent = `Showing ${shown} of ${total} deals`;
+        } else {
+            elements.rowCount.textContent = `Showing all ${total} deals`;
+        }
+    }
+
     function showDashboard() {
         elements.uploadZone.classList.add('hidden');
         elements.statsSection.classList.remove('hidden');
         elements.filtersSection.classList.remove('hidden');
+        elements.rowCount.classList.remove('hidden');
         elements.tableSection.classList.remove('hidden');
     }
 
@@ -506,6 +617,7 @@
         elements.uploadZone.classList.remove('hidden');
         elements.statsSection.classList.add('hidden');
         elements.filtersSection.classList.add('hidden');
+        elements.rowCount.classList.add('hidden');
         elements.tableSection.classList.add('hidden');
     }
 
@@ -551,6 +663,8 @@
 
         applySorting();
         renderTable(filteredDeals);
+        updateRowCount();
+        updateOwnerCardActiveState();
     }
 
     function applySorting() {
@@ -652,6 +766,7 @@
         applySorting();
         renderTable(filteredDeals);
         updateSortIndicators();
+        updateRowCount();
         showDashboard();
     }
 
@@ -700,6 +815,9 @@
             th.addEventListener('click', () => handleSort(th.dataset.sort));
         });
 
+        // Export CSV
+        elements.exportBtn.addEventListener('click', exportToCSV);
+
         // Clear data
         elements.clearBtn.addEventListener('click', () => {
             if (confirm('Are you sure you want to clear all data?')) {
@@ -726,6 +844,7 @@
             applySorting();
             renderTable(filteredDeals);
             updateSortIndicators();
+            updateRowCount();
             showDashboard();
         }
     }

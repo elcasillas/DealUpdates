@@ -1,0 +1,22 @@
+# Nested repos
+DealNotes/
+
+# CSV data files
+*.csv
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.bak
+New Text Document.txt

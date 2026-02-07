@@ -141,6 +141,10 @@ main {
     border-left: 4px solid var(--color-stale);
 }
 
+.stat-card--danger {
+    border-left: 4px solid var(--color-critical);
+}
+
 .stat-label {
     font-size: 0.875rem;
     color: var(--color-text-muted);
@@ -181,11 +185,17 @@ main {
     border-radius: var(--radius);
     padding: 1rem;
     box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+    cursor: pointer;
 }
 
 .owner-card:hover {
     box-shadow: var(--shadow-md);
+}
+
+.owner-card--active {
+    border-left: 4px solid var(--color-primary);
+    background: #eff6ff;
 }
 
 .owner-card__name {
@@ -199,7 +209,7 @@ main {
 
 .owner-card__stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
 }
 
@@ -220,6 +230,10 @@ main {
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.03em;
+}
+
+.owner-card__stat-value--danger {
+    color: var(--color-critical);
 }
 
 /* Filters Section */
@@ -272,6 +286,23 @@ main {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+.export-btn {
+    padding: 0.625rem 1rem;
+    background: #dcfce7;
+    color: var(--color-fresh);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.export-btn:hover {
+    background: #bbf7d0;
+}
+
 .clear-btn {
     padding: 0.625rem 1rem;
     background: #fee2e2;
@@ -287,6 +318,14 @@ main {
 
 .clear-btn:hover {
     background: #fecaca;
+}
+
+/* Row Count */
+.row-count {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    padding: 0 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Table Section */
@@ -398,6 +437,28 @@ tbody tr:last-child td {
 .urgency-badge--critical {
     background: #fecdd3;
     color: var(--color-critical);
+}
+
+/* Closing Date Badges */
+.closing-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 0.375rem;
+}
+
+.closing-badge--overdue {
+    background: #fee2e2;
+    color: var(--color-critical);
+}
+
+.closing-badge--soon {
+    background: #ffedd5;
+    color: var(--color-warning);
 }
 
 /* Notes Cell */

@@ -50,6 +50,10 @@
                     <span class="stat-label">Stale Deals (30+ days)</span>
                     <span class="stat-value" id="stat-stale">0</span>
                 </div>
+                <div class="stat-card stat-card--danger">
+                    <span class="stat-label">Overdue Deals</span>
+                    <span class="stat-value" id="stat-overdue">0</span>
+                </div>
             </div>
 
             <h2 class="section-title">By Deal Owner</h2>
@@ -87,9 +91,13 @@
                         <option value="critical">Critical (60+ days)</option>
                     </select>
                 </div>
+                <button id="export-csv-btn" class="export-btn" title="Export filtered data to CSV">Export CSV</button>
                 <button id="clear-data-btn" class="clear-btn" title="Clear all data">Clear Data</button>
             </div>
         </section>
+
+        <!-- Row Count -->
+        <div id="row-count" class="row-count hidden"></div>
 
         <!-- Data Table -->
         <section id="table-section" class="table-section hidden">
