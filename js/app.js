@@ -28,6 +28,7 @@
     let allDeals = [];
     let filteredDeals = [];
     let currentSort = { column: 'daysSince', direction: 'desc' };
+    let changesSummary = null;
 
     // ==================== DOM Elements ====================
     const elements = {
@@ -42,6 +43,10 @@
         filterOwner: document.getElementById('filter-owner'),
         filterStage: document.getElementById('filter-stage'),
         filterUrgency: document.getElementById('filter-urgency'),
+        filterChanges: document.getElementById('filter-changes'),
+        filterChangesGroup: document.getElementById('filter-changes-group'),
+        changesSummaryEl: document.getElementById('changes-summary'),
+        uploadNewBtn: document.getElementById('upload-new-btn'),
         exportBtn: document.getElementById('export-csv-btn'),
         clearBtn: document.getElementById('clear-data-btn'),
         rowCount: document.getElementById('row-count'),
@@ -331,6 +336,67 @@
         return Array.from(dealMap.values());
     }
 
+    // ==================== Diff ====================
+    function diffDeals(oldDeals, newDeals) {
+        // Build lookup from old deals
+        const oldMap = new Map();
+        for (const deal of oldDeals) {
+            oldMap.set(deal.dealName.toLowerCase().trim(), deal);
+        }
+
+        let newCount = 0;
+        let updatedCount = 0;
+        let unchangedCount = 0;
+
+        // Tag each new deal
+        const newKeys = new Set();
+        for (const deal of newDeals) {
+            const key = deal.dealName.toLowerCase().trim();
+            newKeys.add(key);
+            const old = oldMap.get(key);
+
+            if (!old) {
+                deal.changeType = 'new';
+                deal.changes = [];
+                newCount++;
+            } else {
+                const changes = [];
+                if (deal.stage !== old.stage) {
+                    changes.push(`Stage: ${old.stage || '-'} \u2192 ${deal.stage || '-'}`);
+                }
+                if (Math.round(deal.acv || 0) !== Math.round(old.acv || 0)) {
+                    changes.push(`ACV: ${formatCurrencyCompact(old.acv)} \u2192 ${formatCurrencyCompact(deal.acv)}`);
+                }
+                if ((deal.noteContent || '') !== (old.noteContent || '')) {
+                    changes.push('Note updated');
+                }
+
+                if (changes.length > 0) {
+                    deal.changeType = 'updated';
+                    deal.changes = changes;
+                    updatedCount++;
+                } else {
+                    deal.changeType = 'unchanged';
+                    deal.changes = [];
+                    unchangedCount++;
+                }
+            }
+        }
+
+        // Count removed deals
+        let removedCount = 0;
+        for (const key of oldMap.keys()) {
+            if (!newKeys.has(key)) removedCount++;
+        }
+
+        return {
+            newCount,
+            updatedCount,
+            removedCount,
+            unchangedCount
+        };
+    }
+
     // ==================== Storage ====================
     function saveToStorage(deals) {
         try {
@@ -506,9 +572,17 @@
 
         for (const deal of deals) {
             const row = document.createElement('tr');
+            if (deal.changeType === 'new' || deal.changeType === 'updated') {
+                row.classList.add(`change--${deal.changeType}`);
+            }
+            const changeDetail = deal.changeType === 'updated' && deal.changes && deal.changes.length > 0
+                ? `<div class="change-detail">${deal.changes.map(c => escapeHTML(c)).join(' &middot; ')}</div>`
+                : deal.changeType === 'new'
+                ? '<div class="change-detail">New deal</div>'
+                : '';
             row.innerHTML = `
                 <td>${escapeHTML(deal.dealOwner)}</td>
-                <td>${escapeHTML(deal.dealName)}</td>
+                <td>${escapeHTML(deal.dealName)}${changeDetail}</td>
                 <td>${escapeHTML(deal.stage)}</td>
                 <td class="acv-value">${deal.acvFormatted}</td>
                 <td class="date-value">${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' : deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : ''}</td>
@@ -596,13 +670,50 @@
         const hasFilters = elements.searchInput.value ||
             elements.filterOwner.value ||
             elements.filterStage.value ||
-            elements.filterUrgency.value;
+            elements.filterUrgency.value ||
+            elements.filterChanges.value;
 
         if (hasFilters) {
             elements.rowCount.textContent = `Showing ${shown} of ${total} deals`;
         } else {
             elements.rowCount.textContent = `Showing all ${total} deals`;
         }
+    }
+
+    function renderChangesSummary() {
+        if (!changesSummary) {
+            elements.changesSummaryEl.classList.add('hidden');
+            elements.filterChangesGroup.classList.add('hidden');
+            return;
+        }
+
+        const { newCount, updatedCount, removedCount, unchangedCount } = changesSummary;
+        elements.changesSummaryEl.innerHTML = `
+            <span class="changes-summary__label">Changes detected:</span>
+            <span class="changes-summary__counts">
+                <span class="changes-summary__count changes-summary__count--new">${newCount} new</span>
+                <span class="changes-summary__count changes-summary__count--updated">${updatedCount} updated</span>
+                <span class="changes-summary__count changes-summary__count--removed">${removedCount} removed</span>
+                <span class="changes-summary__count changes-summary__count--unchanged">${unchangedCount} unchanged</span>
+            </span>
+            <button class="changes-summary__dismiss" id="dismiss-changes-btn">Dismiss</button>
+        `;
+        elements.changesSummaryEl.classList.remove('hidden');
+        elements.filterChangesGroup.classList.remove('hidden');
+
+        // Attach dismiss handler
+        document.getElementById('dismiss-changes-btn').addEventListener('click', clearChanges);
+    }
+
+    function clearChanges() {
+        changesSummary = null;
+        for (const deal of allDeals) {
+            deal.changeType = null;
+            deal.changes = [];
+        }
+        elements.filterChanges.value = '';
+        renderChangesSummary();
+        applyFilters();
     }
 
     function showDashboard() {
@@ -627,6 +738,7 @@
         const ownerFilter = elements.filterOwner.value;
         const stageFilter = elements.filterStage.value;
         const urgencyFilter = elements.filterUrgency.value;
+        const changesFilter = elements.filterChanges.value;
 
         filteredDeals = allDeals.filter(deal => {
             // Search across all fields
@@ -655,6 +767,11 @@
 
             // Urgency filter
             if (urgencyFilter && deal.urgency !== urgencyFilter) {
+                return false;
+            }
+
+            // Changes filter
+            if (changesFilter && deal.changeType !== changesFilter) {
                 return false;
             }
 
@@ -756,6 +873,13 @@
             return;
         }
 
+        // Diff against previous data if it exists
+        if (allDeals.length > 0) {
+            changesSummary = diffDeals(allDeals, processed);
+        } else {
+            changesSummary = null;
+        }
+
         // Store and display
         allDeals = processed;
         filteredDeals = [...allDeals];
@@ -767,6 +891,7 @@
         renderTable(filteredDeals);
         updateSortIndicators();
         updateRowCount();
+        renderChangesSummary();
         showDashboard();
     }
 
@@ -809,10 +934,17 @@
         elements.filterOwner.addEventListener('change', applyFilters);
         elements.filterStage.addEventListener('change', applyFilters);
         elements.filterUrgency.addEventListener('change', applyFilters);
+        elements.filterChanges.addEventListener('change', applyFilters);
 
         // Sorting
         document.querySelectorAll('th[data-sort]').forEach(th => {
             th.addEventListener('click', () => handleSort(th.dataset.sort));
+        });
+
+        // Upload new CSV (for diff comparison)
+        elements.uploadNewBtn.addEventListener('click', () => {
+            elements.fileInput.value = '';
+            elements.fileInput.click();
         });
 
         // Export CSV
@@ -824,7 +956,11 @@
                 clearStorage();
                 allDeals = [];
                 filteredDeals = [];
+                changesSummary = null;
                 elements.tbody.innerHTML = '';
+                elements.changesSummaryEl.classList.add('hidden');
+                elements.filterChangesGroup.classList.add('hidden');
+                elements.filterChanges.value = '';
                 showUploadZone();
             }
         });

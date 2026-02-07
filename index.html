@@ -91,6 +91,16 @@
                         <option value="critical">Critical (60+ days)</option>
                     </select>
                 </div>
+                <div class="filter-group filter-group--changes hidden" id="filter-changes-group">
+                    <label for="filter-changes">Changes</label>
+                    <select id="filter-changes">
+                        <option value="">All</option>
+                        <option value="new">New</option>
+                        <option value="updated">Updated</option>
+                        <option value="unchanged">Unchanged</option>
+                    </select>
+                </div>
+                <button id="upload-new-btn" class="upload-new-btn" title="Upload a new CSV to compare changes">Upload New CSV</button>
                 <button id="export-csv-btn" class="export-btn" title="Export filtered data to CSV">Export CSV</button>
                 <button id="clear-data-btn" class="clear-btn" title="Clear all data">Clear Data</button>
             </div>
@@ -98,6 +108,9 @@
 
         <!-- Row Count -->
         <div id="row-count" class="row-count hidden"></div>
+
+        <!-- Changes Summary Banner -->
+        <div id="changes-summary" class="changes-summary hidden"></div>
 
         <!-- Data Table -->
         <section id="table-section" class="table-section hidden">
