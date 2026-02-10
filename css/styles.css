@@ -629,6 +629,65 @@ tbody tr:last-child td {
     color: var(--color-text-muted);
 }
 
+/* Reupload Drop Zone */
+.reupload-zone {
+    margin-bottom: 1rem;
+}
+
+.reupload-zone__dropzone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-card);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reupload-zone__dropzone:hover,
+.reupload-zone__dropzone.drag-over {
+    border-color: var(--color-primary);
+    background: #eff6ff;
+}
+
+.reupload-zone__dropzone.drag-over {
+    transform: scale(1.005);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.reupload-zone__icon {
+    width: 32px;
+    height: 32px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.reupload-zone__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.reupload-zone__title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text);
+}
+
+.reupload-zone__subtitle {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.upload-btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    flex-shrink: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     main {

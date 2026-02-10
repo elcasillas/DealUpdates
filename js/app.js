@@ -46,7 +46,6 @@
         filterChanges: document.getElementById('filter-changes'),
         filterChangesGroup: document.getElementById('filter-changes-group'),
         changesSummaryEl: document.getElementById('changes-summary'),
-        uploadNewBtn: document.getElementById('upload-new-btn'),
         exportBtn: document.getElementById('export-csv-btn'),
         clearBtn: document.getElementById('clear-data-btn'),
         rowCount: document.getElementById('row-count'),
@@ -55,7 +54,10 @@
         statAvgDays: document.getElementById('stat-avg-days'),
         statStale: document.getElementById('stat-stale'),
         statOverdue: document.getElementById('stat-overdue'),
-        ownerCards: document.getElementById('owner-cards')
+        ownerCards: document.getElementById('owner-cards'),
+        reuploadZone: document.getElementById('reupload-zone'),
+        reuploadDropzone: document.getElementById('reupload-dropzone'),
+        reuploadFileInput: document.getElementById('reupload-file-input')
     };
 
     // ==================== CSV Parsing ====================
@@ -720,6 +722,7 @@
         elements.uploadZone.classList.add('hidden');
         elements.statsSection.classList.remove('hidden');
         elements.filtersSection.classList.remove('hidden');
+        elements.reuploadZone.classList.remove('hidden');
         elements.rowCount.classList.remove('hidden');
         elements.tableSection.classList.remove('hidden');
     }
@@ -728,6 +731,7 @@
         elements.uploadZone.classList.remove('hidden');
         elements.statsSection.classList.add('hidden');
         elements.filtersSection.classList.add('hidden');
+        elements.reuploadZone.classList.add('hidden');
         elements.rowCount.classList.add('hidden');
         elements.tableSection.classList.add('hidden');
     }
@@ -941,10 +945,37 @@
             th.addEventListener('click', () => handleSort(th.dataset.sort));
         });
 
-        // Upload new CSV (for diff comparison)
-        elements.uploadNewBtn.addEventListener('click', () => {
-            elements.fileInput.value = '';
-            elements.fileInput.click();
+        // Reupload drop zone - file input
+        elements.reuploadFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+                e.target.value = '';
+            }
+        });
+
+        // Reupload drop zone - drag & drop
+        elements.reuploadDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.reuploadDropzone.classList.add('drag-over');
+        });
+
+        elements.reuploadDropzone.addEventListener('dragleave', () => {
+            elements.reuploadDropzone.classList.remove('drag-over');
+        });
+
+        elements.reuploadDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.reuploadDropzone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Click drop zone to open file picker
+        elements.reuploadDropzone.addEventListener('click', (e) => {
+            if (!e.target.closest('.upload-btn')) {
+                elements.reuploadFileInput.click();
+            }
         });
 
         // Export CSV
@@ -961,6 +992,7 @@
                 elements.changesSummaryEl.classList.add('hidden');
                 elements.filterChangesGroup.classList.add('hidden');
                 elements.filterChanges.value = '';
+                elements.reuploadZone.classList.add('hidden');
                 showUploadZone();
             }
         });

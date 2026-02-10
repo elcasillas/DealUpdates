@@ -100,9 +100,27 @@
                         <option value="unchanged">Unchanged</option>
                     </select>
                 </div>
-                <button id="upload-new-btn" class="upload-new-btn" title="Upload a new CSV to compare changes">Upload New CSV</button>
                 <button id="export-csv-btn" class="export-btn" title="Export filtered data to CSV">Export CSV</button>
                 <button id="clear-data-btn" class="clear-btn" title="Clear all data">Clear Data</button>
+            </div>
+        </section>
+
+        <!-- Inline Drop Zone for new CSV -->
+        <section id="reupload-zone" class="reupload-zone hidden">
+            <div class="reupload-zone__dropzone" id="reupload-dropzone">
+                <svg class="reupload-zone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <div class="reupload-zone__text">
+                    <span class="reupload-zone__title">Upload New CSV</span>
+                    <span class="reupload-zone__subtitle">Drag & drop here or click to browse &mdash; changes will be compared against current data</span>
+                </div>
+                <label class="upload-btn upload-btn--sm">
+                    Choose File
+                    <input type="file" id="reupload-file-input" accept=".csv" hidden>
+                </label>
             </div>
         </section>
 
