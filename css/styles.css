@@ -568,7 +568,6 @@ tbody tr:last-child td {
 /* Notes Cell */
 .note-cell {
     max-width: 250px;
-    position: relative;
 }
 
 .note-preview {
@@ -576,39 +575,113 @@ tbody tr:last-child td {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    cursor: pointer;
     color: var(--color-text-muted);
     font-size: 0.8125rem;
 }
 
-.note-preview:hover {
+/* Deal Detail Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+}
+
+.modal {
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.modal__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal__close:hover {
+    background: var(--color-bg);
     color: var(--color-text);
 }
 
-.note-tooltip {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 400px;
-    max-width: 90vw;
-    max-height: 400px;
-    overflow-y: auto;
-    background: var(--color-text);
-    color: white;
-    padding: 1rem;
-    border-radius: var(--radius);
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    box-shadow: var(--shadow-md);
-    z-index: 100;
-    display: none;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-top: 0.25rem;
+.modal__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    padding: 1.5rem 2.5rem 1rem 1.5rem;
 }
 
-.note-cell:hover .note-tooltip {
-    display: block;
+.modal__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
+    padding: 0 1.5rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.modal__meta-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modal__meta-value {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.modal__notes-section {
+    padding: 1.25rem 1.5rem 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal__notes-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.modal__notes-content {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* ACV Cell */

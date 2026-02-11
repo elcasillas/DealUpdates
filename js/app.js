@@ -828,6 +828,7 @@
 
         for (const deal of deals) {
             const row = document.createElement('tr');
+            row.style.cursor = 'pointer';
             if (deal.changeType === 'new' || deal.changeType === 'updated') {
                 row.classList.add(`change--${deal.changeType}`);
             }
@@ -850,11 +851,30 @@
                 </td>
                 <td class="note-cell">
                     <div class="note-preview">${escapeHTML(deal.noteContent) || '-'}</div>
-                    ${deal.noteContent ? `<div class="note-tooltip">${escapeHTML(deal.noteContent)}</div>` : ''}
                 </td>
             `;
+            row.addEventListener('click', () => openDealModal(deal));
             elements.tbody.appendChild(row);
         }
+    }
+
+    // ==================== Deal Detail Modal ====================
+    function openDealModal(deal) {
+        document.getElementById('modal-deal-name').textContent = deal.dealName || '-';
+        document.getElementById('modal-deal-owner').textContent = deal.dealOwner || '-';
+        document.getElementById('modal-stage').textContent = deal.stage || '-';
+        document.getElementById('modal-acv').textContent = deal.acvFormatted || '-';
+        document.getElementById('modal-closing-date').innerHTML = formatDate(deal.closingDate) +
+            (deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' :
+             deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : '');
+        document.getElementById('modal-days-since').innerHTML =
+            `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
+        document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
+        document.getElementById('deal-modal').classList.remove('hidden');
+    }
+
+    function closeDealModal() {
+        document.getElementById('deal-modal').classList.add('hidden');
     }
 
     function escapeHTML(str) {
@@ -1277,6 +1297,15 @@
 
         // Export CSV
         elements.exportBtn.addEventListener('click', exportToCSV);
+
+        // Deal detail modal
+        document.getElementById('modal-close').addEventListener('click', closeDealModal);
+        document.getElementById('deal-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeDealModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDealModal();
+        });
     }
 
     // ==================== Initialization ====================

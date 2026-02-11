@@ -173,6 +173,40 @@
         </section>
     </main>
 
+    <!-- Deal Detail Modal -->
+    <div id="deal-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <button class="modal__close" id="modal-close">&times;</button>
+            <h2 class="modal__title" id="modal-deal-name"></h2>
+            <div class="modal__meta">
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">Deal Owner</span>
+                    <span class="modal__meta-value" id="modal-deal-owner"></span>
+                </div>
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">Stage</span>
+                    <span class="modal__meta-value" id="modal-stage"></span>
+                </div>
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">ACV (CAD)</span>
+                    <span class="modal__meta-value" id="modal-acv"></span>
+                </div>
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">Closing Date</span>
+                    <span class="modal__meta-value" id="modal-closing-date"></span>
+                </div>
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">Days Since Update</span>
+                    <span class="modal__meta-value" id="modal-days-since"></span>
+                </div>
+            </div>
+            <div class="modal__notes-section">
+                <h3 class="modal__notes-label">Notes</h3>
+                <div class="modal__notes-content" id="modal-notes"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay hidden">
         <div class="loading-spinner"></div>
