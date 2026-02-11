@@ -70,7 +70,7 @@
         if (!supabaseClient) return [];
         const { data, error } = await supabaseClient
             .from('deals')
-            .select('id, upload_id, deal_owner, deal_name, stage, acv, closing_date, modified_date, note_content, description')
+            .select('*')
             .eq('upload_id', uploadId);
         if (error) {
             console.error('Error fetching deals:', error);
@@ -110,7 +110,8 @@
             closing_date: deal.closingDate ? deal.closingDate.toISOString().slice(0, 10) : null,
             modified_date: deal.modifiedDate ? deal.modifiedDate.toISOString().slice(0, 10) : null,
             note_content: deal.noteContent,
-            description: deal.description
+            description: deal.description,
+            notes_summary: deal.notesSummary
         }));
 
         for (let i = 0; i < rows.length; i += BATCH_SIZE) {
@@ -460,10 +461,19 @@
 
     function deduplicateDeals(deals) {
         const dealMap = new Map();
+        const notesMap = new Map();
 
         for (const deal of deals) {
             const key = deal.dealName.toLowerCase().trim();
             const existing = dealMap.get(key);
+
+            // Collect all notes for this deal
+            if (!notesMap.has(key)) {
+                notesMap.set(key, []);
+            }
+            if (deal.noteContent && deal.noteContent.trim()) {
+                notesMap.get(key).push(deal.noteContent.trim());
+            }
 
             if (!existing) {
                 dealMap.set(key, deal);
@@ -479,7 +489,37 @@
             }
         }
 
-        return Array.from(dealMap.values());
+        // Generate notes summary for each deal
+        const result = Array.from(dealMap.values());
+        for (const deal of result) {
+            const key = deal.dealName.toLowerCase().trim();
+            const allNotes = notesMap.get(key) || [];
+            deal.notesSummary = generateNotesSummary(allNotes);
+        }
+
+        return result;
+    }
+
+    function generateNotesSummary(notes) {
+        // Deduplicate notes
+        const unique = [...new Set(notes)];
+        if (unique.length === 0) return '';
+
+        // Extract first sentence from each unique note
+        const sentences = unique.map(note => {
+            const match = note.match(/^(.+?[.!?])\s/);
+            if (match && match[1].length <= 150) {
+                return match[1];
+            }
+            return note.length > 150 ? note.slice(0, 147) + '...' : note;
+        });
+
+        // Join and cap at 500 characters
+        let summary = sentences.join(' | ');
+        if (summary.length > 500) {
+            summary = summary.slice(0, 497) + '...';
+        }
+        return summary;
     }
 
     // ==================== Diff ====================
@@ -648,7 +688,8 @@
             daysUntilClosing,
             closingStatus: getClosingStatus(daysUntilClosing),
             noteContent: row.note_content || '',
-            description: row.description || ''
+            description: row.description || '',
+            notesSummary: row.notes_summary || ''
         };
     }
 
@@ -875,6 +916,7 @@
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
+        document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
         document.getElementById('deal-modal').classList.remove('hidden');
     }
 
