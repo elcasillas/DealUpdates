@@ -31,17 +31,23 @@
 
     function initSupabase() {
         try {
-            if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined'
-                && SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co'
-                && SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE') {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                isOnline = true;
-                console.log('Supabase connected.');
-            } else {
-                console.warn('Supabase not configured. Running in offline/localStorage mode.');
+            if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
+                console.warn('Supabase config not loaded. Running in offline/localStorage mode.');
+                return;
             }
+            if (SUPABASE_URL === 'https://YOUR_PROJECT.supabase.co' || SUPABASE_ANON_KEY === 'YOUR_ANON_KEY_HERE') {
+                console.warn('Supabase not configured (still has placeholder values). Running in offline/localStorage mode.');
+                return;
+            }
+            if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
+                console.error('Supabase JS library not loaded. Check CDN script tag.');
+                return;
+            }
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            isOnline = true;
+            console.log('Supabase connected to:', SUPABASE_URL);
         } catch (e) {
-            console.warn('Supabase initialization failed. Running in offline mode.', e);
+            console.error('Supabase initialization failed:', e);
         }
     }
 
@@ -74,13 +80,15 @@
 
     async function insertUpload(generatedDate, filename, dealCount) {
         if (!supabaseClient) return null;
+        const payload = {
+            generated_date: generatedDate,
+            filename: filename,
+            deal_count: dealCount
+        };
+        console.log('insertUpload payload:', JSON.stringify(payload));
         const { data, error } = await supabaseClient
             .from('uploads')
-            .insert({
-                generated_date: generatedDate,
-                filename: filename,
-                deal_count: dealCount
-            })
+            .insert(payload)
             .select()
             .single();
         if (error) {
@@ -1131,21 +1139,25 @@
 
             // Upload to Supabase if online
             if (isOnline) {
+                console.log('Supabase is online. Inserting upload record...');
                 const upload = await insertUpload(uploadDate, filename || 'unknown.csv', processed.length);
                 if (upload) {
+                    console.log('Upload record created:', upload.id, '- Inserting', processed.length, 'deals...');
                     const success = await insertDealsBatch(upload.id, processed);
                     if (success) {
-                        console.log('Uploaded to Supabase:', upload.id);
+                        console.log('Successfully uploaded', processed.length, 'deals to Supabase.');
                         // Refresh date picker and auto-select this upload
                         await populateDatePicker();
                         elements.dateSelectPrimary.value = upload.id;
                         elements.dateSelectCompare.value = '';
                     } else {
-                        console.error('Failed to insert deals batch.');
+                        alert('Error: Failed to insert deals into Supabase. Check browser console (F12) for details.');
                     }
                 } else {
-                    console.error('Failed to create upload record.');
+                    alert('Error: Failed to create upload record in Supabase. Check browser console (F12) for details.');
                 }
+            } else {
+                console.warn('Supabase offline - data saved to localStorage only.');
             }
 
             // Diff against previous data if loaded
