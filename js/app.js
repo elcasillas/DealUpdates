@@ -12,6 +12,7 @@
         stale: 60
     };
     const CLOSING_SOON_DAYS = 14;
+    const BATCH_SIZE = 500;
 
     // Column mappings for CSV parsing
     const COLUMN_MAPPINGS = {
@@ -23,6 +24,95 @@
         'Modified Time (Notes)': 'modifiedDate',
         'Note Content': 'noteContent'
     };
+
+    // ==================== Supabase Client ====================
+    let supabaseClient = null;
+    let isOnline = false;
+
+    function initSupabase() {
+        try {
+            if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined'
+                && SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co'
+                && SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE') {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                isOnline = true;
+                console.log('Supabase connected.');
+            } else {
+                console.warn('Supabase not configured. Running in offline/localStorage mode.');
+            }
+        } catch (e) {
+            console.warn('Supabase initialization failed. Running in offline mode.', e);
+        }
+    }
+
+    // ==================== Supabase CRUD ====================
+    async function fetchUploadDates() {
+        if (!supabaseClient) return [];
+        const { data, error } = await supabaseClient
+            .from('uploads')
+            .select('id, generated_date, deal_count, uploaded_at, filename')
+            .order('generated_date', { ascending: false });
+        if (error) {
+            console.error('Error fetching uploads:', error);
+            return [];
+        }
+        return data || [];
+    }
+
+    async function fetchDealsByUploadId(uploadId) {
+        if (!supabaseClient) return [];
+        const { data, error } = await supabaseClient
+            .from('deals')
+            .select('*')
+            .eq('upload_id', uploadId);
+        if (error) {
+            console.error('Error fetching deals:', error);
+            return [];
+        }
+        return data || [];
+    }
+
+    async function insertUpload(generatedDate, filename, dealCount) {
+        if (!supabaseClient) return null;
+        const { data, error } = await supabaseClient
+            .from('uploads')
+            .insert({
+                generated_date: generatedDate,
+                filename: filename,
+                deal_count: dealCount
+            })
+            .select()
+            .single();
+        if (error) {
+            console.error('Error inserting upload:', error);
+            return null;
+        }
+        return data;
+    }
+
+    async function insertDealsBatch(uploadId, deals) {
+        if (!supabaseClient) return false;
+        const rows = deals.map(deal => ({
+            upload_id: uploadId,
+            deal_owner: deal.dealOwner,
+            deal_name: deal.dealName,
+            stage: deal.stage,
+            acv: deal.acv || 0,
+            closing_date: deal.closingDate ? deal.closingDate.toISOString().slice(0, 10) : null,
+            modified_date: deal.modifiedDate ? deal.modifiedDate.toISOString().slice(0, 10) : null,
+            note_content: deal.noteContent
+        }));
+
+        for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+            const batch = rows.slice(i, i + BATCH_SIZE);
+            const { error } = await supabaseClient.from('deals').insert(batch);
+            if (error) {
+                console.error('Error inserting deals batch:', error);
+                return false;
+            }
+        }
+        return true;
+    }
 
     // ==================== State ====================
     let allDeals = [];
@@ -47,7 +137,6 @@
         filterChangesGroup: document.getElementById('filter-changes-group'),
         changesSummaryEl: document.getElementById('changes-summary'),
         exportBtn: document.getElementById('export-csv-btn'),
-        clearBtn: document.getElementById('clear-data-btn'),
         rowCount: document.getElementById('row-count'),
         statTotal: document.getElementById('stat-total'),
         statAcv: document.getElementById('stat-acv'),
@@ -57,8 +146,21 @@
         ownerCards: document.getElementById('owner-cards'),
         reuploadZone: document.getElementById('reupload-zone'),
         reuploadDropzone: document.getElementById('reupload-dropzone'),
-        reuploadFileInput: document.getElementById('reupload-file-input')
+        reuploadFileInput: document.getElementById('reupload-file-input'),
+        datePickerSection: document.getElementById('date-picker-section'),
+        dateSelectPrimary: document.getElementById('date-select-primary'),
+        dateSelectCompare: document.getElementById('date-select-compare'),
+        loadingOverlay: document.getElementById('loading-overlay')
     };
+
+    // ==================== Loading State ====================
+    function showLoading() {
+        elements.loadingOverlay.classList.remove('hidden');
+    }
+
+    function hideLoading() {
+        elements.loadingOverlay.classList.add('hidden');
+    }
 
     // ==================== CSV Parsing ====================
     function parseCSV(text) {
@@ -77,12 +179,43 @@
             throw new Error('No data found in CSV file.');
         }
 
-        // Find header row by looking for "Deal Owner" and "Deal Name"
+        // Find header row and extract "Generated by" date
         let headerRowIndex = -1;
         let headers = [];
+        let generatedDate = null;
 
         for (let i = 0; i < Math.min(allRows.length, 20); i++) {
             const row = allRows[i];
+
+            // Check for "Generated by" row before finding header
+            if (headerRowIndex === -1) {
+                const joinedRow = row.join(' ').trim();
+                if (/generated\s+by/i.test(joinedRow)) {
+                    // Try to extract a date from this row
+                    // Match patterns: 2/10/2026, 2026-02-10, Feb 10 2026, February 10, 2026, etc.
+                    const datePatterns = [
+                        /(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/,
+                        /(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/,
+                        /(\w+\s+\d{1,2},?\s+\d{4})/,
+                        /(\d{1,2}\s+\w+\s+\d{4})/
+                    ];
+                    for (const pattern of datePatterns) {
+                        const match = joinedRow.match(pattern);
+                        if (match) {
+                            const parsed = new Date(match[1]);
+                            if (!isNaN(parsed.getTime())) {
+                                generatedDate = parsed;
+                                console.log('Extracted "Generated by" date:', generatedDate);
+                                break;
+                            }
+                        }
+                    }
+                    if (!generatedDate) {
+                        console.warn('Found "Generated by" row but could not parse date:', joinedRow);
+                    }
+                }
+            }
+
             if (row.includes('Deal Owner') && row.includes('Deal Name')) {
                 headerRowIndex = i;
                 headers = row;
@@ -120,7 +253,7 @@
         }
 
         console.log('Total data rows:', rows.length);
-        return rows;
+        return { rows, generatedDate };
     }
 
     // Parse entire CSV text, properly handling multiline quoted fields
@@ -399,7 +532,7 @@
         };
     }
 
-    // ==================== Storage ====================
+    // ==================== Storage (offline fallback) ====================
     function saveToStorage(deals) {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(deals));
@@ -436,8 +569,109 @@
         return null;
     }
 
-    function clearStorage() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ==================== Supabase Date Picker ====================
+    async function populateDatePicker() {
+        const uploads = await fetchUploadDates();
+        const primarySelect = elements.dateSelectPrimary;
+        const compareSelect = elements.dateSelectCompare;
+
+        primarySelect.innerHTML = '<option value="">Select a date...</option>';
+        compareSelect.innerHTML = '<option value="">None (no comparison)</option>';
+
+        for (const upload of uploads) {
+            const label = formatUploadLabel(upload);
+
+            const opt1 = document.createElement('option');
+            opt1.value = upload.id;
+            opt1.textContent = label;
+            primarySelect.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = upload.id;
+            opt2.textContent = label;
+            compareSelect.appendChild(opt2);
+        }
+    }
+
+    function formatUploadLabel(upload) {
+        const date = new Date(upload.generated_date + 'T00:00:00');
+        const formatted = date.toLocaleDateString('en-CA', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+        const uploadTime = new Date(upload.uploaded_at).toLocaleTimeString('en-CA', {
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+        return `${formatted} (${upload.deal_count} deals) - uploaded ${uploadTime}`;
+    }
+
+    function supabaseRowToInternal(row) {
+        const closingDate = row.closing_date ? new Date(row.closing_date + 'T00:00:00') : null;
+        const modifiedDate = row.modified_date ? new Date(row.modified_date + 'T00:00:00') : null;
+        const daysSince = calculateDaysSince(modifiedDate);
+        const daysUntilClosing = calculateDaysUntilClosing(closingDate);
+        return {
+            dealOwner: row.deal_owner,
+            dealName: row.deal_name,
+            stage: row.stage,
+            acv: parseFloat(row.acv) || 0,
+            acvFormatted: formatCurrency(parseFloat(row.acv) || 0),
+            closingDate,
+            modifiedDate,
+            daysSince,
+            urgency: getUrgencyLevel(daysSince),
+            daysUntilClosing,
+            closingStatus: getClosingStatus(daysUntilClosing),
+            noteContent: row.note_content || ''
+        };
+    }
+
+    async function loadUploadById(uploadId) {
+        const rawDeals = await fetchDealsByUploadId(uploadId);
+        return rawDeals.map(supabaseRowToInternal);
+    }
+
+    async function handleDateSelection() {
+        const primaryId = elements.dateSelectPrimary.value;
+        const compareId = elements.dateSelectCompare.value;
+
+        if (!primaryId) return;
+
+        showLoading();
+        try {
+            const primaryDeals = await loadUploadById(primaryId);
+
+            if (compareId) {
+                const compareDeals = await loadUploadById(compareId);
+                // Compare: "compare" is the baseline, "primary" is the newer
+                changesSummary = diffDeals(compareDeals, primaryDeals);
+            } else {
+                changesSummary = null;
+                for (const deal of primaryDeals) {
+                    deal.changeType = null;
+                    deal.changes = [];
+                }
+            }
+
+            allDeals = primaryDeals;
+            filteredDeals = [...allDeals];
+            saveToStorage(allDeals);
+            populateFilterDropdowns(allDeals);
+            renderStats(allDeals);
+            applySorting();
+            renderTable(filteredDeals);
+            updateSortIndicators();
+            updateRowCount();
+            renderChangesSummary();
+            showDashboard();
+        } catch (e) {
+            console.error('Error loading upload:', e);
+            alert('Error loading data from Supabase.');
+        } finally {
+            hideLoading();
+        }
     }
 
     // ==================== UI Rendering ====================
@@ -721,6 +955,9 @@
     function showDashboard() {
         elements.uploadZone.classList.add('hidden');
         elements.statsSection.classList.remove('hidden');
+        if (isOnline) {
+            elements.datePickerSection.classList.remove('hidden');
+        }
         elements.filtersSection.classList.remove('hidden');
         elements.reuploadZone.classList.remove('hidden');
         elements.rowCount.classList.remove('hidden');
@@ -730,6 +967,7 @@
     function showUploadZone() {
         elements.uploadZone.classList.remove('hidden');
         elements.statsSection.classList.add('hidden');
+        elements.datePickerSection.classList.add('hidden');
         elements.filtersSection.classList.add('hidden');
         elements.reuploadZone.classList.add('hidden');
         elements.rowCount.classList.add('hidden');
@@ -845,58 +1083,87 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            try {
-                processCSVData(e.target.result);
-            } catch (error) {
-                alert('Error processing CSV: ' + error.message);
-                console.error(error);
-            }
+            processCSVData(e.target.result, file.name);
         };
         reader.readAsText(file);
     }
 
-    function processCSVData(csvText) {
-        // Parse CSV
-        const rawRows = parseCSV(csvText);
-        console.log(`Parsed ${rawRows.length} rows from CSV`);
+    async function processCSVData(csvText, filename) {
+        showLoading();
+        try {
+            // Parse CSV -- now returns { rows, generatedDate }
+            const { rows: rawRows, generatedDate } = parseCSV(csvText);
+            console.log(`Parsed ${rawRows.length} rows from CSV`);
 
-        // Process rows
-        let processed = rawRows
-            .map(processRow)
-            .filter(deal => deal !== null)
-            .filter(validateRow);
+            // Determine upload date
+            const uploadDate = generatedDate
+                ? generatedDate.toISOString().slice(0, 10)
+                : new Date().toISOString().slice(0, 10);
 
-        console.log(`After processing and validation: ${processed.length} deals`);
+            console.log('Upload date:', uploadDate);
 
-        // Deduplicate
-        processed = deduplicateDeals(processed);
-        console.log(`After deduplication: ${processed.length} deals`);
+            // Process rows
+            let processed = rawRows
+                .map(processRow)
+                .filter(deal => deal !== null)
+                .filter(validateRow);
 
-        if (processed.length === 0) {
-            alert('No valid CAD deals found in the CSV file.');
-            return;
+            console.log(`After processing and validation: ${processed.length} deals`);
+
+            // Deduplicate
+            processed = deduplicateDeals(processed);
+            console.log(`After deduplication: ${processed.length} deals`);
+
+            if (processed.length === 0) {
+                alert('No valid CAD deals found in the CSV file.');
+                return;
+            }
+
+            // Upload to Supabase if online
+            if (isOnline) {
+                const upload = await insertUpload(uploadDate, filename || 'unknown.csv', processed.length);
+                if (upload) {
+                    const success = await insertDealsBatch(upload.id, processed);
+                    if (success) {
+                        console.log('Uploaded to Supabase:', upload.id);
+                        // Refresh date picker and auto-select this upload
+                        await populateDatePicker();
+                        elements.dateSelectPrimary.value = upload.id;
+                        elements.dateSelectCompare.value = '';
+                    } else {
+                        console.error('Failed to insert deals batch.');
+                    }
+                } else {
+                    console.error('Failed to create upload record.');
+                }
+            }
+
+            // Diff against previous data if loaded
+            if (allDeals.length > 0) {
+                changesSummary = diffDeals(allDeals, processed);
+            } else {
+                changesSummary = null;
+            }
+
+            // Store and display
+            allDeals = processed;
+            filteredDeals = [...allDeals];
+
+            saveToStorage(allDeals);
+            populateFilterDropdowns(allDeals);
+            renderStats(allDeals);
+            applySorting();
+            renderTable(filteredDeals);
+            updateSortIndicators();
+            updateRowCount();
+            renderChangesSummary();
+            showDashboard();
+        } catch (error) {
+            alert('Error processing CSV: ' + error.message);
+            console.error(error);
+        } finally {
+            hideLoading();
         }
-
-        // Diff against previous data if it exists
-        if (allDeals.length > 0) {
-            changesSummary = diffDeals(allDeals, processed);
-        } else {
-            changesSummary = null;
-        }
-
-        // Store and display
-        allDeals = processed;
-        filteredDeals = [...allDeals];
-
-        saveToStorage(allDeals);
-        populateFilterDropdowns(allDeals);
-        renderStats(allDeals);
-        applySorting();
-        renderTable(filteredDeals);
-        updateSortIndicators();
-        updateRowCount();
-        renderChangesSummary();
-        showDashboard();
     }
 
     // ==================== Event Listeners ====================
@@ -978,31 +1245,49 @@
             }
         });
 
-        // Export CSV
-        elements.exportBtn.addEventListener('click', exportToCSV);
-
-        // Clear data
-        elements.clearBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all data?')) {
-                clearStorage();
-                allDeals = [];
-                filteredDeals = [];
-                changesSummary = null;
-                elements.tbody.innerHTML = '';
-                elements.changesSummaryEl.classList.add('hidden');
-                elements.filterChangesGroup.classList.add('hidden');
-                elements.filterChanges.value = '';
-                elements.reuploadZone.classList.add('hidden');
-                showUploadZone();
+        // Date picker
+        elements.dateSelectPrimary.addEventListener('change', handleDateSelection);
+        elements.dateSelectCompare.addEventListener('change', () => {
+            if (elements.dateSelectPrimary.value) {
+                handleDateSelection();
             }
         });
+
+        // Export CSV
+        elements.exportBtn.addEventListener('click', exportToCSV);
     }
 
     // ==================== Initialization ====================
-    function init() {
+    async function init() {
         setupEventListeners();
+        initSupabase();
 
-        // Check for saved data
+        if (isOnline) {
+            try {
+                showLoading();
+                await populateDatePicker();
+
+                // Auto-select the most recent upload
+                const primarySelect = elements.dateSelectPrimary;
+                if (primarySelect.options.length > 1) {
+                    primarySelect.selectedIndex = 1;
+                    await handleDateSelection();
+                } else {
+                    // No uploads yet - show upload zone
+                    hideLoading();
+                }
+            } catch (e) {
+                console.error('Failed to connect to Supabase, falling back to localStorage:', e);
+                isOnline = false;
+                hideLoading();
+                loadFromLocalStorageFallback();
+            }
+        } else {
+            loadFromLocalStorageFallback();
+        }
+    }
+
+    function loadFromLocalStorageFallback() {
         const savedDeals = loadFromStorage();
         if (savedDeals && savedDeals.length > 0) {
             allDeals = savedDeals;

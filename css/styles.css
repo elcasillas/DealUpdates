@@ -629,6 +629,84 @@ tbody tr:last-child td {
     color: var(--color-text-muted);
 }
 
+/* Date Picker Section */
+.date-picker-section {
+    margin-bottom: 1rem;
+}
+
+.date-picker-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius);
+    padding: 1rem;
+    align-items: flex-end;
+}
+
+.date-picker-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 200px;
+}
+
+.date-picker-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.date-picker-group select {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    color: var(--color-text);
+    transition: border-color 0.2s;
+}
+
+.date-picker-group select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Reupload Drop Zone */
 .reupload-zone {
     margin-bottom: 1rem;

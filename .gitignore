@@ -16,6 +16,10 @@ Desktop.ini
 .vscode/
 .idea/
 
+# Supabase config (contains project URL and anon key)
+js/supabase-config.js
+DealUpdates/js/supabase-config.js
+
 # Temp files
 *.tmp
 *.bak
