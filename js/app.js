@@ -22,7 +22,8 @@
         'Annual Contract Value': 'acv',
         'Closing Date': 'closingDate',
         'Modified Time (Notes)': 'modifiedDate',
-        'Note Content': 'noteContent'
+        'Note Content': 'noteContent',
+        'Description': 'description'
     };
 
     // ==================== Supabase Client ====================
@@ -69,7 +70,7 @@
         if (!supabaseClient) return [];
         const { data, error } = await supabaseClient
             .from('deals')
-            .select('*')
+            .select('id, upload_id, deal_owner, deal_name, stage, acv, closing_date, modified_date, note_content, description')
             .eq('upload_id', uploadId);
         if (error) {
             console.error('Error fetching deals:', error);
@@ -108,7 +109,8 @@
             acv: deal.acv || 0,
             closing_date: deal.closingDate ? deal.closingDate.toISOString().slice(0, 10) : null,
             modified_date: deal.modifiedDate ? deal.modifiedDate.toISOString().slice(0, 10) : null,
-            note_content: deal.noteContent
+            note_content: deal.noteContent,
+            description: deal.description
         }));
 
         for (let i = 0; i < rows.length; i += BATCH_SIZE) {
@@ -645,7 +647,8 @@
             urgency: getUrgencyLevel(daysSince),
             daysUntilClosing,
             closingStatus: getClosingStatus(daysUntilClosing),
-            noteContent: row.note_content || ''
+            noteContent: row.note_content || '',
+            description: row.description || ''
         };
     }
 
@@ -870,6 +873,7 @@
              deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : '');
         document.getElementById('modal-days-since').innerHTML =
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
+        document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
         document.getElementById('deal-modal').classList.remove('hidden');
     }
