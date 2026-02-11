@@ -303,6 +303,24 @@ main {
     background: #dbeafe;
 }
 
+.reset-btn {
+    padding: 0.625rem 1rem;
+    background: #f1f5f9;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.reset-btn:hover {
+    background: #e2e8f0;
+    color: var(--color-text);
+}
+
 .export-btn {
     padding: 0.625rem 1rem;
     background: #dcfce7;

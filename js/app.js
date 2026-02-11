@@ -144,6 +144,7 @@
         filterChanges: document.getElementById('filter-changes'),
         filterChangesGroup: document.getElementById('filter-changes-group'),
         changesSummaryEl: document.getElementById('changes-summary'),
+        resetFiltersBtn: document.getElementById('reset-filters-btn'),
         exportBtn: document.getElementById('export-csv-btn'),
         rowCount: document.getElementById('row-count'),
         statTotal: document.getElementById('stat-total'),
@@ -1013,6 +1014,15 @@
     }
 
     // ==================== Filtering & Sorting ====================
+    function resetFilters() {
+        elements.searchInput.value = '';
+        elements.filterOwner.value = '';
+        elements.filterStage.value = '';
+        elements.filterUrgency.value = '';
+        elements.filterChanges.value = '';
+        applyFilters();
+    }
+
     function applyFilters() {
         const searchTerm = elements.searchInput.value.toLowerCase();
         const ownerFilter = elements.filterOwner.value;
@@ -1294,6 +1304,9 @@
                 handleDateSelection();
             }
         });
+
+        // Reset filters
+        elements.resetFiltersBtn.addEventListener('click', resetFilters);
 
         // Export CSV
         elements.exportBtn.addEventListener('click', exportToCSV);
