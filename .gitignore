@@ -1,6 +1,3 @@
-# Nested repos
-DealNotes/
-
 # CSV data files
 *.csv
 
@@ -18,7 +15,6 @@ Desktop.ini
 
 # Supabase config (contains project URL and anon key)
 js/supabase-config.js
-DealUpdates/js/supabase-config.js
 
 # Temp files
 *.tmp

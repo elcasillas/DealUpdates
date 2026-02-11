@@ -571,9 +571,21 @@
 
     // ==================== Supabase Date Picker ====================
     async function populateDatePicker() {
-        const uploads = await fetchUploadDates();
         const primarySelect = elements.dateSelectPrimary;
         const compareSelect = elements.dateSelectCompare;
+
+        if (!isOnline) {
+            primarySelect.innerHTML = '<option value="">Supabase not connected</option>';
+            primarySelect.disabled = true;
+            compareSelect.innerHTML = '<option value="">Supabase not connected</option>';
+            compareSelect.disabled = true;
+            return;
+        }
+
+        primarySelect.disabled = false;
+        compareSelect.disabled = false;
+
+        const uploads = await fetchUploadDates();
 
         primarySelect.innerHTML = '<option value="">Select a date...</option>';
         compareSelect.innerHTML = '<option value="">None (no comparison)</option>';
@@ -955,9 +967,7 @@
     function showDashboard() {
         elements.uploadZone.classList.add('hidden');
         elements.statsSection.classList.remove('hidden');
-        if (isOnline) {
-            elements.datePickerSection.classList.remove('hidden');
-        }
+        elements.datePickerSection.classList.remove('hidden');
         elements.filtersSection.classList.remove('hidden');
         elements.reuploadZone.classList.remove('hidden');
         elements.rowCount.classList.remove('hidden');
@@ -1288,6 +1298,7 @@
     }
 
     function loadFromLocalStorageFallback() {
+        populateDatePicker(); // Shows disabled state when offline
         const savedDeals = loadFromStorage();
         if (savedDeals && savedDeals.length > 0) {
             allDeals = savedDeals;
