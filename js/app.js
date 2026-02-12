@@ -917,7 +917,9 @@
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
-        document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
+        const summaryEl = document.getElementById('modal-notes-summary');
+        const summaryText = deal.notesSummary || 'No summary available.';
+        summaryEl.innerHTML = summaryText.split('|').map(s => s.trim()).join(' <span class="notes-separator">|</span> ');
         document.getElementById('deal-modal').classList.remove('hidden');
     }
 
