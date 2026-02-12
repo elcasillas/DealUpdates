@@ -912,6 +912,7 @@
         document.getElementById('modal-closing-date').innerHTML = formatDate(deal.closingDate) +
             (deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' :
              deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : '');
+        document.getElementById('modal-modified-date').textContent = formatDate(deal.modifiedDate) || '-';
         document.getElementById('modal-days-since').innerHTML =
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
