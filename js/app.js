@@ -58,7 +58,8 @@
         const { data, error } = await supabaseClient
             .from('uploads')
             .select('id, generated_date, deal_count, uploaded_at, filename')
-            .order('generated_date', { ascending: false });
+            .order('generated_date', { ascending: false })
+            .order('uploaded_at', { ascending: false });
         if (error) {
             console.error('Error fetching uploads:', error);
             return [];
@@ -748,6 +749,7 @@
             opt2.textContent = label;
             compareSelect.appendChild(opt2);
         }
+
     }
 
     function formatUploadLabel(upload) {
