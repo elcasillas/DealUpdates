@@ -491,66 +491,61 @@
 
         const result = Array.from(dealMap.values());
 
-        // Build lookup of existing summaries by deal name
-        const oldSummaryMap = new Map();
+        // Build lookup of existing deal data by name
+        const oldDealMap = new Map();
         for (const old of allDeals) {
-            oldSummaryMap.set(old.dealName.toLowerCase().trim(), old.notesSummary || '');
+            oldDealMap.set(old.dealName.toLowerCase().trim(), old);
         }
 
-        // Determine which deals actually have updated notes
+        // Determine which deals need new AI summaries
         const dealsNeedingSummary = [];
         for (const deal of result) {
             const key = deal.dealName.toLowerCase().trim();
-            const newNotes = [...new Set(notesMap.get(key) || [])].sort().join('|');
-            deal._notesHash = newNotes;
-        }
-
-        // Compare against old data to find deals with changed notes
-        // Build old notes hashes from stored noteContent (single note per deal)
-        const oldNotesMap = new Map();
-        for (const old of allDeals) {
-            const key = old.dealName.toLowerCase().trim();
-            const oldNote = (old.noteContent || '').trim();
-            oldNotesMap.set(key, oldNote);
-        }
-
-        for (const deal of result) {
-            const key = deal.dealName.toLowerCase().trim();
-            const oldSummary = oldSummaryMap.get(key);
-            const isNewDeal = !oldSummaryMap.has(key);
-            const notesChanged = !oldNotesMap.has(key) ||
-                deal._notesHash !== [...new Set([(oldNotesMap.get(key) || '')])].filter(Boolean).sort().join('|');
-
+            const oldDeal = oldDealMap.get(key);
+            const oldSummary = oldDeal?.notesSummary || '';
             const isOldFallback = oldSummary && (oldSummary.includes(' | ') || oldSummary.endsWith('...'));
-            if (isNewDeal || notesChanged || !oldSummary || isOldFallback) {
+
+            if (!oldDeal || !oldSummary || isOldFallback) {
+                // New deal, no summary, or old truncated fallback — needs AI
                 dealsNeedingSummary.push(deal);
             } else {
-                // Reuse existing summary
-                deal.notesSummary = oldSummary;
+                // Existing deal with valid AI summary — check if notes changed
+                const newNotes = [...new Set(notesMap.get(key) || [])].sort().join('|');
+                const oldNotes = [...new Set([(oldDeal.noteContent || '').trim()])].filter(Boolean).sort().join('|');
+                if (newNotes !== oldNotes) {
+                    dealsNeedingSummary.push(deal);
+                } else {
+                    deal.notesSummary = oldSummary;
+                }
             }
         }
 
-        // Only call AI for deals with changed notes
+        // Call AI in batches to avoid timeouts
         if (dealsNeedingSummary.length > 0) {
-            console.log(`${dealsNeedingSummary.length} deals have updated notes, ${result.length - dealsNeedingSummary.length} reusing existing summaries.`);
-            const aiSummaries = await generateAISummaries(dealsNeedingSummary, notesMap);
+            console.log(`${dealsNeedingSummary.length} deals need AI summaries, ${result.length - dealsNeedingSummary.length} reusing existing.`);
+            const BATCH_SIZE = 10;
+            const allAiSummaries = {};
+
+            for (let i = 0; i < dealsNeedingSummary.length; i += BATCH_SIZE) {
+                const batch = dealsNeedingSummary.slice(i, i + BATCH_SIZE);
+                console.log(`Processing AI batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(dealsNeedingSummary.length / BATCH_SIZE)}...`);
+                const batchSummaries = await generateAISummaries(batch, notesMap);
+                if (batchSummaries) {
+                    Object.assign(allAiSummaries, batchSummaries);
+                }
+            }
 
             for (const deal of dealsNeedingSummary) {
                 const key = deal.dealName.toLowerCase().trim();
                 const allNotes = notesMap.get(key) || [];
-                if (aiSummaries && aiSummaries[deal.dealName]) {
-                    deal.notesSummary = aiSummaries[deal.dealName];
+                if (allAiSummaries[deal.dealName]) {
+                    deal.notesSummary = allAiSummaries[deal.dealName];
                 } else {
                     deal.notesSummary = generateFallbackSummary(allNotes);
                 }
             }
         } else {
             console.log('No notes changed, reusing all existing summaries.');
-        }
-
-        // Clean up temp property
-        for (const deal of result) {
-            delete deal._notesHash;
         }
 
         return result;
