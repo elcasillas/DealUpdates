@@ -536,8 +536,14 @@
                 return null;
             }
 
-            console.log('AI summaries received successfully.');
-            return data.summaries || null;
+            console.log('AI summary response:', JSON.stringify(data));
+            const summaries = data?.summaries || (typeof data === 'object' ? data : null);
+            if (summaries) {
+                console.log('AI summaries received successfully.');
+            } else {
+                console.warn('AI summary response missing summaries field:', data);
+            }
+            return summaries;
         } catch (e) {
             console.warn('AI summary failed, using fallback:', e);
             return null;
