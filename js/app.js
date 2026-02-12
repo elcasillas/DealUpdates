@@ -491,17 +491,65 @@
 
         const result = Array.from(dealMap.values());
 
-        // Try AI-generated summaries, fall back to basic extraction
-        const aiSummaries = await generateAISummaries(result, notesMap);
+        // Build lookup of existing summaries by deal name
+        const oldSummaryMap = new Map();
+        for (const old of allDeals) {
+            oldSummaryMap.set(old.dealName.toLowerCase().trim(), old.notesSummary || '');
+        }
+
+        // Determine which deals actually have updated notes
+        const dealsNeedingSummary = [];
+        for (const deal of result) {
+            const key = deal.dealName.toLowerCase().trim();
+            const newNotes = [...new Set(notesMap.get(key) || [])].sort().join('|');
+            deal._notesHash = newNotes;
+        }
+
+        // Compare against old data to find deals with changed notes
+        // Build old notes hashes from stored noteContent (single note per deal)
+        const oldNotesMap = new Map();
+        for (const old of allDeals) {
+            const key = old.dealName.toLowerCase().trim();
+            const oldNote = (old.noteContent || '').trim();
+            oldNotesMap.set(key, oldNote);
+        }
 
         for (const deal of result) {
             const key = deal.dealName.toLowerCase().trim();
-            const allNotes = notesMap.get(key) || [];
-            if (aiSummaries && aiSummaries[deal.dealName]) {
-                deal.notesSummary = aiSummaries[deal.dealName];
+            const oldSummary = oldSummaryMap.get(key);
+            const isNewDeal = !oldSummaryMap.has(key);
+            const notesChanged = !oldNotesMap.has(key) ||
+                deal._notesHash !== [...new Set([(oldNotesMap.get(key) || '')])].filter(Boolean).sort().join('|');
+
+            if (isNewDeal || notesChanged || !oldSummary) {
+                dealsNeedingSummary.push(deal);
             } else {
-                deal.notesSummary = generateFallbackSummary(allNotes);
+                // Reuse existing summary
+                deal.notesSummary = oldSummary;
             }
+        }
+
+        // Only call AI for deals with changed notes
+        if (dealsNeedingSummary.length > 0) {
+            console.log(`${dealsNeedingSummary.length} deals have updated notes, ${result.length - dealsNeedingSummary.length} reusing existing summaries.`);
+            const aiSummaries = await generateAISummaries(dealsNeedingSummary, notesMap);
+
+            for (const deal of dealsNeedingSummary) {
+                const key = deal.dealName.toLowerCase().trim();
+                const allNotes = notesMap.get(key) || [];
+                if (aiSummaries && aiSummaries[deal.dealName]) {
+                    deal.notesSummary = aiSummaries[deal.dealName];
+                } else {
+                    deal.notesSummary = generateFallbackSummary(allNotes);
+                }
+            }
+        } else {
+            console.log('No notes changed, reusing all existing summaries.');
+        }
+
+        // Clean up temp property
+        for (const deal of result) {
+            delete deal._notesHash;
         }
 
         return result;
