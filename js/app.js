@@ -553,7 +553,7 @@
                 if (Math.round(deal.acv || 0) !== Math.round(old.acv || 0)) {
                     changes.push(`ACV: ${formatCurrencyCompact(old.acv)} \u2192 ${formatCurrencyCompact(deal.acv)}`);
                 }
-                if ((deal.noteContent || '') !== (old.noteContent || '')) {
+                if ((deal.noteContent || '').trim() !== (old.noteContent || '').trim()) {
                     changes.push('Note updated');
                 }
 
