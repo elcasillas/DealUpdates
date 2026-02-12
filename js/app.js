@@ -80,6 +80,28 @@
         return data || [];
     }
 
+    async function deleteUpload(uploadId) {
+        if (!supabaseClient) return false;
+        // Delete deals first (foreign key dependency)
+        const { error: dealsError } = await supabaseClient
+            .from('deals')
+            .delete()
+            .eq('upload_id', uploadId);
+        if (dealsError) {
+            console.error('Error deleting deals:', dealsError);
+            return false;
+        }
+        const { error: uploadError } = await supabaseClient
+            .from('uploads')
+            .delete()
+            .eq('id', uploadId);
+        if (uploadError) {
+            console.error('Error deleting upload:', uploadError);
+            return false;
+        }
+        return true;
+    }
+
     async function insertUpload(generatedDate, filename, dealCount) {
         if (!supabaseClient) return null;
         const payload = {
@@ -1441,10 +1463,42 @@
         });
 
         // Date picker
-        elements.dateSelectPrimary.addEventListener('change', handleDateSelection);
+        const deleteUploadBtn = document.getElementById('delete-upload-btn');
+        elements.dateSelectPrimary.addEventListener('change', () => {
+            deleteUploadBtn.disabled = !elements.dateSelectPrimary.value;
+            handleDateSelection();
+        });
         elements.dateSelectCompare.addEventListener('change', () => {
             if (elements.dateSelectPrimary.value) {
                 handleDateSelection();
+            }
+        });
+
+        // Delete upload
+        deleteUploadBtn.addEventListener('click', async () => {
+            const uploadId = elements.dateSelectPrimary.value;
+            if (!uploadId) return;
+            const selectedText = elements.dateSelectPrimary.options[elements.dateSelectPrimary.selectedIndex].text;
+            if (!confirm(`Delete upload "${selectedText}"?\n\nThis will permanently remove this upload and all its deals.`)) return;
+
+            showLoading();
+            const success = await deleteUpload(uploadId);
+            if (success) {
+                await populateDatePicker();
+                // Auto-select the latest remaining upload
+                if (elements.dateSelectPrimary.options.length > 1) {
+                    elements.dateSelectPrimary.selectedIndex = 1;
+                    deleteUploadBtn.disabled = false;
+                    await handleDateSelection();
+                } else {
+                    allDeals = [];
+                    filteredDeals = [];
+                    deleteUploadBtn.disabled = true;
+                    hideLoading();
+                }
+            } else {
+                alert('Failed to delete upload. Check browser console for details.');
+                hideLoading();
             }
         });
 
