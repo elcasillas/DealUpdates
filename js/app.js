@@ -553,7 +553,9 @@
                 if (Math.round(deal.acv || 0) !== Math.round(old.acv || 0)) {
                     changes.push(`ACV: ${formatCurrencyCompact(old.acv)} \u2192 ${formatCurrencyCompact(deal.acv)}`);
                 }
-                if ((deal.noteContent || '').trim() !== (old.noteContent || '').trim()) {
+                const newSummary = (deal.notesSummary || '').split('|').map(s => s.trim()).filter(Boolean).sort().join('|');
+                const oldSummary = (old.notesSummary || '').split('|').map(s => s.trim()).filter(Boolean).sort().join('|');
+                if (newSummary !== oldSummary) {
                     changes.push('Note updated');
                 }
 
