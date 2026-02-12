@@ -15,6 +15,7 @@ Desktop.ini
 
 # Supabase config (contains project URL and anon key)
 js/supabase-config.js
+supabase/.temp/
 
 # Temp files
 *.tmp
