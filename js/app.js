@@ -521,7 +521,8 @@
             const notesChanged = !oldNotesMap.has(key) ||
                 deal._notesHash !== [...new Set([(oldNotesMap.get(key) || '')])].filter(Boolean).sort().join('|');
 
-            if (isNewDeal || notesChanged || !oldSummary) {
+            const isOldFallback = oldSummary && (oldSummary.includes(' | ') || oldSummary.endsWith('...'));
+            if (isNewDeal || notesChanged || !oldSummary || isOldFallback) {
                 dealsNeedingSummary.push(deal);
             } else {
                 // Reuse existing summary
