@@ -459,7 +459,7 @@
         return true;
     }
 
-    function deduplicateDeals(deals) {
+    async function deduplicateDeals(deals) {
         const dealMap = new Map();
         const notesMap = new Map();
 
@@ -489,18 +489,62 @@
             }
         }
 
-        // Generate notes summary for each deal
         const result = Array.from(dealMap.values());
+
+        // Try AI-generated summaries, fall back to basic extraction
+        const aiSummaries = await generateAISummaries(result, notesMap);
+
         for (const deal of result) {
             const key = deal.dealName.toLowerCase().trim();
             const allNotes = notesMap.get(key) || [];
-            deal.notesSummary = generateNotesSummary(allNotes);
+            if (aiSummaries && aiSummaries[deal.dealName]) {
+                deal.notesSummary = aiSummaries[deal.dealName];
+            } else {
+                deal.notesSummary = generateFallbackSummary(allNotes);
+            }
         }
 
         return result;
     }
 
-    function generateNotesSummary(notes) {
+    async function generateAISummaries(deals, notesMap) {
+        if (!supabaseClient) return null;
+
+        // Build payload of deals that have notes
+        const payload = deals
+            .filter(deal => {
+                const key = deal.dealName.toLowerCase().trim();
+                const notes = notesMap.get(key) || [];
+                return notes.length > 0;
+            })
+            .map(deal => {
+                const key = deal.dealName.toLowerCase().trim();
+                const notes = [...new Set(notesMap.get(key) || [])];
+                return { dealName: deal.dealName, notes };
+            });
+
+        if (payload.length === 0) return null;
+
+        try {
+            console.log(`Requesting AI summaries for ${payload.length} deals...`);
+            const { data, error } = await supabaseClient.functions.invoke('summarize-notes', {
+                body: { deals: payload }
+            });
+
+            if (error) {
+                console.warn('AI summary failed, using fallback:', error.message);
+                return null;
+            }
+
+            console.log('AI summaries received successfully.');
+            return data.summaries || null;
+        } catch (e) {
+            console.warn('AI summary failed, using fallback:', e);
+            return null;
+        }
+    }
+
+    function generateFallbackSummary(notes) {
         // Deduplicate notes
         const unique = [...new Set(notes)];
         if (unique.length === 0) return '';
@@ -553,9 +597,7 @@
                 if (Math.round(deal.acv || 0) !== Math.round(old.acv || 0)) {
                     changes.push(`ACV: ${formatCurrencyCompact(old.acv)} \u2192 ${formatCurrencyCompact(deal.acv)}`);
                 }
-                const newSummary = (deal.notesSummary || '').split('|').map(s => s.trim()).filter(Boolean).sort().join('|');
-                const oldSummary = (old.notesSummary || '').split('|').map(s => s.trim()).filter(Boolean).sort().join('|');
-                if (newSummary !== oldSummary) {
+                if ((deal.notesSummary || '').trim() !== (old.notesSummary || '').trim()) {
                     changes.push('Note updated');
                 }
 
@@ -919,9 +961,7 @@
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
-        const summaryEl = document.getElementById('modal-notes-summary');
-        const summaryText = deal.notesSummary || 'No summary available.';
-        summaryEl.innerHTML = summaryText.split('|').map(s => s.trim()).join(' <span class="notes-separator">|</span> ');
+        document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
         document.getElementById('deal-modal').classList.remove('hidden');
     }
 
@@ -1210,7 +1250,7 @@
             console.log(`After processing and validation: ${processed.length} deals`);
 
             // Deduplicate
-            processed = deduplicateDeals(processed);
+            processed = await deduplicateDeals(processed);
             console.log(`After deduplication: ${processed.length} deals`);
 
             if (processed.length === 0) {

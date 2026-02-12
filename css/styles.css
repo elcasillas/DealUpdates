@@ -702,11 +702,6 @@ tbody tr:last-child td {
     word-wrap: break-word;
 }
 
-.notes-separator {
-    color: #22c55e;
-    font-weight: 700;
-}
-
 /* ACV Cell */
 .acv-value {
     font-weight: 600;
