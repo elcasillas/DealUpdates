@@ -1022,7 +1022,10 @@
     }
 
     // ==================== Deal Detail Modal ====================
+    let currentModalDeal = null;
+
     function openDealModal(deal) {
+        currentModalDeal = deal;
         document.getElementById('modal-deal-name').textContent = deal.dealName || '-';
         document.getElementById('modal-deal-owner').textContent = deal.dealOwner || '-';
         document.getElementById('modal-stage').textContent = deal.stage || '-';
@@ -1041,6 +1044,42 @@
 
     function closeDealModal() {
         document.getElementById('deal-modal').classList.add('hidden');
+        currentModalDeal = null;
+    }
+
+    function emailDealOwner() {
+        if (!currentModalDeal) return;
+        const deal = currentModalDeal;
+
+        const subject = `Update Request - ${deal.dealName}`;
+
+        const lines = [
+            `Hi ${deal.dealOwner},`,
+            '',
+            'Could you please provide an update on the following deal?',
+            '',
+            '---',
+            `Deal Name: ${deal.dealName}`,
+            `Deal Owner: ${deal.dealOwner}`,
+            `Stage: ${deal.stage || '-'}`,
+            `ACV (CAD): ${deal.acvFormatted || '-'}`,
+            `Closing Date: ${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' (Overdue)' : deal.closingStatus === 'soon' ? ' (Closing Soon)' : ''}`,
+            `Modified Date: ${formatDate(deal.modifiedDate)}`,
+            `Days Since Update: ${deal.daysSince} days`,
+            '---',
+            '',
+            `Description: ${deal.description || 'No description available.'}`,
+            '',
+            `Notes: ${deal.noteContent || 'No notes available.'}`,
+            '',
+            `Notes Summary: ${deal.notesSummary || 'No summary available.'}`,
+            '',
+            'Thank you.'
+        ];
+
+        const body = lines.join('\n');
+        const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(mailto, '_blank');
     }
 
     function escapeHTML(str) {
@@ -1509,6 +1548,7 @@
         elements.exportBtn.addEventListener('click', exportToCSV);
 
         // Deal detail modal
+        document.getElementById('modal-email-btn').addEventListener('click', emailDealOwner);
         document.getElementById('modal-close').addEventListener('click', closeDealModal);
         document.getElementById('deal-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeDealModal();

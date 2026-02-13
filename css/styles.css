@@ -644,6 +644,33 @@ tbody tr:last-child td {
     color: var(--color-text);
 }
 
+.modal__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal__email-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    background: #eff6ff;
+    color: var(--color-primary);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal__email-btn:hover {
+    background: #dbeafe;
+    border-color: var(--color-primary);
+}
+
 .modal__title {
     font-size: 1.25rem;
     font-weight: 700;
