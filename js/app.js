@@ -148,11 +148,61 @@
         return true;
     }
 
+    // ==================== Deal Owner Contacts CRUD ====================
+    async function fetchAllOwnerContacts() {
+        if (!supabaseClient) return [];
+        const { data, error } = await supabaseClient
+            .from('deal_owners')
+            .select('*')
+            .order('owner_name', { ascending: true });
+        if (error) {
+            console.error('Error fetching owner contacts:', error);
+            return [];
+        }
+        return data || [];
+    }
+
+    async function upsertOwnerContact(ownerName, email, phone) {
+        if (!supabaseClient) return null;
+        const { data, error } = await supabaseClient
+            .from('deal_owners')
+            .upsert({
+                owner_name: ownerName,
+                email: email || null,
+                phone: phone || null
+            }, { onConflict: 'owner_name' })
+            .select()
+            .single();
+        if (error) {
+            console.error('Error upserting owner contact:', error);
+            return null;
+        }
+        return data;
+    }
+
     // ==================== State ====================
     let allDeals = [];
     let filteredDeals = [];
     let currentSort = { column: 'daysSince', direction: 'desc' };
     let changesSummary = null;
+    let ownerContactsCache = {};
+
+    async function loadOwnerContacts() {
+        const contacts = await fetchAllOwnerContacts();
+        ownerContactsCache = {};
+        for (const contact of contacts) {
+            ownerContactsCache[contact.owner_name.toLowerCase().trim()] = contact;
+        }
+    }
+
+    function getOwnerContact(ownerName) {
+        if (!ownerName) return null;
+        return ownerContactsCache[ownerName.toLowerCase().trim()] || null;
+    }
+
+    function updateOwnerContactCache(contact) {
+        ownerContactsCache[contact.owner_name.toLowerCase().trim()] = contact;
+    }
 
     // ==================== DOM Elements ====================
     const elements = {
@@ -924,9 +974,15 @@
             .sort((a, b) => b.totalACV - a.totalACV);
 
         // Render cards
-        elements.ownerCards.innerHTML = owners.map(owner => `
+        elements.ownerCards.innerHTML = owners.map(owner => {
+            const contact = getOwnerContact(owner.name);
+            const contactIndicator = contact && contact.email
+                ? `<div class="owner-card__contact"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>${escapeHTML(contact.email)}</div>`
+                : '<div class="owner-card__contact owner-card__contact--empty">No email set</div>';
+            return `
             <div class="owner-card" data-owner="${escapeHTML(owner.name)}">
                 <div class="owner-card__name">${escapeHTML(owner.name)}</div>
+                ${contactIndicator}
                 <div class="owner-card__stats">
                     <div class="owner-card__stat">
                         <span class="owner-card__stat-value">${owner.deals}</span>
@@ -946,7 +1002,7 @@
                     </div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         // Attach click handlers to owner cards
         elements.ownerCards.querySelectorAll('.owner-card').forEach(card => {
@@ -1039,6 +1095,10 @@
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
         document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
+        // Show contact info (only when online)
+        document.getElementById('modal-contact-section').classList.toggle('hidden', !isOnline);
+        updateContactDisplay(deal.dealOwner);
+        toggleContactEditMode(false);
         document.getElementById('deal-modal').classList.remove('hidden');
     }
 
@@ -1050,11 +1110,21 @@
     function emailDealOwner() {
         if (!currentModalDeal) return;
         const deal = currentModalDeal;
+        const contact = getOwnerContact(deal.dealOwner);
+        const toAddress = contact?.email || '';
+        const firstName = (deal.dealOwner || '').split(' ')[0];
+
+        if (!toAddress) {
+            if (confirm(`No email address found for ${deal.dealOwner}.\n\nWould you like to add their contact info now?`)) {
+                toggleContactEditMode(true);
+            }
+            return;
+        }
 
         const subject = `Update Request - ${deal.dealName}`;
 
         const lines = [
-            `Hi ${deal.dealOwner},`,
+            `Hi ${firstName},`,
             '',
             'Could you please provide an update on the following deal?',
             '',
@@ -1066,20 +1136,76 @@
             `Closing Date: ${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' (Overdue)' : deal.closingStatus === 'soon' ? ' (Closing Soon)' : ''}`,
             `Modified Date: ${formatDate(deal.modifiedDate)}`,
             `Days Since Update: ${deal.daysSince} days`,
-            '---',
             '',
             `Description: ${deal.description || 'No description available.'}`,
             '',
             `Notes: ${deal.noteContent || 'No notes available.'}`,
-            '',
-            `Notes Summary: ${deal.notesSummary || 'No summary available.'}`,
+            '---',
             '',
             'Thank you.'
         ];
 
         const body = lines.join('\n');
-        const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const mailto = `mailto:${encodeURIComponent(toAddress)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.open(mailto, '_blank');
+    }
+
+    function updateContactDisplay(ownerName) {
+        const contact = getOwnerContact(ownerName);
+        const emailEl = document.getElementById('modal-owner-email');
+        const phoneEl = document.getElementById('modal-owner-phone');
+
+        if (contact?.email) {
+            emailEl.textContent = contact.email;
+            emailEl.classList.remove('modal__contact-item-value--empty');
+        } else {
+            emailEl.textContent = 'Not set';
+            emailEl.classList.add('modal__contact-item-value--empty');
+        }
+
+        if (contact?.phone) {
+            phoneEl.textContent = contact.phone;
+            phoneEl.classList.remove('modal__contact-item-value--empty');
+        } else {
+            phoneEl.textContent = 'Not set';
+            phoneEl.classList.add('modal__contact-item-value--empty');
+        }
+    }
+
+    function toggleContactEditMode(editing) {
+        const display = document.getElementById('modal-contact-display');
+        const form = document.getElementById('modal-contact-form');
+        if (editing) {
+            display.classList.add('hidden');
+            form.classList.remove('hidden');
+            const contact = getOwnerContact(currentModalDeal.dealOwner);
+            document.getElementById('modal-contact-email').value = contact?.email || '';
+            document.getElementById('modal-contact-phone').value = contact?.phone || '';
+            document.getElementById('modal-contact-email').focus();
+        } else {
+            display.classList.remove('hidden');
+            form.classList.add('hidden');
+        }
+    }
+
+    async function saveOwnerContact() {
+        if (!currentModalDeal) return;
+        const email = document.getElementById('modal-contact-email').value.trim();
+        const phone = document.getElementById('modal-contact-phone').value.trim();
+        const ownerName = currentModalDeal.dealOwner;
+
+        const result = await upsertOwnerContact(ownerName, email, phone);
+        if (result) {
+            updateOwnerContactCache(result);
+            updateContactDisplay(ownerName);
+            toggleContactEditMode(false);
+            // Refresh owner cards to show updated contact indicator
+            if (allDeals.length > 0) {
+                renderOwnerCards(allDeals);
+            }
+        } else {
+            alert('Failed to save contact info. Check browser console for details.');
+        }
     }
 
     function escapeHTML(str) {
@@ -1549,6 +1675,9 @@
 
         // Deal detail modal
         document.getElementById('modal-email-btn').addEventListener('click', emailDealOwner);
+        document.getElementById('modal-contact-edit-btn').addEventListener('click', () => toggleContactEditMode(true));
+        document.getElementById('modal-contact-save-btn').addEventListener('click', saveOwnerContact);
+        document.getElementById('modal-contact-cancel-btn').addEventListener('click', () => toggleContactEditMode(false));
         document.getElementById('modal-close').addEventListener('click', closeDealModal);
         document.getElementById('deal-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeDealModal();
@@ -1566,6 +1695,7 @@
         if (isOnline) {
             try {
                 showLoading();
+                await loadOwnerContacts();
                 await populateDatePicker();
 
                 // Auto-select the most recent upload
