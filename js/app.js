@@ -1142,7 +1142,7 @@
             `Notes: ${deal.noteContent || 'No notes available.'}`,
             '---',
             '',
-            'Thank you.'
+            'Thanks,'
         ];
 
         const body = lines.join('\n');
