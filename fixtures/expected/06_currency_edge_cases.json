@@ -1,0 +1,101 @@
+[
+  {
+    "deal_key": "bare dollar||bob jones",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 45000,
+    "closing_date": "2026-03-31",
+    "modified_date": "2026-01-24",
+    "notes_count": 1,
+    "notes_hash": "8b538b655fe2f2a630dca20ca5c2151c759cd7100f2cfd8cadfbf66c1dff54a0",
+    "notes_summary_length": 33
+  },
+  {
+    "deal_key": "c dollar sign||alice smith",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 85000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_count": 1,
+    "notes_hash": "55e0439c0bcc8361cdf24bdc186fef8bc9881163255de715f0dd4a5d2d09d91c",
+    "notes_summary_length": 18
+  },
+  {
+    "deal_key": "ca dollar sign||alice smith",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 120000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_count": 1,
+    "notes_hash": "8ba91a6a8606c1093341f8c7ee6f56feda7e84e42c1b7293db76d6fc6c6eb5cc",
+    "notes_summary_length": 19
+  },
+  {
+    "deal_key": "commas thousands||carlos diaz",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Proposal",
+    "acv": 1234567,
+    "closing_date": "2026-05-09",
+    "modified_date": "2026-01-31",
+    "notes_count": 1,
+    "notes_hash": "b248e213e98b8fb5377c26548ae3e9f27a0d3dc124887c90cee323f4ce3c84d8",
+    "notes_summary_length": 26
+  },
+  {
+    "deal_key": "european format||alice smith",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 12345.67,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_count": 1,
+    "notes_hash": "f00f342f9e26b5b2d83b15523080f11d122cf1d68f1b45df7d20220692c55c73",
+    "notes_summary_length": 22
+  },
+  {
+    "deal_key": "parentheses negative||bob jones",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": -1234.56,
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-02-09",
+    "notes_count": 1,
+    "notes_hash": "5f8cf3fe68905b5bae4c1bb9aa5449e55a4f0b6270605570a18d1a4da2ed7e67",
+    "notes_summary_length": 24
+  },
+  {
+    "deal_key": "plain number||bob jones",
+    "deal_owner": "Bob Jones",
+    "stage": "Negotiation",
+    "acv": 99000,
+    "closing_date": "2026-03-31",
+    "modified_date": "2026-02-08",
+    "notes_count": 1,
+    "notes_hash": "f767f3293f74ec09576cd003440745f8baf52e5006e7178d4b834475ba834d23",
+    "notes_summary_length": 26
+  },
+  {
+    "deal_key": "spaces thousands||carlos diaz",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Proposal",
+    "acv": 50000,
+    "closing_date": "2026-05-09",
+    "modified_date": "2026-01-31",
+    "notes_count": 1,
+    "notes_hash": "d610957f5a8660d4056fb5ae3dad76835312894f61086b79b50784bc8616f9b5",
+    "notes_summary_length": 26
+  },
+  {
+    "deal_key": "zero acv||alice smith",
+    "deal_owner": "Alice Smith",
+    "stage": "Closed Won",
+    "acv": 0,
+    "closing_date": "2026-01-30",
+    "modified_date": "2026-01-30",
+    "notes_count": 1,
+    "notes_hash": "9ddb4c1aaf03085dfe75da41c6c3fdfe29702f6a7ee87a3912ebb561df1f9629",
+    "notes_summary_length": 16
+  }
+]

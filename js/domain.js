@@ -35,23 +35,70 @@
     }
 
     // ==================== ACV Parsing ====================
+    // Parsing rules:
+    //   Currency detection (case-insensitive, checked in order):
+    //     USD  — contains "USD", starts with "US$"
+    //     EUR  — contains "EUR", starts with "€"
+    //     CAD  — contains "CAD", "CA$", "C$"
+    //     bare "$" with no other marker → treated as CAD (our default)
+    //     no input / empty → { value: 0, currency: "CAD", isCAD: true }
+    //   Numeric extraction:
+    //     strips currency symbols, letters, spaces
+    //     handles thousand separators: commas (1,234) and spaces (1 234)
+    //     handles parenthesised negatives: ($1,234) → -1234
+    //     returns 0 for unparseable values
     function parseACV(value) {
         if (!value || typeof value !== 'string') {
-            return { value: 0, isCAD: true }; // Assume CAD if no currency specified
+            return { value: 0, currency: 'CAD', isCAD: true, raw: value ?? '' };
         }
 
-        const cleanValue = value.trim().toUpperCase();
+        const raw = value;
+        const upper = value.trim().toUpperCase();
 
-        // Check for currency prefixes
-        const isUSD = cleanValue.includes('USD') || cleanValue.startsWith('US$');
-        const isEUR = cleanValue.includes('EUR') || cleanValue.startsWith('€');
-        const isCAD = cleanValue.includes('CAD') || (!isUSD && !isEUR);
+        // Detect currency
+        let currency;
+        if (upper.includes('USD') || /^US\$/.test(upper)) {
+            currency = 'USD';
+        } else if (upper.includes('EUR') || /^€/.test(upper.replace(/\s/g, ''))) {
+            currency = 'EUR';
+        } else if (upper.includes('CAD') || /CA\$|C\$/.test(upper)) {
+            currency = 'CAD';
+        } else {
+            // Bare "$" or plain number — treat as CAD (our CRM default)
+            currency = 'CAD';
+        }
 
-        // Extract numeric value
-        const numericString = cleanValue.replace(/[^0-9.-]/g, '');
-        const numericValue = parseFloat(numericString) || 0;
+        const isCAD = currency === 'CAD';
 
-        return { value: numericValue, isCAD };
+        // Detect parenthesised negative: ($1,234.56) or (1234)
+        const isNegative = /\(.*\)/.test(upper);
+
+        // Strip everything except digits, dots, and minus signs
+        let numeric = upper.replace(/[^0-9.,-]/g, '');
+
+        // Disambiguate commas vs dots as decimal/thousand separators:
+        //   Multiple commas → all are thousand separators (e.g. 1,234,567)
+        //   One comma after last dot, ≤2 digits after → European decimal (e.g. 12.345,67)
+        //   One comma, no dot, ≤2 digits after → European decimal (e.g. 1234,56)
+        //   Otherwise commas are thousands (e.g. 1,234)
+        if (numeric.includes(',')) {
+            const commaCount = (numeric.match(/,/g) || []).length;
+            const lastComma = numeric.lastIndexOf(',');
+            const digitsAfterComma = numeric.length - lastComma - 1;
+
+            if (commaCount === 1 && digitsAfterComma <= 2 && lastComma > numeric.lastIndexOf('.')) {
+                // Single comma is decimal separator — strip dots, replace comma
+                numeric = numeric.replace(/\./g, '').replace(',', '.');
+            } else {
+                // Commas are thousand separators — strip them
+                numeric = numeric.replace(/,/g, '');
+            }
+        }
+
+        let amount = parseFloat(numeric) || 0;
+        if (isNegative && amount > 0) amount = -amount;
+
+        return { value: amount, currency, isCAD, raw };
     }
 
     // ==================== Date Helpers ====================

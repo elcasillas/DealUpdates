@@ -49,7 +49,8 @@ const FIXTURES = [
     '02_multiline_notes',
     '03_malformed_rows',
     '04_duplicate_deals',
-    '05_large_mixed'
+    '05_large_mixed',
+    '06_currency_edge_cases'
 ];
 
 (async function main() {
