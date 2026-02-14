@@ -281,8 +281,9 @@
 
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- Supabase config (user-provided) -->
-    <script src="js/supabase-config.js"></script>
+    <!-- Supabase config: local override if present, else build-generated -->
+    <script src="js/supabase-config.local.js"></script>
+    <script>if (typeof SUPABASE_URL === 'undefined') document.write('<script src="js/supabase-config.js"><\/script>');</script>
     <!-- Domain (pure functions shared with test harness / golden generator) -->
     <script src="js/domain.js"></script>
     <!-- Ingest (CSV parsing, row processing, deduplication) -->
