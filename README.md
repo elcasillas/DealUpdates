@@ -32,6 +32,10 @@ The build step (`build.sh`) generates `js/supabase-config.js` from environment v
 
 If either variable is missing, the build prints an info message and the app runs in offline mode (localStorage only).
 
+## Local Storage
+
+The app caches deal data in your browser's localStorage for offline use. Stored keys are prefixed with `dealUpdates_`. To reset, click **Clear Local Data** in the header, or manually clear site data in your browser's DevTools.
+
 ## Test Harness
 
 ```bash

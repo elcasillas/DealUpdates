@@ -17,6 +17,8 @@
 
     // ==================== Configuration ====================
     const STORAGE_KEY = 'dealUpdates_data';
+    const SCHEMA_VERSION_KEY = 'dealUpdates_schema_version';
+    const SCHEMA_VERSION = 1;
     const BATCH_SIZE = 500;
 
     // ==================== Supabase Client ====================
@@ -391,6 +393,33 @@
             console.error('Failed to load from localStorage:', e);
         }
         return null;
+    }
+
+    function checkSchemaVersion() {
+        const stored = localStorage.getItem(SCHEMA_VERSION_KEY);
+        if (stored === null) {
+            // Fresh install or pre-versioning data — clear stale data, set version
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(SCHEMA_VERSION_KEY, String(SCHEMA_VERSION));
+            return;
+        }
+        const version = parseInt(stored, 10);
+        if (version < SCHEMA_VERSION) {
+            console.warn(`Schema upgraded ${version} → ${SCHEMA_VERSION}. Clearing local cache.`);
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(SCHEMA_VERSION_KEY, String(SCHEMA_VERSION));
+            return;
+        }
+        if (version > SCHEMA_VERSION) {
+            console.warn(`Local data has schema v${version}, app expects v${SCHEMA_VERSION}. Data left untouched.`);
+        }
+    }
+
+    function clearLocalData() {
+        if (!confirm('Clear all locally stored deal data? This cannot be undone.')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(SCHEMA_VERSION_KEY, String(SCHEMA_VERSION));
+        location.reload();
     }
 
     // ==================== Supabase Date Picker ====================
@@ -1264,6 +1293,9 @@
             }
         });
 
+        // Clear local data
+        document.getElementById('clear-data-btn').addEventListener('click', clearLocalData);
+
         // Reset filters
         elements.resetFiltersBtn.addEventListener('click', resetFilters);
 
@@ -1286,6 +1318,7 @@
 
     // ==================== Initialization ====================
     async function init() {
+        checkSchemaVersion();
         setupEventListeners();
         initSupabase();
 
