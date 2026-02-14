@@ -1,6 +1,6 @@
 [
   {
-    "deal_key": "acme corp renewal",
+    "deal_key": "acme corp renewal||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 120000,
@@ -10,7 +10,7 @@
     "notes_summary_length": 22
   },
   {
-    "deal_key": "beta industries",
+    "deal_key": "beta industries||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Qualification",
     "acv": 45000,
@@ -20,7 +20,7 @@
     "notes_summary_length": 150
   },
   {
-    "deal_key": "delta financial",
+    "deal_key": "delta financial||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Proposal",
     "acv": 85000,
@@ -30,7 +30,7 @@
     "notes_summary_length": 17
   },
   {
-    "deal_key": "zeta logistics",
+    "deal_key": "zeta logistics||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 60000,

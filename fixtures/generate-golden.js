@@ -25,6 +25,14 @@ const COLUMN_MAPPINGS = {
     'Description': 'description'
 };
 
+function normalizeString(s) {
+    return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function makeDealKey(dealName, dealOwner) {
+    return normalizeString(dealName) + '||' + normalizeString(dealOwner);
+}
+
 function parseCSVText(text) {
     const rows = [];
     let currentRow = [];
@@ -167,6 +175,8 @@ function processRow(row) {
     // daysSince and urgency are date-dependent, not included in golden snapshot
     deal.noteContent = stripHTML(deal.noteContent);
 
+    deal.dealKey = makeDealKey(deal.dealName, deal.dealOwner);
+
     return deal;
 }
 
@@ -188,7 +198,7 @@ function deduplicateDeals(deals) {
     const notesMap = new Map();
 
     for (const deal of deals) {
-        const key = deal.dealName.toLowerCase().trim();
+        const key = deal.dealKey;
         const existing = dealMap.get(key);
 
         if (!notesMap.has(key)) notesMap.set(key, []);
@@ -211,7 +221,7 @@ function deduplicateDeals(deals) {
 
     // Generate fallback summaries (no AI in test/Node context)
     for (const deal of result) {
-        const key = deal.dealName.toLowerCase().trim();
+        const key = deal.dealKey;
         const allNotes = notesMap.get(key) || [];
         deal.notesSummary = generateFallbackSummary(allNotes);
     }
@@ -232,7 +242,7 @@ function hashString(str) {
 function buildSnapshot(deals) {
     return deals
         .map(d => ({
-            deal_key: d.dealName.toLowerCase().trim(),
+            deal_key: d.dealKey,
             deal_owner: d.dealOwner,
             stage: d.stage,
             acv: d.acv,

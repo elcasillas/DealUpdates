@@ -138,7 +138,7 @@
     function buildSnapshot(deals) {
         return deals
             .map(d => ({
-                deal_key: d.dealName.toLowerCase().trim(),
+                deal_key: d.dealKey,
                 deal_owner: d.dealOwner,
                 stage: d.stage,
                 acv: d.acv,

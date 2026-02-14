@@ -26,6 +26,15 @@
         'Description': 'description'
     };
 
+    // Canonical deal identity helpers
+    function normalizeString(s) {
+        return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    function makeDealKey(dealName, dealOwner) {
+        return normalizeString(dealName) + '||' + normalizeString(dealOwner);
+    }
+
     // ==================== Supabase Client ====================
     let supabaseClient = null;
     let isOnline = false;
@@ -440,6 +449,9 @@
         // Strip HTML from notes
         deal.noteContent = stripHTML(deal.noteContent);
 
+        // Canonical identity key
+        deal.dealKey = makeDealKey(deal.dealName, deal.dealOwner);
+
         return deal;
     }
 
@@ -537,7 +549,7 @@
         const notesMap = new Map();
 
         for (const deal of deals) {
-            const key = deal.dealName.toLowerCase().trim();
+            const key = deal.dealKey;
             const existing = dealMap.get(key);
 
             // Collect all notes for this deal
@@ -564,16 +576,16 @@
 
         const result = Array.from(dealMap.values());
 
-        // Build lookup of existing deal data by name
+        // Build lookup of existing deal data by key
         const oldDealMap = new Map();
         for (const old of allDeals) {
-            oldDealMap.set(old.dealName.toLowerCase().trim(), old);
+            oldDealMap.set(old.dealKey || makeDealKey(old.dealName, old.dealOwner), old);
         }
 
         // Determine which deals need new AI summaries
         const dealsNeedingSummary = [];
         for (const deal of result) {
-            const key = deal.dealName.toLowerCase().trim();
+            const key = deal.dealKey;
             const oldDeal = oldDealMap.get(key);
             const oldSummary = oldDeal?.notesSummary || '';
             const isOldFallback = oldSummary && (oldSummary.includes(' | ') || oldSummary.endsWith('...'));
@@ -609,7 +621,7 @@
             }
 
             for (const deal of dealsNeedingSummary) {
-                const key = deal.dealName.toLowerCase().trim();
+                const key = deal.dealKey;
                 const allNotes = notesMap.get(key) || [];
                 if (allAiSummaries[deal.dealName]) {
                     deal.notesSummary = allAiSummaries[deal.dealName];
@@ -630,13 +642,11 @@
         // Build payload of deals that have notes
         const payload = deals
             .filter(deal => {
-                const key = deal.dealName.toLowerCase().trim();
-                const notes = notesMap.get(key) || [];
+                const notes = notesMap.get(deal.dealKey) || [];
                 return notes.length > 0;
             })
             .map(deal => {
-                const key = deal.dealName.toLowerCase().trim();
-                const notes = [...new Set(notesMap.get(key) || [])];
+                const notes = [...new Set(notesMap.get(deal.dealKey) || [])];
                 return { dealName: deal.dealName, notes };
             });
 
@@ -694,7 +704,7 @@
         // Build lookup from old deals
         const oldMap = new Map();
         for (const deal of oldDeals) {
-            oldMap.set(deal.dealName.toLowerCase().trim(), deal);
+            oldMap.set(deal.dealKey || makeDealKey(deal.dealName, deal.dealOwner), deal);
         }
 
         let newCount = 0;
@@ -704,7 +714,7 @@
         // Tag each new deal
         const newKeys = new Set();
         for (const deal of newDeals) {
-            const key = deal.dealName.toLowerCase().trim();
+            const key = deal.dealKey || makeDealKey(deal.dealName, deal.dealOwner);
             newKeys.add(key);
             const old = oldMap.get(key);
 
@@ -1745,6 +1755,8 @@
         parseDate,
         stripHTML,
         generateFallbackSummary,
+        normalizeString,
+        makeDealKey,
         COLUMN_MAPPINGS
     };
 
