@@ -31,7 +31,8 @@ DealUpdates/
 │   └── styles.css         # All styling including urgency badges
 ├── js/
 │   ├── domain.js          # Pure domain functions (UMD, shared by app + Node)
-│   ├── app.js             # Core application logic (UI, Supabase, CSV parsing)
+│   ├── ingest.js          # CSV parsing, row processing, deduplication (UMD)
+│   ├── app.js             # UI, Supabase, state management
 │   └── supabase-config.js # Supabase credentials (user-provided)
 └── fixtures/
     ├── generate-golden.js # Node script to regenerate expected snapshots
