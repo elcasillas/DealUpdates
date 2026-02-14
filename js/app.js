@@ -24,6 +24,7 @@
     // ==================== Supabase Client ====================
     let supabaseClient = null;
     let isOnline = false;
+    let dateSelectionController = null;
 
     function initSupabase() {
         try {
@@ -62,13 +63,16 @@
         return data || [];
     }
 
-    async function fetchDealsByUploadId(uploadId) {
+    async function fetchDealsByUploadId(uploadId, signal) {
         if (!supabaseClient) return [];
-        const { data, error } = await supabaseClient
+        let query = supabaseClient
             .from('deals')
             .select('*')
             .eq('upload_id', uploadId);
+        if (signal) query = query.abortSignal(signal);
+        const { data, error } = await query;
         if (error) {
+            if (error.name === 'AbortError' || signal?.aborted) throw new DOMException('Aborted', 'AbortError');
             console.error('Error fetching deals:', error);
             return [];
         }
@@ -497,8 +501,8 @@
         };
     }
 
-    async function loadUploadById(uploadId) {
-        const rawDeals = await fetchDealsByUploadId(uploadId);
+    async function loadUploadById(uploadId, signal) {
+        const rawDeals = await fetchDealsByUploadId(uploadId, signal);
         return rawDeals.map(supabaseRowToInternal);
     }
 
@@ -508,12 +512,17 @@
 
         if (!primaryId) return;
 
+        // Abort any pending date selection fetch
+        if (dateSelectionController) dateSelectionController.abort();
+        dateSelectionController = new AbortController();
+        const signal = dateSelectionController.signal;
+
         showLoading();
         try {
-            const primaryDeals = await loadUploadById(primaryId);
+            const primaryDeals = await loadUploadById(primaryId, signal);
 
             if (compareId) {
-                const compareDeals = await loadUploadById(compareId);
+                const compareDeals = await loadUploadById(compareId, signal);
                 // Compare: "compare" is the baseline, "primary" is the newer
                 changesSummary = diffDeals(compareDeals, primaryDeals);
             } else {
@@ -536,6 +545,7 @@
             renderChangesSummary();
             showDashboard();
         } catch (e) {
+            if (e.name === 'AbortError') return; // Superseded by a newer selection
             console.error('Error loading upload:', e);
             alert('Error loading data from Supabase.');
         } finally {
@@ -1075,6 +1085,9 @@
             th.classList.remove('sort-asc', 'sort-desc');
             if (th.dataset.sort === currentSort.column) {
                 th.classList.add(`sort-${currentSort.direction}`);
+                th.setAttribute('aria-sort', currentSort.direction === 'asc' ? 'ascending' : 'descending');
+            } else {
+                th.setAttribute('aria-sort', 'none');
             }
         });
     }

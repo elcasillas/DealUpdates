@@ -171,14 +171,14 @@
                 <table id="deals-table">
                     <thead>
                         <tr>
-                            <th data-sort="dealOwner">Deal Owner <span class="sort-indicator"></span></th>
-                            <th data-sort="dealName">Deal Name <span class="sort-indicator"></span></th>
-                            <th data-sort="stage">Stage <span class="sort-indicator"></span></th>
-                            <th data-sort="acv">ACV (CAD) <span class="sort-indicator"></span></th>
-                            <th data-sort="closingDate">Closing Date <span class="sort-indicator"></span></th>
-                            <th data-sort="modifiedDate">Modified Date <span class="sort-indicator"></span></th>
-                            <th data-sort="daysSince">Days Since <span class="sort-indicator"></span></th>
-                            <th>Notes</th>
+                            <th scope="col" data-sort="dealOwner" aria-sort="none">Deal Owner <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="dealName" aria-sort="none">Deal Name <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="stage" aria-sort="none">Stage <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="acv" aria-sort="none">ACV (CAD) <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="closingDate" aria-sort="none">Closing Date <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="modifiedDate" aria-sort="none">Modified Date <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="daysSince" aria-sort="none">Days Since <span class="sort-indicator"></span></th>
+                            <th scope="col">Notes</th>
                         </tr>
                     </thead>
                     <tbody id="deals-tbody">
@@ -192,7 +192,7 @@
     </main>
 
     <!-- Deal Detail Modal -->
-    <div id="deal-modal" class="modal-overlay hidden">
+    <div id="deal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-deal-name">
         <div class="modal">
             <button class="modal__close" id="modal-close">&times;</button>
             <h2 class="modal__title" id="modal-deal-name"></h2>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay hidden">
+    <div id="loading-overlay" class="loading-overlay hidden" role="status" aria-live="polite">
         <div class="loading-spinner"></div>
         <span id="loading-text">Loading...</span>
     </div>

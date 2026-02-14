@@ -28,10 +28,9 @@
     // ==================== Helpers ====================
     function stripHTML(html) {
         if (!html) return '';
-        if (typeof document !== 'undefined') {
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            return temp.textContent || temp.innerText || '';
+        if (typeof DOMParser !== 'undefined') {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            return doc.body.textContent || '';
         }
         return html.replace(/<[^>]*>/g, '');
     }
