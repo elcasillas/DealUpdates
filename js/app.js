@@ -587,64 +587,7 @@
 
         const result = Array.from(dealMap.values());
 
-        // Build lookup of existing deal data by key
-        const oldDealMap = new Map();
-        for (const old of allDeals) {
-            oldDealMap.set(old.dealKey || makeDealKey(old.dealName, old.dealOwner), old);
-        }
-
-        // Determine which deals need new AI summaries
-        const dealsNeedingSummary = [];
-        for (const deal of result) {
-            const key = deal.dealKey;
-            const oldDeal = oldDealMap.get(key);
-            const oldSummary = oldDeal?.notesSummary || '';
-            const isOldFallback = oldSummary && (oldSummary.includes(' | ') || oldSummary.endsWith('...'));
-
-            if (!oldDeal || !oldSummary || isOldFallback) {
-                // New deal, no summary, or old truncated fallback — needs AI
-                dealsNeedingSummary.push(deal);
-            } else {
-                // Existing deal with valid AI summary — check if notes changed
-                const newNotes = [...new Set(notesMap.get(key) || [])].sort().join('|');
-                const oldNotes = [...new Set([(oldDeal.noteContent || '').trim()])].filter(Boolean).sort().join('|');
-                if (newNotes !== oldNotes) {
-                    dealsNeedingSummary.push(deal);
-                } else {
-                    deal.notesSummary = oldSummary;
-                }
-            }
-        }
-
-        // Call AI in batches to avoid timeouts
-        if (dealsNeedingSummary.length > 0) {
-            console.log(`${dealsNeedingSummary.length} deals need AI summaries, ${result.length - dealsNeedingSummary.length} reusing existing.`);
-            const BATCH_SIZE = 10;
-            const allAiSummaries = {};
-
-            for (let i = 0; i < dealsNeedingSummary.length; i += BATCH_SIZE) {
-                const batch = dealsNeedingSummary.slice(i, i + BATCH_SIZE);
-                console.log(`Processing AI batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(dealsNeedingSummary.length / BATCH_SIZE)}...`);
-                const batchSummaries = await generateAISummaries(batch, notesMap);
-                if (batchSummaries) {
-                    Object.assign(allAiSummaries, batchSummaries);
-                }
-            }
-
-            for (const deal of dealsNeedingSummary) {
-                const key = deal.dealKey;
-                const allNotes = notesMap.get(key) || [];
-                if (allAiSummaries[deal.dealName]) {
-                    deal.notesSummary = allAiSummaries[deal.dealName];
-                } else {
-                    deal.notesSummary = generateFallbackSummary(allNotes);
-                }
-            }
-        } else {
-            console.log('No notes changed, reusing all existing summaries.');
-        }
-
-        // Build canonical notes and hash for each deal
+        // Build canonical notes and hash for each deal (before summary reuse check)
         for (const deal of result) {
             const rawNotes = notesMap.get(deal.dealKey) || [];
             const { canonical, count } = buildNotesCanonical(rawNotes);
@@ -652,6 +595,64 @@
             deal.notesCount = count;
             deal.notesHash = await sha256Hex(canonical);
         }
+
+        // Build lookup of existing deal data by key
+        const oldDealMap = new Map();
+        for (const old of allDeals) {
+            oldDealMap.set(old.dealKey || makeDealKey(old.dealName, old.dealOwner), old);
+        }
+
+        // Determine which deals need new AI summaries (hash-based reuse)
+        const dealsNeedingSummary = [];
+        let cacheHits = 0;
+        for (const deal of result) {
+            const oldDeal = oldDealMap.get(deal.dealKey);
+            const oldSummary = oldDeal?.notesSummary || '';
+            const oldHash = oldDeal?.summaryHash || '';
+
+            if (oldSummary && oldHash && oldHash === deal.notesHash) {
+                // Notes unchanged — reuse existing summary
+                deal.notesSummary = oldSummary;
+                deal.summaryHash = oldHash;
+                cacheHits++;
+            } else {
+                dealsNeedingSummary.push(deal);
+            }
+        }
+
+        // Call AI in batches to avoid timeouts
+        let aiRequested = 0;
+        let aiReturned = 0;
+        if (dealsNeedingSummary.length > 0) {
+            console.log(`${dealsNeedingSummary.length} deals need AI summaries, ${cacheHits} reusing existing (hash match).`);
+            const BATCH_SIZE = 10;
+            const allAiSummaries = {};
+
+            for (let i = 0; i < dealsNeedingSummary.length; i += BATCH_SIZE) {
+                const batch = dealsNeedingSummary.slice(i, i + BATCH_SIZE);
+                console.log(`Processing AI batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(dealsNeedingSummary.length / BATCH_SIZE)}...`);
+                aiRequested += batch.length;
+                const batchSummaries = await generateAISummaries(batch, notesMap);
+                if (batchSummaries) {
+                    Object.assign(allAiSummaries, batchSummaries);
+                }
+            }
+
+            for (const deal of dealsNeedingSummary) {
+                const allNotes = notesMap.get(deal.dealKey) || [];
+                if (allAiSummaries[deal.dealName]) {
+                    deal.notesSummary = allAiSummaries[deal.dealName];
+                    aiReturned++;
+                } else {
+                    deal.notesSummary = generateFallbackSummary(allNotes);
+                }
+                deal.summaryHash = deal.notesHash;
+            }
+        } else {
+            console.log('No notes changed, reusing all existing summaries.');
+        }
+
+        console.log(`Summary stats — AI requested: ${aiRequested}, AI returned: ${aiReturned}, cache hits: ${cacheHits}`);
 
         return result;
     }

@@ -229,14 +229,15 @@ function deduplicateDeals(deals) {
 
     const result = Array.from(dealMap.values());
 
-    // Generate fallback summaries and canonical notes (no AI in test/Node context)
+    // Generate canonical notes, hash, fallback summaries (no AI in test/Node context)
     for (const deal of result) {
         const rawNotes = notesMap.get(deal.dealKey) || [];
-        deal.notesSummary = generateFallbackSummary(rawNotes);
         const { canonical, count } = buildNotesCanonical(rawNotes);
         deal.notesCanonical = canonical;
         deal.notesCount = count;
         deal.notesHash = sha256Hex(canonical);
+        deal.notesSummary = generateFallbackSummary(rawNotes);
+        deal.summaryHash = deal.notesHash;
     }
 
     return result;
