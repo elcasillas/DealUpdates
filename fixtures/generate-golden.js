@@ -13,7 +13,11 @@ const path = require('path');
 
 // Ensure Web Crypto API is available for domain.js sha256Hex
 if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
-    globalThis.crypto = require('crypto');
+    const { webcrypto } = require('crypto');
+    if (!webcrypto || !webcrypto.subtle) {
+        throw new Error('Node.js 15+ required for WebCrypto support. Please upgrade Node.');
+    }
+    globalThis.crypto = webcrypto;
 }
 
 // ==================== Shared modules ====================
