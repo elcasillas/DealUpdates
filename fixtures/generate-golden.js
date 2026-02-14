@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 // ==================== Functions copied from js/app.js ====================
 // These MUST stay in sync with app.js. If app.js changes, re-run this script.
@@ -31,6 +32,15 @@ function normalizeString(s) {
 
 function makeDealKey(dealName, dealOwner) {
     return normalizeString(dealName) + '||' + normalizeString(dealOwner);
+}
+
+function sha256Hex(str) {
+    return crypto.createHash('sha256').update(str).digest('hex');
+}
+
+function buildNotesCanonical(rawNotes) {
+    const unique = [...new Set(rawNotes.map(n => n.trim()).filter(Boolean))].sort();
+    return { canonical: unique.join('\n---\n'), count: unique.length };
 }
 
 function parseCSVText(text) {
@@ -219,25 +229,20 @@ function deduplicateDeals(deals) {
 
     const result = Array.from(dealMap.values());
 
-    // Generate fallback summaries (no AI in test/Node context)
+    // Generate fallback summaries and canonical notes (no AI in test/Node context)
     for (const deal of result) {
-        const key = deal.dealKey;
-        const allNotes = notesMap.get(key) || [];
-        deal.notesSummary = generateFallbackSummary(allNotes);
+        const rawNotes = notesMap.get(deal.dealKey) || [];
+        deal.notesSummary = generateFallbackSummary(rawNotes);
+        const { canonical, count } = buildNotesCanonical(rawNotes);
+        deal.notesCanonical = canonical;
+        deal.notesCount = count;
+        deal.notesHash = sha256Hex(canonical);
     }
 
     return result;
 }
 
 // ==================== Snapshot building ====================
-
-function hashString(str) {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) + hash + str.charCodeAt(i)) & 0xffffffff;
-    }
-    return (hash >>> 0).toString(16).padStart(8, '0');
-}
 
 function buildSnapshot(deals) {
     return deals
@@ -248,7 +253,8 @@ function buildSnapshot(deals) {
             acv: d.acv,
             closing_date: d.closingDate ? d.closingDate.toISOString().slice(0, 10) : null,
             modified_date: d.modifiedDate ? d.modifiedDate.toISOString().slice(0, 10) : null,
-            notes_hash: hashString(d.noteContent || ''),
+            notes_count: d.notesCount,
+            notes_hash: d.notesHash,
             notes_summary_length: (d.notesSummary || '').length
         }))
         .sort((a, b) => a.deal_key.localeCompare(b.deal_key));

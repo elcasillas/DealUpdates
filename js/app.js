@@ -35,6 +35,17 @@
         return normalizeString(dealName) + '||' + normalizeString(dealOwner);
     }
 
+    async function sha256Hex(str) {
+        const data = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function buildNotesCanonical(rawNotes) {
+        const unique = [...new Set(rawNotes.map(n => n.trim()).filter(Boolean))].sort();
+        return { canonical: unique.join('\n---\n'), count: unique.length };
+    }
+
     // ==================== Supabase Client ====================
     let supabaseClient = null;
     let isOnline = false;
@@ -631,6 +642,15 @@
             }
         } else {
             console.log('No notes changed, reusing all existing summaries.');
+        }
+
+        // Build canonical notes and hash for each deal
+        for (const deal of result) {
+            const rawNotes = notesMap.get(deal.dealKey) || [];
+            const { canonical, count } = buildNotesCanonical(rawNotes);
+            deal.notesCanonical = canonical;
+            deal.notesCount = count;
+            deal.notesHash = await sha256Hex(canonical);
         }
 
         return result;
@@ -1757,6 +1777,8 @@
         generateFallbackSummary,
         normalizeString,
         makeDealKey,
+        sha256Hex,
+        buildNotesCanonical,
         COLUMN_MAPPINGS
     };
 

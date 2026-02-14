@@ -125,15 +125,6 @@
         '05_large_mixed'
     ];
 
-    // Simple deterministic hash (djb2)
-    function hashString(str) {
-        let hash = 5381;
-        for (let i = 0; i < str.length; i++) {
-            hash = ((hash << 5) + hash + str.charCodeAt(i)) & 0xffffffff;
-        }
-        return (hash >>> 0).toString(16).padStart(8, '0');
-    }
-
     // Build a snapshot from processed deals
     function buildSnapshot(deals) {
         return deals
@@ -144,7 +135,8 @@
                 acv: d.acv,
                 closing_date: d.closingDate ? d.closingDate.toISOString().slice(0, 10) : null,
                 modified_date: d.modifiedDate ? d.modifiedDate.toISOString().slice(0, 10) : null,
-                notes_hash: hashString(d.noteContent || ''),
+                notes_count: d.notesCount,
+                notes_hash: d.notesHash,
                 notes_summary_length: (d.notesSummary || '').length
             }))
             .sort((a, b) => a.deal_key.localeCompare(b.deal_key));

@@ -6,7 +6,8 @@
     "acv": 120000,
     "closing_date": "2026-03-14",
     "modified_date": "2026-02-07",
-    "notes_hash": "8b850bca",
+    "notes_count": 1,
+    "notes_hash": "96312516e1bdef1c503227f38c4e3e385fd17aa196fb783506b1d71be7dc6b08",
     "notes_summary_length": 29
   },
   {
@@ -16,7 +17,8 @@
     "acv": 0,
     "closing_date": "2026-01-14",
     "modified_date": "2026-01-14",
-    "notes_hash": "597a8624",
+    "notes_count": 1,
+    "notes_hash": "523a85c7dd5b5e0750fb53281e086801348ff440b4e50b52436517276036a292",
     "notes_summary_length": 25
   },
   {
@@ -26,7 +28,8 @@
     "acv": 40000,
     "closing_date": "2026-07-31",
     "modified_date": "2026-02-06",
-    "notes_hash": "24d0fe86",
+    "notes_count": 1,
+    "notes_hash": "299050a52100c750f484751059b3bc34bde207a105a2c8f652b20b14678b424c",
     "notes_summary_length": 48
   },
   {
@@ -36,7 +39,8 @@
     "acv": 60000,
     "closing_date": "2026-07-14",
     "modified_date": null,
-    "notes_hash": "9516f476",
+    "notes_count": 1,
+    "notes_hash": "75166057d76faef3ea8fa46bf693602108839894492a552e593ff017117846c9",
     "notes_summary_length": 24
   }
 ]
