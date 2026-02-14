@@ -10,6 +10,10 @@ const corsHeaders = {
 const MODEL_ID = "claude-3-haiku-20240307";
 const MODEL_TAG = "haiku";
 
+// Input limits
+const MAX_DEALS_PER_REQUEST = 100;
+const MAX_NOTES_CANONICAL_LENGTH = 50_000;
+
 interface LegacyDeal {
   dealName: string;
   notes: string[];
@@ -89,6 +93,38 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: "No deals provided" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    if (deals.length > MAX_DEALS_PER_REQUEST) {
+      return new Response(
+        JSON.stringify({ error: `Too many deals: ${deals.length} exceeds limit of ${MAX_DEALS_PER_REQUEST}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate fields on new-format deals
+    for (let i = 0; i < deals.length; i++) {
+      const d = deals[i];
+      if (d.deal_key !== undefined) {
+        if (typeof d.deal_key !== "string" || d.deal_key.trim() === "") {
+          return new Response(
+            JSON.stringify({ error: `deals[${i}].deal_key must be a non-empty string` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (typeof d.notes_hash !== "string" || d.notes_hash.trim() === "") {
+          return new Response(
+            JSON.stringify({ error: `deals[${i}].notes_hash must be a non-empty string` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (typeof d.notes_canonical === "string" && d.notes_canonical.length > MAX_NOTES_CANONICAL_LENGTH) {
+          return new Response(
+            JSON.stringify({ error: `deals[${i}].notes_canonical exceeds ${MAX_NOTES_CANONICAL_LENGTH} character limit` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
     }
 
     // Detect payload format

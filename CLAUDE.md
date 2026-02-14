@@ -12,13 +12,13 @@
 ## Development Commands
 ```bash
 # Start a local development server (Python)
-python -m http.server 8000
+python -m http.server 8423
 
 # Or using Node.js http-server (if installed)
-npx http-server -p 8000
+npx http-server -p 8423
 
 # Open in browser
-start http://localhost:8000
+start http://localhost:8423
 ```
 
 ## Project Structure
