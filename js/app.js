@@ -4,14 +4,14 @@
 (function() {
     'use strict';
 
+    // ==================== Domain imports ====================
+    const { URGENCY_THRESHOLDS, CLOSING_SOON_DAYS, normalizeString, makeDealKey,
+            sha256Hex, buildNotesCanonical, parseACV, parseDate,
+            calculateDaysSince, getUrgencyLevel, calculateDaysUntilClosing,
+            getClosingStatus } = window.DealDomain;
+
     // ==================== Configuration ====================
     const STORAGE_KEY = 'dealUpdates_data';
-    const URGENCY_THRESHOLDS = {
-        fresh: 14,
-        warning: 30,
-        stale: 60
-    };
-    const CLOSING_SOON_DAYS = 14;
     const BATCH_SIZE = 500;
 
     // Column mappings for CSV parsing
@@ -25,26 +25,6 @@
         'Note Content': 'noteContent',
         'Description': 'description'
     };
-
-    // Canonical deal identity helpers
-    function normalizeString(s) {
-        return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
-    }
-
-    function makeDealKey(dealName, dealOwner) {
-        return normalizeString(dealName) + '||' + normalizeString(dealOwner);
-    }
-
-    async function sha256Hex(str) {
-        const data = new TextEncoder().encode(str);
-        const buf = await crypto.subtle.digest('SHA-256', data);
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function buildNotesCanonical(rawNotes) {
-        const unique = [...new Set(rawNotes.map(n => n.trim()).filter(Boolean))].sort();
-        return { canonical: unique.join('\n---\n'), count: unique.length };
-    }
 
     // ==================== Supabase Client ====================
     let supabaseClient = null;
@@ -464,70 +444,6 @@
         deal.dealKey = makeDealKey(deal.dealName, deal.dealOwner);
 
         return deal;
-    }
-
-    function parseACV(value) {
-        if (!value || typeof value !== 'string') {
-            return { value: 0, isCAD: true }; // Assume CAD if no currency specified
-        }
-
-        const cleanValue = value.trim().toUpperCase();
-
-        // Check for currency prefixes
-        const isUSD = cleanValue.includes('USD') || cleanValue.startsWith('US$');
-        const isEUR = cleanValue.includes('EUR') || cleanValue.startsWith('€');
-        const isCAD = cleanValue.includes('CAD') || (!isUSD && !isEUR);
-
-        // Extract numeric value
-        const numericString = cleanValue.replace(/[^0-9.-]/g, '');
-        const numericValue = parseFloat(numericString) || 0;
-
-        return { value: numericValue, isCAD };
-    }
-
-    function parseDate(dateStr) {
-        if (!dateStr) return null;
-
-        // Try parsing the date string
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return null;
-
-        // Return date only (strip time)
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    }
-
-    function calculateDaysSince(date) {
-        if (!date) return 999; // High number for unknown dates
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const diffTime = today - date;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        return Math.max(0, diffDays);
-    }
-
-    function getUrgencyLevel(days) {
-        if (days <= URGENCY_THRESHOLDS.fresh) return 'fresh';
-        if (days <= URGENCY_THRESHOLDS.warning) return 'warning';
-        if (days <= URGENCY_THRESHOLDS.stale) return 'stale';
-        return 'critical';
-    }
-
-    function calculateDaysUntilClosing(date) {
-        if (!date) return null;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const diffTime = date - today;
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function getClosingStatus(daysUntil) {
-        if (daysUntil === null) return null;
-        if (daysUntil < 0) return 'overdue';
-        if (daysUntil <= CLOSING_SOON_DAYS) return 'soon';
-        return 'normal';
     }
 
     function stripHTML(html) {

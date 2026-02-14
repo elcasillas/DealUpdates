@@ -10,10 +10,17 @@
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
-// ==================== Functions copied from js/app.js ====================
-// These MUST stay in sync with app.js. If app.js changes, re-run this script.
+// Ensure Web Crypto API is available for domain.js sha256Hex
+if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
+    globalThis.crypto = require('crypto');
+}
+
+// ==================== Shared domain functions ====================
+const { normalizeString, makeDealKey, sha256Hex, buildNotesCanonical,
+        parseACV, parseDate } = require('../js/domain.js');
+
+// ==================== Local functions (app-specific / DOM-dependent) ====================
 
 const COLUMN_MAPPINGS = {
     'Deal Owner': 'dealOwner',
@@ -25,23 +32,6 @@ const COLUMN_MAPPINGS = {
     'Note Content': 'noteContent',
     'Description': 'description'
 };
-
-function normalizeString(s) {
-    return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-function makeDealKey(dealName, dealOwner) {
-    return normalizeString(dealName) + '||' + normalizeString(dealOwner);
-}
-
-function sha256Hex(str) {
-    return crypto.createHash('sha256').update(str).digest('hex');
-}
-
-function buildNotesCanonical(rawNotes) {
-    const unique = [...new Set(rawNotes.map(n => n.trim()).filter(Boolean))].sort();
-    return { canonical: unique.join('\n---\n'), count: unique.length };
-}
 
 function parseCSVText(text) {
     const rows = [];
@@ -134,26 +124,6 @@ function parseCSV(text) {
     return { rows };
 }
 
-function parseACV(value) {
-    if (!value || typeof value !== 'string') {
-        return { value: 0, isCAD: true };
-    }
-    const cleanValue = value.trim().toUpperCase();
-    const isUSD = cleanValue.includes('USD') || cleanValue.startsWith('US$');
-    const isEUR = cleanValue.includes('EUR') || cleanValue.startsWith('€');
-    const isCAD = cleanValue.includes('CAD') || (!isUSD && !isEUR);
-    const numericString = cleanValue.replace(/[^0-9.-]/g, '');
-    const numericValue = parseFloat(numericString) || 0;
-    return { value: numericValue, isCAD };
-}
-
-function parseDate(dateStr) {
-    if (!dateStr) return null;
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return null;
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
 // Minimal HTML stripping for Node.js (matches browser's textContent behavior)
 function stripHTML(html) {
     if (!html) return '';
@@ -203,7 +173,7 @@ function generateFallbackSummary(notes) {
     return summary;
 }
 
-function deduplicateDeals(deals) {
+async function deduplicateDeals(deals) {
     const dealMap = new Map();
     const notesMap = new Map();
 
@@ -235,7 +205,7 @@ function deduplicateDeals(deals) {
         const { canonical, count } = buildNotesCanonical(rawNotes);
         deal.notesCanonical = canonical;
         deal.notesCount = count;
-        deal.notesHash = sha256Hex(canonical);
+        deal.notesHash = await sha256Hex(canonical);
         deal.notesSummary = generateFallbackSummary(rawNotes);
         deal.summaryHash = deal.notesHash;
     }
@@ -271,35 +241,37 @@ const FIXTURES = [
     '05_large_mixed'
 ];
 
-const fixturesDir = path.join(__dirname);
-const expectedDir = path.join(fixturesDir, 'expected');
+(async function main() {
+    const fixturesDir = path.join(__dirname);
+    const expectedDir = path.join(fixturesDir, 'expected');
 
-if (!fs.existsSync(expectedDir)) {
-    fs.mkdirSync(expectedDir, { recursive: true });
-}
-
-let total = 0;
-let generated = 0;
-
-for (const name of FIXTURES) {
-    total++;
-    const csvPath = path.join(fixturesDir, `${name}.csv`);
-    if (!fs.existsSync(csvPath)) {
-        console.error(`  SKIP  ${name}.csv (not found)`);
-        continue;
+    if (!fs.existsSync(expectedDir)) {
+        fs.mkdirSync(expectedDir, { recursive: true });
     }
 
-    const csvText = fs.readFileSync(csvPath, 'utf-8');
-    const { rows: rawRows } = parseCSV(csvText);
-    const processed = rawRows.map(processRow).filter(d => d !== null).filter(validateRow);
-    const deduped = deduplicateDeals(processed);
-    const snapshot = buildSnapshot(deduped);
+    let total = 0;
+    let generated = 0;
 
-    const outPath = path.join(expectedDir, `${name}.json`);
-    fs.writeFileSync(outPath, JSON.stringify(snapshot, null, 2) + '\n');
+    for (const name of FIXTURES) {
+        total++;
+        const csvPath = path.join(fixturesDir, `${name}.csv`);
+        if (!fs.existsSync(csvPath)) {
+            console.error(`  SKIP  ${name}.csv (not found)`);
+            continue;
+        }
 
-    console.log(`  OK    ${name}.csv → ${snapshot.length} deals → expected/${name}.json`);
-    generated++;
-}
+        const csvText = fs.readFileSync(csvPath, 'utf-8');
+        const { rows: rawRows } = parseCSV(csvText);
+        const processed = rawRows.map(processRow).filter(d => d !== null).filter(validateRow);
+        const deduped = await deduplicateDeals(processed);
+        const snapshot = buildSnapshot(deduped);
 
-console.log(`\nGenerated ${generated}/${total} golden files in fixtures/expected/`);
+        const outPath = path.join(expectedDir, `${name}.json`);
+        fs.writeFileSync(outPath, JSON.stringify(snapshot, null, 2) + '\n');
+
+        console.log(`  OK    ${name}.csv → ${snapshot.length} deals → expected/${name}.json`);
+        generated++;
+    }
+
+    console.log(`\nGenerated ${generated}/${total} golden files in fixtures/expected/`);
+})();
