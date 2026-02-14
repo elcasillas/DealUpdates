@@ -12,7 +12,7 @@
 
     // ==================== Ingest imports ====================
     const { COLUMN_MAPPINGS, parseCSV, parseCSVText, processRow, validateRow,
-            deduplicateDeals, stripHTML, formatCurrency,
+            deduplicateDeals, applyAISummaries, stripHTML, formatCurrency,
             generateFallbackSummary } = window.DealIngest;
 
     // ==================== Configuration ====================
@@ -234,7 +234,8 @@
     };
 
     // ==================== Loading State ====================
-    function showLoading() {
+    function showLoading(text) {
+        document.getElementById('loading-text').textContent = text || 'Loading...';
         elements.loadingOverlay.classList.remove('hidden');
     }
 
@@ -1092,31 +1093,56 @@
         reader.readAsText(file);
     }
 
+    // ==================== Web Worker Ingest ====================
+    let activeWorker = null;
+
+    function runIngestWorker(csvText, existingDeals) {
+        return new Promise((resolve, reject) => {
+            const worker = new Worker('js/ingest-worker.js');
+            activeWorker = worker;
+
+            worker.onmessage = function(e) {
+                const msg = e.data;
+                if (msg.type === 'progress') {
+                    showLoading(msg.phase);
+                } else if (msg.type === 'complete') {
+                    activeWorker = null;
+                    worker.terminate();
+                    resolve({ deals: msg.deals, generatedDate: msg.generatedDate });
+                } else if (msg.type === 'error') {
+                    activeWorker = null;
+                    worker.terminate();
+                    reject(new Error(msg.message));
+                }
+            };
+
+            worker.onerror = function(err) {
+                activeWorker = null;
+                worker.terminate();
+                reject(new Error(err.message || 'Worker error'));
+            };
+
+            worker.postMessage({ csvText, existingDeals });
+        });
+    }
+
     async function processCSVData(csvText, filename) {
-        showLoading();
+        showLoading('Processing...');
         try {
-            // Parse CSV -- now returns { rows, generatedDate }
-            const { rows: rawRows, generatedDate } = parseCSV(csvText);
-            console.log(`Parsed ${rawRows.length} rows from CSV`);
+            // Run parse + process + validate + dedup in Web Worker
+            const { deals: workerDeals, generatedDate: genDateISO } = await runIngestWorker(csvText, allDeals);
 
             // Determine upload date
-            const uploadDate = generatedDate
-                ? generatedDate.toISOString().slice(0, 10)
+            const uploadDate = genDateISO
+                ? genDateISO.slice(0, 10)
                 : new Date().toISOString().slice(0, 10);
 
             console.log('Upload date:', uploadDate);
 
-            // Process rows
-            let processed = rawRows
-                .map(processRow)
-                .filter(deal => deal !== null)
-                .filter(validateRow);
-
-            console.log(`After processing and validation: ${processed.length} deals`);
-
-            // Deduplicate
-            processed = await deduplicateDeals(processed, allDeals, generateAISummaries);
-            console.log(`After deduplication: ${processed.length} deals`);
+            // Apply AI summaries on main thread (needs supabaseClient)
+            showLoading('Generating summaries...');
+            let processed = await applyAISummaries(workerDeals, allDeals, generateAISummaries);
+            console.log(`After worker + AI: ${processed.length} deals`);
 
             if (processed.length === 0) {
                 alert('No valid CAD deals found in the CSV file.');

@@ -117,4 +117,4 @@
 
 })(typeof module !== 'undefined' && module.exports
     ? module.exports
-    : (window.DealDomain = {}));
+    : (self.DealDomain = {}));

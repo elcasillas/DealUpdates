@@ -7,7 +7,7 @@
     // ==================== Domain dependency ====================
     const DealDomain = typeof require !== 'undefined'
         ? require('./domain.js')
-        : window.DealDomain;
+        : self.DealDomain;
 
     const { parseACV, parseDate, calculateDaysSince, getUrgencyLevel,
             calculateDaysUntilClosing, getClosingStatus, makeDealKey,
@@ -385,6 +385,77 @@
         return result;
     }
 
+    // Apply AI summaries to deals that were already deduped and hashed (e.g. by a Worker).
+    // Reuses cached summaries from existingDeals when hashes match, calls AI for the rest.
+    async function applyAISummaries(deals, existingDeals = [], generateAISummaries = async () => null) {
+        // Build lookup of existing deal data by key
+        const oldDealMap = new Map();
+        for (const old of existingDeals) {
+            oldDealMap.set(old.dealKey || makeDealKey(old.dealName, old.dealOwner), old);
+        }
+
+        // Determine which deals need new AI summaries (hash-based reuse)
+        const dealsNeedingSummary = [];
+        let cacheHits = 0;
+        for (const deal of deals) {
+            const oldDeal = oldDealMap.get(deal.dealKey);
+            const oldSummary = oldDeal?.notesSummary || '';
+            const oldHash = oldDeal?.summaryHash || '';
+
+            if (oldSummary && oldHash && oldHash === deal.notesHash) {
+                deal.notesSummary = oldSummary;
+                deal.summaryHash = oldHash;
+                cacheHits++;
+            } else {
+                dealsNeedingSummary.push(deal);
+            }
+        }
+
+        // Call AI in batches to avoid timeouts
+        let aiRequested = 0;
+        let aiReturned = 0;
+        if (dealsNeedingSummary.length > 0) {
+            console.log(`${dealsNeedingSummary.length} deals need AI summaries, ${cacheHits} reusing existing (hash match).`);
+            const BATCH_SIZE = 10;
+            const allAiSummaries = {};
+
+            // Build notesMap from each deal's notesCanonical for the AI callback
+            const notesMap = new Map();
+            for (const deal of deals) {
+                if (deal.notesCanonical) {
+                    notesMap.set(deal.dealKey, deal.notesCanonical.split('\n---\n'));
+                }
+            }
+
+            for (let i = 0; i < dealsNeedingSummary.length; i += BATCH_SIZE) {
+                const batch = dealsNeedingSummary.slice(i, i + BATCH_SIZE);
+                console.log(`Processing AI batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(dealsNeedingSummary.length / BATCH_SIZE)}...`);
+                aiRequested += batch.length;
+                const batchSummaries = await generateAISummaries(batch, notesMap);
+                if (batchSummaries) {
+                    Object.assign(allAiSummaries, batchSummaries);
+                }
+            }
+
+            for (const deal of dealsNeedingSummary) {
+                const allNotes = notesMap.get(deal.dealKey) || [];
+                if (allAiSummaries[deal.dealKey]) {
+                    deal.notesSummary = allAiSummaries[deal.dealKey];
+                    aiReturned++;
+                } else {
+                    deal.notesSummary = generateFallbackSummary(allNotes);
+                }
+                deal.summaryHash = deal.notesHash;
+            }
+        } else {
+            console.log('No notes changed, reusing all existing summaries.');
+        }
+
+        console.log(`Summary stats — AI requested: ${aiRequested}, AI returned: ${aiReturned}, cache hits: ${cacheHits}`);
+
+        return deals;
+    }
+
     // ==================== Exports ====================
     exports.COLUMN_MAPPINGS = COLUMN_MAPPINGS;
     exports.parseCSVText = parseCSVText;
@@ -395,7 +466,8 @@
     exports.validateRow = validateRow;
     exports.generateFallbackSummary = generateFallbackSummary;
     exports.deduplicateDeals = deduplicateDeals;
+    exports.applyAISummaries = applyAISummaries;
 
 })(typeof module !== 'undefined' && module.exports
     ? module.exports
-    : (window.DealIngest = {}));
+    : (self.DealIngest = {}));

@@ -36,6 +36,10 @@ If either variable is missing, the build prints an info message and the app runs
 
 The app caches deal data in your browser's localStorage for offline use. Stored keys are prefixed with `dealUpdates_`. To reset, click **Clear Local Data** in the header, or manually clear site data in your browser's DevTools.
 
+## Web Worker Architecture
+
+CSV parsing and row processing run in a Web Worker (`js/ingest-worker.js`) to keep the UI responsive during large imports. The worker loads `domain.js` and `ingest.js` via `importScripts`, runs the full parse/process/validate/deduplicate pipeline, and posts progress updates back to the main thread. AI summaries and Supabase operations stay on the main thread since they need the Supabase client. To debug the worker, open DevTools and check the worker's console under **Sources > Threads** or the main console for forwarded messages.
+
 ## Test Harness
 
 ```bash
