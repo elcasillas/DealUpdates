@@ -49,6 +49,7 @@ DealUpdates/
     ├── 03_malformed_rows.csv
     ├── 04_duplicate_deals.csv
     ├── 05_large_mixed.csv
+    ├── 06_currency_edge_cases.csv
     └── expected/          # Golden JSON snapshots for regression tests
 ```
 
