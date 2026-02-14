@@ -25,6 +25,8 @@ start http://localhost:8000
 ```
 DealUpdates/
 ├── CLAUDE.md              # This file
+├── README.md              # Local setup and deployment docs
+├── build.sh               # Vercel build step (generates supabase-config.js)
 ├── index.html             # Main dashboard page
 ├── test-harness.html      # Browser-runnable regression tests
 ├── css/
@@ -33,7 +35,8 @@ DealUpdates/
 │   ├── domain.js          # Pure domain functions (UMD, shared by app + Node)
 │   ├── ingest.js          # CSV parsing, row processing, deduplication (UMD)
 │   ├── app.js             # UI, Supabase, state management
-│   └── supabase-config.js # Supabase credentials (user-provided)
+│   ├── supabase-config.js         # Build-generated (gitignored)
+│   └── supabase-config.local.js   # Local override (gitignored)
 ├── supabase/
 │   ├── migrations/        # SQL migration files (not auto-run)
 │   └── functions/
