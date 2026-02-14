@@ -36,7 +36,8 @@ DealUpdates/
 │   └── supabase-config.js # Supabase credentials (user-provided)
 ├── supabase/
 │   ├── migrations/        # SQL migration files (not auto-run)
-│   └── functions/         # Supabase Edge Functions
+│   └── functions/
+│       └── summarize-notes/ # Edge function: cache-first AI summaries
 └── fixtures/
     ├── generate-golden.js # Node script to regenerate expected snapshots
     ├── 01_clean_small.csv
