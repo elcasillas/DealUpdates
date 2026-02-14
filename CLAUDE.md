@@ -24,12 +24,23 @@ start http://localhost:8000
 ## Project Structure
 ```
 DealUpdates/
-├── CLAUDE.md          # This file
-├── index.html         # Main dashboard page
+├── CLAUDE.md              # This file
+├── index.html             # Main dashboard page
+├── test-harness.html      # Browser-runnable regression tests
 ├── css/
-│   └── styles.css     # All styling including urgency badges
-└── js/
-    └── app.js         # Core application logic
+│   └── styles.css         # All styling including urgency badges
+├── js/
+│   ├── domain.js          # Pure domain functions (UMD, shared by app + Node)
+│   ├── app.js             # Core application logic (UI, Supabase, CSV parsing)
+│   └── supabase-config.js # Supabase credentials (user-provided)
+└── fixtures/
+    ├── generate-golden.js # Node script to regenerate expected snapshots
+    ├── 01_clean_small.csv
+    ├── 02_multiline_notes.csv
+    ├── 03_malformed_rows.csv
+    ├── 04_duplicate_deals.csv
+    ├── 05_large_mixed.csv
+    └── expected/          # Golden JSON snapshots for regression tests
 ```
 
 ## Key Features
@@ -41,7 +52,7 @@ DealUpdates/
 - Deduplicate by Deal Name (keep newest Modified Date)
 - Filter malformed rows
 
-## Urgency Thresholds (in js/app.js)
+## Urgency Thresholds (in js/domain.js)
 - Fresh: 0-14 days (green)
 - Warning: 15-30 days (orange)
 - Stale: 31-60 days (red)
