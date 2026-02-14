@@ -34,6 +34,7 @@ DealUpdates/
 ├── js/
 │   ├── domain.js          # Pure domain functions (UMD, shared by app + Node)
 │   ├── ingest.js          # CSV parsing, row processing, deduplication (UMD)
+│   ├── ingest-worker.js   # Web Worker: runs ingest pipeline off main thread
 │   ├── app.js             # UI, Supabase, state management
 │   ├── supabase-config.js         # Build-generated (gitignored)
 │   └── supabase-config.local.js   # Local override (gitignored)
