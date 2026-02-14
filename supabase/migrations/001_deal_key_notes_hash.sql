@@ -26,3 +26,12 @@ CREATE TABLE IF NOT EXISTS deal_summary_cache (
 
 -- Index for cache lookups by hash
 CREATE INDEX IF NOT EXISTS idx_summary_cache_hash ON deal_summary_cache (notes_hash);
+
+-- Deal owner contact info (email, phone)
+CREATE TABLE IF NOT EXISTS deal_owners (
+  owner_name TEXT        PRIMARY KEY,
+  email      TEXT,
+  phone      TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
