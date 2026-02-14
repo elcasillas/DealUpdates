@@ -34,6 +34,9 @@ DealUpdates/
 │   ├── ingest.js          # CSV parsing, row processing, deduplication (UMD)
 │   ├── app.js             # UI, Supabase, state management
 │   └── supabase-config.js # Supabase credentials (user-provided)
+├── supabase/
+│   ├── migrations/        # SQL migration files (not auto-run)
+│   └── functions/         # Supabase Edge Functions
 └── fixtures/
     ├── generate-golden.js # Node script to regenerate expected snapshots
     ├── 01_clean_small.csv
