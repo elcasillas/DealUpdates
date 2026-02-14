@@ -368,8 +368,8 @@
 
             for (const deal of dealsNeedingSummary) {
                 const allNotes = notesMap.get(deal.dealKey) || [];
-                if (allAiSummaries[deal.dealName]) {
-                    deal.notesSummary = allAiSummaries[deal.dealName];
+                if (allAiSummaries[deal.dealKey]) {
+                    deal.notesSummary = allAiSummaries[deal.dealKey];
                     aiReturned++;
                 } else {
                     deal.notesSummary = generateFallbackSummary(allNotes);

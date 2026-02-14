@@ -243,16 +243,15 @@
     async function generateAISummaries(deals, notesMap) {
         if (!supabaseClient) return null;
 
-        // Build payload of deals that have notes
+        // Build cache-first payload with deal_key, notes_hash, notes_canonical
         const payload = deals
-            .filter(deal => {
-                const notes = notesMap.get(deal.dealKey) || [];
-                return notes.length > 0;
-            })
-            .map(deal => {
-                const notes = [...new Set(notesMap.get(deal.dealKey) || [])];
-                return { dealName: deal.dealName, notes };
-            });
+            .filter(deal => deal.notesCanonical && deal.notesCanonical.length > 0)
+            .map(deal => ({
+                deal_key: deal.dealKey,
+                notes_hash: deal.notesHash,
+                notes_canonical: deal.notesCanonical,
+                dealName: deal.dealName
+            }));
 
         if (payload.length === 0) return null;
 
@@ -268,13 +267,28 @@
             }
 
             console.log('AI summary response:', JSON.stringify(data));
-            const summaries = data?.summaries || (typeof data === 'object' ? data : null);
-            if (summaries) {
-                console.log('AI summaries received successfully.');
-            } else {
-                console.warn('AI summary response missing summaries field:', data);
+            const summaries = data?.summaries;
+
+            // New format: array of { deal_key, notes_hash, summary, cached }
+            if (Array.isArray(summaries)) {
+                const result = {};
+                let cachedCount = 0;
+                for (const s of summaries) {
+                    if (s.summary) result[s.deal_key] = s.summary;
+                    if (s.cached) cachedCount++;
+                }
+                console.log(`AI summaries: ${Object.keys(result).length} received, ${cachedCount} from server cache.`);
+                return result;
             }
-            return summaries;
+
+            // Legacy fallback: object keyed by dealName
+            if (summaries && typeof summaries === 'object') {
+                console.log('AI summaries received (legacy format).');
+                return summaries;
+            }
+
+            console.warn('AI summary response missing summaries field:', data);
+            return null;
         } catch (e) {
             console.warn('AI summary failed, using fallback:', e);
             return null;
