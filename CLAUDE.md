@@ -67,9 +67,11 @@ DealUpdates/
 - Critical: 60+ days (dark red)
 
 ## Data Storage
-- Uses localStorage with key `dealUpdates_data`
-- Data persists across browser sessions
-- Clear Data button removes all stored data
+- Uses localStorage with keys prefixed `dealUpdates_`
+  - `dealUpdates_data` — cached deal array
+  - `dealUpdates_schema_version` — integer schema version (currently 1)
+- Schema version checked on load; stale data cleared automatically on upgrade
+- "Clear Local Data" button in header for manual reset (with confirm dialog)
 
 ## CSV Column Expectations
 Required columns (detected by header names):
