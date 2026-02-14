@@ -1734,6 +1734,20 @@
         }
     }
 
+    // Expose core functions for test harness (no-op in production)
+    window._testAPI = {
+        parseCSV,
+        parseCSVText,
+        processRow,
+        validateRow,
+        deduplicateDeals,
+        parseACV,
+        parseDate,
+        stripHTML,
+        generateFallbackSummary,
+        COLUMN_MAPPINGS
+    };
+
     // Start the application
     init();
 })();

@@ -1,0 +1,52 @@
+[
+  {
+    "deal_key": "acme corp renewal",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 120000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_hash": "8b850bca",
+    "notes_summary_length": 29
+  },
+  {
+    "deal_key": "beta industries",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 45000,
+    "closing_date": "2026-03-31",
+    "modified_date": "2026-01-24",
+    "notes_hash": "2c13c14e",
+    "notes_summary_length": 33
+  },
+  {
+    "deal_key": "delta financial",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Proposal",
+    "acv": 85000,
+    "closing_date": "2026-05-09",
+    "modified_date": "2026-01-31",
+    "notes_hash": "87d56336",
+    "notes_summary_length": 14
+  },
+  {
+    "deal_key": "epsilon retail",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 30000,
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-02-09",
+    "notes_hash": "3b28fac0",
+    "notes_summary_length": 19
+  },
+  {
+    "deal_key": "gamma health",
+    "deal_owner": "Alice Smith",
+    "stage": "Closed Won",
+    "acv": 200000,
+    "closing_date": "2026-01-30",
+    "modified_date": "2026-01-30",
+    "notes_hash": "078a0e98",
+    "notes_summary_length": 34
+  }
+]

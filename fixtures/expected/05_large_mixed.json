@@ -1,0 +1,412 @@
+[
+  {
+    "deal_key": "acme corp renewal",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 120000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_hash": "8b850bca",
+    "notes_summary_length": 29
+  },
+  {
+    "deal_key": "alpha2 mining",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Qualification",
+    "acv": 220000,
+    "closing_date": "2026-07-31",
+    "modified_date": "2026-01-21",
+    "notes_hash": "276e8872",
+    "notes_summary_length": 21
+  },
+  {
+    "deal_key": "beta industries",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 45000,
+    "closing_date": "2026-03-31",
+    "modified_date": "2026-01-24",
+    "notes_hash": "a1d9622e",
+    "notes_summary_length": 33
+  },
+  {
+    "deal_key": "beta2 legal",
+    "deal_owner": "Bob Jones",
+    "stage": "Proposal",
+    "acv": 50000,
+    "closing_date": "2026-05-14",
+    "modified_date": "2026-02-01",
+    "notes_hash": "37761b63",
+    "notes_summary_length": 41
+  },
+  {
+    "deal_key": "chi real estate",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Negotiation",
+    "acv": 65000,
+    "closing_date": "2026-03-09",
+    "modified_date": "2026-02-06",
+    "notes_hash": "cf0d8786",
+    "notes_summary_length": 36
+  },
+  {
+    "deal_key": "delta financial",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Proposal",
+    "acv": 85000,
+    "closing_date": "2026-05-09",
+    "modified_date": "2026-01-31",
+    "notes_hash": "87d56336",
+    "notes_summary_length": 14
+  },
+  {
+    "deal_key": "delta2 sports",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Qualification",
+    "acv": 75000,
+    "closing_date": "2026-07-19",
+    "modified_date": "2026-01-28",
+    "notes_hash": "b82606a3",
+    "notes_summary_length": 26
+  },
+  {
+    "deal_key": "duplicate deal alpha",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 65000,
+    "closing_date": "2026-05-31",
+    "modified_date": "2026-02-07",
+    "notes_hash": "c2b34b77",
+    "notes_summary_length": 74
+  },
+  {
+    "deal_key": "epsilon retail",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 30000,
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-02-09",
+    "notes_hash": "4324051b",
+    "notes_summary_length": 19
+  },
+  {
+    "deal_key": "epsilon2 banking",
+    "deal_owner": "Bob Jones",
+    "stage": "Negotiation",
+    "acv": 350000,
+    "closing_date": "2026-03-29",
+    "modified_date": "2026-02-05",
+    "notes_hash": "313f369a",
+    "notes_summary_length": 25
+  },
+  {
+    "deal_key": "eta manufacturing",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Closed Won",
+    "acv": 150000,
+    "closing_date": "2026-01-14",
+    "modified_date": "2026-01-14",
+    "notes_hash": "ab14d2c3",
+    "notes_summary_length": 7
+  },
+  {
+    "deal_key": "eta2 fashion",
+    "deal_owner": "Dana Lee",
+    "stage": "Discovery",
+    "acv": 55000,
+    "closing_date": "2026-09-14",
+    "modified_date": "2026-02-10",
+    "notes_hash": "2f17a824",
+    "notes_summary_length": 38
+  },
+  {
+    "deal_key": "gamma health",
+    "deal_owner": "Alice Smith",
+    "stage": "Closed Won",
+    "acv": 200000,
+    "closing_date": "2026-01-30",
+    "modified_date": "2026-01-30",
+    "notes_hash": "078a0e98",
+    "notes_summary_length": 34
+  },
+  {
+    "deal_key": "gamma2 nonprofit",
+    "deal_owner": "Alice Smith",
+    "stage": "Discovery",
+    "acv": 15000,
+    "closing_date": "2026-10-31",
+    "modified_date": "2026-02-09",
+    "notes_hash": "3b50aca3",
+    "notes_summary_length": 21
+  },
+  {
+    "deal_key": "iota services",
+    "deal_owner": "Alice Smith",
+    "stage": "Proposal",
+    "acv": 40000,
+    "closing_date": "2026-07-31",
+    "modified_date": "2026-02-06",
+    "notes_hash": "8328d4ea",
+    "notes_summary_length": 14
+  },
+  {
+    "deal_key": "iota2 consulting",
+    "deal_owner": "Dana Lee",
+    "stage": "Proposal",
+    "acv": 38000,
+    "closing_date": "2026-04-09",
+    "modified_date": "2026-02-02",
+    "notes_hash": "0aff617e",
+    "notes_summary_length": 44
+  },
+  {
+    "deal_key": "kappa telecom",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Qualification",
+    "acv": 175000,
+    "closing_date": "2026-05-31",
+    "modified_date": "2026-01-29",
+    "notes_hash": "22b8d54b",
+    "notes_summary_length": 40
+  },
+  {
+    "deal_key": "kappa2 defense",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Qualification",
+    "acv": 500000,
+    "closing_date": "2026-12-14",
+    "modified_date": "2025-11-30",
+    "notes_hash": "7e2c09db",
+    "notes_summary_length": 21
+  },
+  {
+    "deal_key": "lambda education",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 25000,
+    "closing_date": "2026-08-31",
+    "modified_date": "2026-02-10",
+    "notes_hash": "340d9aa5",
+    "notes_summary_length": 31
+  },
+  {
+    "deal_key": "lambda2 transport",
+    "deal_owner": "Bob Jones",
+    "stage": "Negotiation",
+    "acv": 88000,
+    "closing_date": "2026-03-17",
+    "modified_date": "2026-02-08",
+    "notes_hash": "93f06b83",
+    "notes_summary_length": 17
+  },
+  {
+    "deal_key": "mu pharma",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 300000,
+    "closing_date": "2026-04-14",
+    "modified_date": "2026-02-05",
+    "notes_hash": "001d94d1",
+    "notes_summary_length": 24
+  },
+  {
+    "deal_key": "mu2 dental",
+    "deal_owner": "Alice Smith",
+    "stage": "Discovery",
+    "acv": 22000,
+    "closing_date": "2026-10-14",
+    "modified_date": "2026-02-11",
+    "notes_hash": "37a7075a",
+    "notes_summary_length": 39
+  },
+  {
+    "deal_key": "nu energy",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Proposal",
+    "acv": 110000,
+    "closing_date": "2026-05-29",
+    "modified_date": "2026-02-02",
+    "notes_hash": "c9af1eaa",
+    "notes_summary_length": 20
+  },
+  {
+    "deal_key": "nu2 telehealth",
+    "deal_owner": "Dana Lee",
+    "stage": "Proposal",
+    "acv": 95000,
+    "closing_date": "2026-05-24",
+    "modified_date": "2026-02-04",
+    "notes_hash": "c28c95df",
+    "notes_summary_length": 96
+  },
+  {
+    "deal_key": "omega shipping",
+    "deal_owner": "Alice Smith",
+    "stage": "Closed Won",
+    "acv": 145000,
+    "closing_date": "2026-02-04",
+    "modified_date": "2026-02-04",
+    "notes_hash": "32fb0e6a",
+    "notes_summary_length": 12
+  },
+  {
+    "deal_key": "omicron media",
+    "deal_owner": "Alice Smith",
+    "stage": "Discovery",
+    "acv": 55000,
+    "closing_date": "2026-08-14",
+    "modified_date": "2026-02-11",
+    "notes_hash": "27b1e28d",
+    "notes_summary_length": 17
+  },
+  {
+    "deal_key": "omicron2 gaming",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 70000,
+    "closing_date": "2026-08-19",
+    "modified_date": "2026-02-07",
+    "notes_hash": "335a3378",
+    "notes_summary_length": 22
+  },
+  {
+    "deal_key": "phi biotech",
+    "deal_owner": "Alice Smith",
+    "stage": "Proposal",
+    "acv": 185000,
+    "closing_date": "2026-06-14",
+    "modified_date": "2026-02-07",
+    "notes_hash": "933a144d",
+    "notes_summary_length": 150
+  },
+  {
+    "deal_key": "pi construction",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Closed Won",
+    "acv": 90000,
+    "closing_date": "2026-01-31",
+    "modified_date": "2026-01-31",
+    "notes_hash": "3612f669",
+    "notes_summary_length": 7
+  },
+  {
+    "deal_key": "pi2 renewable",
+    "deal_owner": "Dana Lee",
+    "stage": "Qualification",
+    "acv": 125000,
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-01-30",
+    "notes_hash": "e8fcaca7",
+    "notes_summary_length": 46
+  },
+  {
+    "deal_key": "psi agriculture",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 35000,
+    "closing_date": "2026-09-30",
+    "modified_date": "2026-02-10",
+    "notes_hash": "f6b906d4",
+    "notes_summary_length": 17
+  },
+  {
+    "deal_key": "rho insurance",
+    "deal_owner": "Bob Jones",
+    "stage": "Proposal",
+    "acv": 130000,
+    "closing_date": "2026-04-29",
+    "modified_date": "2026-02-03",
+    "notes_hash": "dc7c2c1f",
+    "notes_summary_length": 14
+  },
+  {
+    "deal_key": "sigma hospitality",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 80000,
+    "closing_date": "2026-03-24",
+    "modified_date": "2026-02-08",
+    "notes_hash": "1c586ad3",
+    "notes_summary_length": 26
+  },
+  {
+    "deal_key": "tau government",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Qualification",
+    "acv": 250000,
+    "closing_date": "2026-09-29",
+    "modified_date": "2026-01-14",
+    "notes_hash": "a3db014f",
+    "notes_summary_length": 23
+  },
+  {
+    "deal_key": "theta corp",
+    "deal_owner": "Bob Jones",
+    "stage": "Negotiation",
+    "acv": 95000,
+    "closing_date": "2026-03-19",
+    "modified_date": "2026-02-04",
+    "notes_hash": "61757b4a",
+    "notes_summary_length": 17
+  },
+  {
+    "deal_key": "theta2 utilities",
+    "deal_owner": "Dana Lee",
+    "stage": "Qualification",
+    "acv": 160000,
+    "closing_date": "2026-05-19",
+    "modified_date": "2026-01-26",
+    "notes_hash": "e5298567",
+    "notes_summary_length": 45
+  },
+  {
+    "deal_key": "upsilon aerospace",
+    "deal_owner": "Bob Jones",
+    "stage": "Discovery",
+    "acv": 400000,
+    "closing_date": "2026-11-30",
+    "modified_date": "2025-12-19",
+    "notes_hash": "317bdf01",
+    "notes_summary_length": 16
+  },
+  {
+    "deal_key": "xi automotive",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 70000,
+    "closing_date": "2026-06-30",
+    "modified_date": "2026-01-27",
+    "notes_hash": "8f8aaf65",
+    "notes_summary_length": 27
+  },
+  {
+    "deal_key": "xi2 robotics",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Closed Won",
+    "acv": 180000,
+    "closing_date": "2026-02-09",
+    "modified_date": "2026-02-09",
+    "notes_hash": "0fd8dc83",
+    "notes_summary_length": 7
+  },
+  {
+    "deal_key": "zeta logistics",
+    "deal_owner": "Alice Smith",
+    "stage": "Discovery",
+    "acv": 60000,
+    "closing_date": "2026-07-14",
+    "modified_date": "2026-02-08",
+    "notes_hash": "9516f476",
+    "notes_summary_length": 24
+  },
+  {
+    "deal_key": "zeta2 food",
+    "deal_owner": "Alice Smith",
+    "stage": "Proposal",
+    "acv": 42000,
+    "closing_date": "2026-05-31",
+    "modified_date": "2026-02-03",
+    "notes_hash": "004cda2d",
+    "notes_summary_length": 35
+  }
+]

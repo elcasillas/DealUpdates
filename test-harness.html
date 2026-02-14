@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DealUpdates Test Harness</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #e0e0e0; padding: 24px; }
+        h1 { margin-bottom: 8px; color: #fff; }
+        .subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+        .fixture { border: 1px solid #333; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+        .fixture-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .fixture-header:hover { background: #252545; }
+        .fixture-header h3 { font-size: 15px; }
+        .badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge--pass { background: #1b4332; color: #52b788; }
+        .badge--fail { background: #4a1520; color: #ff6b6b; }
+        .badge--new { background: #2d3a4a; color: #74b9ff; }
+        .badge--running { background: #3d3520; color: #feca57; }
+        .fixture-body { padding: 0 16px 16px; display: none; }
+        .fixture.open .fixture-body { display: block; }
+        .fixture.open .fixture-header { border-bottom: 1px solid #333; }
+        .diff-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        .diff-table th, .diff-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #2a2a3e; }
+        .diff-table th { color: #888; font-weight: 500; }
+        .diff-table tr.pass td { color: #52b788; }
+        .diff-table tr.fail td { color: #ff6b6b; }
+        .mismatch { background: #3a1525; }
+        pre.json-output { background: #12122a; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; margin-top: 8px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .summary { margin: 16px 0; padding: 16px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+        .summary--pass { background: #1b4332; color: #52b788; border: 1px solid #2d6a4f; }
+        .summary--fail { background: #4a1520; color: #ff6b6b; border: 1px solid #6b2030; }
+        .actions { margin-top: 16px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .btn--primary { background: #3a5fcf; color: #fff; }
+        .btn--primary:hover { background: #4a6fdf; }
+        .info { color: #888; font-size: 13px; margin-top: 4px; }
+        .stat { display: inline-block; margin-right: 16px; }
+        .stat-val { font-weight: 700; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<h1>DealUpdates Test Harness</h1>
+<p class="subtitle">Loads fixture CSVs through the app.js pipeline and compares against golden snapshots.</p>
+
+<div id="summary"></div>
+<div id="results"></div>
+
+<div class="actions">
+    <button class="btn btn--primary" id="regen-btn">Download Golden Files (regenerate)</button>
+    <p class="info">Run via <code>python -m http.server 8000</code> then open <code>http://localhost:8000/test-harness.html</code></p>
+</div>
+
+<!-- DOM stubs required by app.js (hidden) -->
+<div style="display:none">
+    <div id="upload-zone"></div>
+    <input id="file-input" type="file">
+    <div id="stats-section" class="hidden"></div>
+    <div id="filters-section" class="hidden"></div>
+    <div id="table-section" class="hidden"></div>
+    <tbody id="deals-tbody"></tbody>
+    <div id="no-results" class="hidden"></div>
+    <input id="search-input">
+    <select id="filter-owner"></select>
+    <select id="filter-stage"></select>
+    <select id="filter-urgency"></select>
+    <select id="filter-changes"></select>
+    <div id="filter-changes-group" class="hidden"></div>
+    <div id="changes-summary" class="hidden"></div>
+    <button id="reset-filters-btn"></button>
+    <button id="export-csv-btn"></button>
+    <div id="row-count" class="hidden"></div>
+    <div id="stat-total"></div>
+    <div id="stat-acv"></div>
+    <div id="stat-avg-days"></div>
+    <div id="stat-stale"></div>
+    <div id="stat-overdue"></div>
+    <div id="owner-cards"></div>
+    <div id="reupload-zone" class="hidden"></div>
+    <div id="reupload-dropzone"></div>
+    <input id="reupload-file-input" type="file">
+    <div id="date-picker-section" class="hidden"></div>
+    <select id="date-select-primary"><option value="">Select</option></select>
+    <select id="date-select-compare"><option value="">None</option></select>
+    <div id="loading-overlay" class="hidden"></div>
+    <button id="delete-upload-btn" disabled></button>
+    <!-- Modal stubs -->
+    <div id="deal-modal" class="hidden"></div>
+    <div id="modal-deal-name"></div>
+    <div id="modal-deal-owner"></div>
+    <div id="modal-stage"></div>
+    <div id="modal-acv"></div>
+    <div id="modal-closing-date"></div>
+    <div id="modal-modified-date"></div>
+    <div id="modal-days-since"></div>
+    <div id="modal-description"></div>
+    <div id="modal-notes"></div>
+    <div id="modal-notes-summary"></div>
+    <div id="modal-contact-section" class="hidden"></div>
+    <div id="modal-owner-email"></div>
+    <div id="modal-owner-phone"></div>
+    <div id="modal-contact-display"></div>
+    <div id="modal-contact-form" class="hidden"></div>
+    <input id="modal-contact-email">
+    <input id="modal-contact-phone">
+    <button id="modal-email-btn"></button>
+    <button id="modal-contact-edit-btn"></button>
+    <button id="modal-contact-save-btn"></button>
+    <button id="modal-contact-cancel-btn"></button>
+    <button id="modal-close"></button>
+</div>
+
+<script src="js/app.js"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    const FIXTURES = [
+        '01_clean_small',
+        '02_multiline_notes',
+        '03_malformed_rows',
+        '04_duplicate_deals',
+        '05_large_mixed'
+    ];
+
+    // Simple deterministic hash (djb2)
+    function hashString(str) {
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) + hash + str.charCodeAt(i)) & 0xffffffff;
+        }
+        return (hash >>> 0).toString(16).padStart(8, '0');
+    }
+
+    // Build a snapshot from processed deals
+    function buildSnapshot(deals) {
+        return deals
+            .map(d => ({
+                deal_key: d.dealName.toLowerCase().trim(),
+                deal_owner: d.dealOwner,
+                stage: d.stage,
+                acv: d.acv,
+                closing_date: d.closingDate ? d.closingDate.toISOString().slice(0, 10) : null,
+                modified_date: d.modifiedDate ? d.modifiedDate.toISOString().slice(0, 10) : null,
+                notes_hash: hashString(d.noteContent || ''),
+                notes_summary_length: (d.notesSummary || '').length
+            }))
+            .sort((a, b) => a.deal_key.localeCompare(b.deal_key));
+    }
+
+    // Run the full parse → process → validate → dedup pipeline
+    async function runFixture(csvText) {
+        const api = window._testAPI;
+        const { rows: rawRows } = api.parseCSV(csvText);
+        const processed = rawRows
+            .map(api.processRow)
+            .filter(d => d !== null)
+            .filter(api.validateRow);
+        const deduped = await api.deduplicateDeals(processed);
+        return deduped;
+    }
+
+    // Compare two snapshots, return per-deal diff
+    function compareSnapshots(actual, expected) {
+        const fields = ['deal_key', 'deal_owner', 'stage', 'acv', 'closing_date', 'modified_date', 'notes_hash', 'notes_summary_length'];
+        const expectedByKey = {};
+        for (const e of expected) expectedByKey[e.deal_key] = e;
+
+        const diffs = [];
+        const actualKeys = new Set();
+
+        for (const a of actual) {
+            actualKeys.add(a.deal_key);
+            const e = expectedByKey[a.deal_key];
+            if (!e) {
+                diffs.push({ deal_key: a.deal_key, status: 'extra', fields: {} });
+                continue;
+            }
+            const fieldDiffs = {};
+            let match = true;
+            for (const f of fields) {
+                if (JSON.stringify(a[f]) !== JSON.stringify(e[f])) {
+                    fieldDiffs[f] = { actual: a[f], expected: e[f] };
+                    match = false;
+                }
+            }
+            diffs.push({ deal_key: a.deal_key, status: match ? 'pass' : 'fail', fields: fieldDiffs });
+        }
+
+        for (const e of expected) {
+            if (!actualKeys.has(e.deal_key)) {
+                diffs.push({ deal_key: e.deal_key, status: 'missing', fields: {} });
+            }
+        }
+
+        return diffs;
+    }
+
+    // Render results for one fixture
+    function renderFixture(name, snapshot, golden, diffs) {
+        const allPass = diffs ? diffs.every(d => d.status === 'pass') : false;
+        const hasGolden = golden !== null;
+        const badgeClass = !hasGolden ? 'badge--new' : allPass ? 'badge--pass' : 'badge--fail';
+        const badgeText = !hasGolden ? 'NO GOLDEN' : allPass ? `PASS (${snapshot.length} deals)` : 'FAIL';
+
+        let body = '';
+        if (hasGolden && diffs) {
+            const failCount = diffs.filter(d => d.status !== 'pass').length;
+            if (allPass) {
+                body = `<p style="color:#52b788;margin-top:8px">All ${snapshot.length} deals match golden file.</p>`;
+            } else {
+                body += `<p style="color:#ff6b6b;margin-top:8px">${failCount} deal(s) differ from golden file:</p>`;
+                body += '<table class="diff-table"><tr><th>Deal Key</th><th>Status</th><th>Details</th></tr>';
+                for (const d of diffs) {
+                    if (d.status === 'pass') continue;
+                    let detail = '';
+                    if (d.status === 'extra') detail = 'Not in golden file';
+                    else if (d.status === 'missing') detail = 'Missing from output';
+                    else {
+                        detail = Object.entries(d.fields)
+                            .map(([f, v]) => `${f}: ${JSON.stringify(v.expected)} → ${JSON.stringify(v.actual)}`)
+                            .join('; ');
+                    }
+                    body += `<tr class="${d.status}"><td>${d.deal_key}</td><td>${d.status.toUpperCase()}</td><td>${detail}</td></tr>`;
+                }
+                body += '</table>';
+            }
+        } else {
+            body = `<p style="color:#74b9ff;margin-top:8px">No golden file found. ${snapshot.length} deals parsed. Use "Download Golden Files" to generate.</p>`;
+        }
+        body += `<details style="margin-top:8px"><summary style="cursor:pointer;color:#888;font-size:13px">Show JSON output</summary><pre class="json-output">${escapeHtml(JSON.stringify(snapshot, null, 2))}</pre></details>`;
+
+        return `
+        <div class="fixture open">
+            <div class="fixture-header" onclick="this.parentElement.classList.toggle('open')">
+                <h3>${name}.csv</h3>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="fixture-body">${body}</div>
+        </div>`;
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Fetch a fixture CSV
+    async function fetchFixture(name) {
+        const resp = await fetch(`fixtures/${name}.csv`);
+        if (!resp.ok) throw new Error(`Failed to load fixtures/${name}.csv: ${resp.status}`);
+        return resp.text();
+    }
+
+    // Fetch a golden file (returns null if not found)
+    async function fetchGolden(name) {
+        try {
+            const resp = await fetch(`fixtures/expected/${name}.json`);
+            if (!resp.ok) return null;
+            return resp.json();
+        } catch { return null; }
+    }
+
+    // Main runner
+    async function runAll() {
+        const resultsEl = document.getElementById('results');
+        const summaryEl = document.getElementById('summary');
+        resultsEl.innerHTML = '';
+        summaryEl.innerHTML = '<p class="info">Running fixtures...</p>';
+
+        const allSnapshots = {};
+        let totalPass = 0;
+        let totalFail = 0;
+        let totalNew = 0;
+        let html = '';
+
+        for (const name of FIXTURES) {
+            try {
+                const [csvText, golden] = await Promise.all([
+                    fetchFixture(name),
+                    fetchGolden(name)
+                ]);
+                const deals = await runFixture(csvText);
+                const snapshot = buildSnapshot(deals);
+                allSnapshots[name] = snapshot;
+
+                let diffs = null;
+                if (golden) {
+                    diffs = compareSnapshots(snapshot, golden);
+                    const pass = diffs.every(d => d.status === 'pass');
+                    if (pass) totalPass++; else totalFail++;
+                } else {
+                    totalNew++;
+                }
+
+                html += renderFixture(name, snapshot, golden, diffs);
+            } catch (err) {
+                totalFail++;
+                html += `<div class="fixture open">
+                    <div class="fixture-header"><h3>${name}.csv</h3><span class="badge badge--fail">ERROR</span></div>
+                    <div class="fixture-body"><pre class="json-output" style="color:#ff6b6b">${escapeHtml(err.stack || err.message)}</pre></div>
+                </div>`;
+            }
+        }
+
+        resultsEl.innerHTML = html;
+
+        const total = FIXTURES.length;
+        if (totalFail > 0) {
+            summaryEl.innerHTML = `<div class="summary summary--fail">
+                <span class="stat"><span class="stat-val">${totalFail}</span> FAIL</span>
+                <span class="stat"><span class="stat-val">${totalPass}</span> PASS</span>
+                ${totalNew > 0 ? `<span class="stat"><span class="stat-val">${totalNew}</span> NEW</span>` : ''}
+                <span class="stat" style="font-weight:400;color:#aaa">out of ${total} fixtures</span>
+            </div>`;
+        } else if (totalNew > 0) {
+            summaryEl.innerHTML = `<div class="summary" style="background:#2d3a4a;color:#74b9ff;border:1px solid #3d5a7a">
+                <span class="stat"><span class="stat-val">${totalNew}</span> need golden files</span>
+                <span class="stat"><span class="stat-val">${totalPass}</span> PASS</span>
+                <span class="stat" style="font-weight:400;color:#aaa">out of ${total} fixtures</span>
+            </div>`;
+        } else {
+            summaryEl.innerHTML = `<div class="summary summary--pass">
+                <span class="stat"><span class="stat-val">${totalPass}</span> PASS</span>
+                <span class="stat" style="font-weight:400;color:#aaa">All ${total} fixtures match golden files</span>
+            </div>`;
+        }
+
+        // Wire up regenerate button
+        document.getElementById('regen-btn').onclick = () => downloadGoldenFiles(allSnapshots);
+    }
+
+    function downloadGoldenFiles(snapshots) {
+        for (const [name, snapshot] of Object.entries(snapshots)) {
+            const json = JSON.stringify(snapshot, null, 2) + '\n';
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    // Wait for app.js to finish init, then run
+    setTimeout(runAll, 200);
+})();
+</script>
+
+</body>
+</html>

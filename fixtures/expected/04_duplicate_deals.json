@@ -1,0 +1,42 @@
+[
+  {
+    "deal_key": "acme corp renewal",
+    "deal_owner": "Alice Smith",
+    "stage": "Closed Won",
+    "acv": 125000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-11",
+    "notes_hash": "f46267b6",
+    "notes_summary_length": 98
+  },
+  {
+    "deal_key": "beta industries",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 45000,
+    "closing_date": "2026-03-31",
+    "modified_date": "2026-01-24",
+    "notes_hash": "a1d9622e",
+    "notes_summary_length": 33
+  },
+  {
+    "deal_key": "delta financial",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Negotiation",
+    "acv": 90000,
+    "closing_date": "2026-05-09",
+    "modified_date": "2026-02-08",
+    "notes_hash": "276f9858",
+    "notes_summary_length": 32
+  },
+  {
+    "deal_key": "epsilon retail",
+    "deal_owner": "Bob Jones",
+    "stage": "Qualification",
+    "acv": 35000,
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-02-09",
+    "notes_hash": "1700f5a9",
+    "notes_summary_length": 48
+  }
+]

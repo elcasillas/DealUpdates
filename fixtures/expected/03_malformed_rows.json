@@ -1,0 +1,42 @@
+[
+  {
+    "deal_key": "acme corp renewal",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 120000,
+    "closing_date": "2026-03-14",
+    "modified_date": "2026-02-07",
+    "notes_hash": "8b850bca",
+    "notes_summary_length": 29
+  },
+  {
+    "deal_key": "eta manufacturing",
+    "deal_owner": "Carlos Diaz",
+    "stage": "Closed Won",
+    "acv": 0,
+    "closing_date": "2026-01-14",
+    "modified_date": "2026-01-14",
+    "notes_hash": "597a8624",
+    "notes_summary_length": 25
+  },
+  {
+    "deal_key": "iota services",
+    "deal_owner": "Alice Smith",
+    "stage": "Proposal",
+    "acv": 40000,
+    "closing_date": "2026-07-31",
+    "modified_date": "2026-02-06",
+    "notes_hash": "24d0fe86",
+    "notes_summary_length": 48
+  },
+  {
+    "deal_key": "zeta logistics",
+    "deal_owner": "Alice Smith",
+    "stage": "Discovery",
+    "acv": 60000,
+    "closing_date": "2026-07-14",
+    "modified_date": null,
+    "notes_hash": "9516f476",
+    "notes_summary_length": 24
+  }
+]
