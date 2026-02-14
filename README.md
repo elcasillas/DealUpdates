@@ -23,7 +23,14 @@ The app works offline (localStorage only) if no Supabase config is provided.
 
 ## Deployment (Vercel)
 
-Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` environment variables. The build step (`build.sh`) generates `js/supabase-config.js` from these.
+The build step (`build.sh`) generates `js/supabase-config.js` from environment variables. Set these in your Vercel project settings under **Settings > Environment Variables**:
+
+| Variable | Example |
+|---|---|
+| `SUPABASE_URL` | `https://abcdefghij.supabase.co` |
+| `SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIs...` |
+
+If either variable is missing, the build prints an info message and the app runs in offline mode (localStorage only).
 
 ## Test Harness
 
