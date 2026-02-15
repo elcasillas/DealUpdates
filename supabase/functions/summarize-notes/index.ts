@@ -45,7 +45,7 @@ async function callClaude(
       messages: [
         {
           role: "user",
-          content: `You are summarizing CRM deal notes for a sales dashboard. For each deal below, write a very condensed 1-2 sentence executive summary capturing the key status, actions, and next steps. Be direct and factual.
+          content: `You are summarizing CRM deal notes for a sales dashboard. For each deal below, write a 3-5 sentence summary that covers: (1) current status and stage of the deal, (2) key activities and interactions so far, (3) blockers or risks, and (4) next steps and expected timeline. Be factual and specific—include names, dates, and action items where available.
 
 Return a JSON object where keys are the deal numbers ("1", "2", etc.) and values are the summary strings. You must include all ${dealCount} deals.
 
