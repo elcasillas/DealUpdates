@@ -26,10 +26,11 @@ interface CachedDeal {
   dealName: string;
 }
 
-// Helper: call Claude API for a list of deals and return { dealName: summary }
+// Helper: call Claude API for a list of deals and return { index: summary }
 async function callClaude(
   apiKey: string,
-  dealsList: string
+  dealsList: string,
+  dealCount: number
 ): Promise<Record<string, string>> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -46,9 +47,13 @@ async function callClaude(
           role: "user",
           content: `You are summarizing CRM deal notes for a sales dashboard. For each deal below, write a very condensed 1-2 sentence executive summary capturing the key status, actions, and next steps. Be direct and factual.
 
-Return ONLY a JSON object where keys are the exact deal names and values are the summary strings. No markdown, no code fences, just the JSON object.
+Return a JSON object where keys are the deal numbers ("1", "2", etc.) and values are the summary strings. You must include all ${dealCount} deals.
 
 ${dealsList}`,
+        },
+        {
+          role: "assistant",
+          content: "{",
         },
       ],
     }),
@@ -61,12 +66,23 @@ ${dealsList}`,
   }
 
   const result = await response.json();
-  const text = result.content?.[0]?.text || "{}";
+  const rawText = result.content?.[0]?.text || "}";
+  // Prepend the "{" we used as prefill
+  const text = "{" + rawText;
 
   try {
     return JSON.parse(text);
   } catch {
-    console.error("Failed to parse Claude response as JSON:", text);
+    console.error("Failed to parse Claude response as JSON:", text.slice(0, 500));
+    // Try extracting JSON from the response (in case of markdown fences)
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]);
+      } catch {
+        // fall through
+      }
+    }
     return {};
   }
 }
@@ -131,15 +147,25 @@ Deno.serve(async (req) => {
     const isNewFormat = deals[0]?.deal_key !== undefined;
 
     if (!isNewFormat) {
-      // ==================== LEGACY PATH (unchanged) ====================
-      const dealsList = (deals as LegacyDeal[])
+      // ==================== LEGACY PATH ====================
+      const legacyDeals = deals as LegacyDeal[];
+      const dealsList = legacyDeals
         .map(
           (d, i) =>
             `Deal ${i + 1}: "${d.dealName}"\nNotes:\n${d.notes.map((n: string) => `- ${n}`).join("\n")}`
         )
         .join("\n\n");
 
-      const summaries = await callClaude(apiKey, dealsList);
+      const indexedSummaries = await callClaude(apiKey, dealsList, legacyDeals.length);
+
+      // Map numeric indices back to deal names for legacy response format
+      const summaries: Record<string, string> = {};
+      for (let i = 0; i < legacyDeals.length; i++) {
+        const summary = indexedSummaries[String(i + 1)];
+        if (summary) {
+          summaries[legacyDeals[i].dealName] = summary;
+        }
+      }
 
       return new Response(JSON.stringify({ summaries }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -203,13 +229,14 @@ Deno.serve(async (req) => {
         )
         .join("\n\n");
 
-      const newSummaries = await callClaude(apiKey, dealsList);
+      const newSummaries = await callClaude(apiKey, dealsList, misses.length);
 
       // 4. Store new summaries in cache and add to results
       const rowsToInsert: { deal_key: string; notes_hash: string; model: string; summary: string }[] = [];
 
-      for (const deal of misses) {
-        const summary = newSummaries[deal.dealName] || "";
+      for (let i = 0; i < misses.length; i++) {
+        const deal = misses[i];
+        const summary = newSummaries[String(i + 1)] || "";
         results.push({ deal_key: deal.deal_key, notes_hash: deal.notes_hash, summary, cached: false });
 
         if (summary) {

@@ -11,6 +11,7 @@
         <div class="header-left">
             <img src="assets/logo.png" alt="Hostopia - HostPapa" class="header-logo">
             <p class="subtitle">Deal Notes Dashboard</p>
+            <span id="ui-only-badge" class="ui-only-badge hidden" aria-label="UI-only mode: no backend">UI-only</span>
         </div>
         <button id="clear-data-btn" class="clear-data-btn" title="Clear locally stored deal data">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -288,6 +289,10 @@
         <span id="loading-text">Loading...</span>
     </div>
 
+    <!-- UI-only: use ?ui-only=1 to run without Supabase (localStorage + CSV only) -->
+    <script>
+    (function(){ var m = /[?&]ui-only=(1|true)/i.exec(location.search); window.UI_ONLY = !!m; })();
+    </script>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <!-- Supabase config: local override if present, else build-generated -->

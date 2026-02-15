@@ -28,6 +28,10 @@
 
     function initSupabase() {
         try {
+            if (window.UI_ONLY) {
+                console.log('UI-only mode: Supabase disabled. Using localStorage + CSV only.');
+                return;
+            }
             if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
                 console.warn('Supabase config not loaded. Running in offline/localStorage mode.');
                 return;
@@ -1360,6 +1364,12 @@
         checkSchemaVersion();
         setupEventListeners();
         initSupabase();
+
+        if (window.UI_ONLY) {
+            if (elements.datePickerSection) elements.datePickerSection.classList.add('hidden');
+            var badge = document.getElementById('ui-only-badge');
+            if (badge) badge.classList.remove('hidden');
+        }
 
         if (isOnline) {
             try {
