@@ -693,7 +693,7 @@ tbody tr:last-child td {
     border-radius: var(--radius);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     width: 100%;
-    max-width: 600px;
+    max-width: 900px;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
