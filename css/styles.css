@@ -220,6 +220,39 @@ main {
     margin-top: 0;
 }
 
+.section-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-title-bar .section-title {
+    margin: 0;
+}
+
+.manage-contacts-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: #eff6ff;
+    color: var(--color-primary);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.manage-contacts-btn:hover {
+    background: #dbeafe;
+    border-color: var(--color-primary);
+}
+
 /* Owner Cards */
 .owner-cards-grid {
     display: grid;
@@ -717,93 +750,110 @@ tbody tr:last-child td {
     border-color: var(--color-primary);
 }
 
-/* Owner Contact Section (in Modal) */
-.modal__contact-section {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-    background: var(--color-bg);
+/* Manage Contacts Modal */
+.contacts-modal {
+    max-width: 700px;
+    max-height: 85vh;
 }
 
-.modal__contact-header {
+.contacts-modal__search {
+    padding: 0 1.5rem 1rem;
+}
+
+.contacts-modal__search input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: white;
+    color: var(--color-text);
+    transition: border-color 0.2s;
+}
+
+.contacts-modal__search input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.contacts-modal__list {
+    overflow-y: auto;
+    max-height: 60vh;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.contacts-modal__row {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    background: var(--color-card);
+    overflow: hidden;
+}
+
+.contacts-modal__row-display {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+}
+
+.contacts-modal__owner-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text);
+}
+
+.contacts-modal__owner-email,
+.contacts-modal__owner-phone {
+    font-size: 0.8125rem;
+    color: var(--color-text);
+}
+
+.contacts-modal__not-set {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.contacts-modal__edit-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-}
-
-.modal__contact-label {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.modal__contact-edit-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
+    justify-content: center;
+    padding: 0.375rem;
     background: none;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    font-size: 0.6875rem;
     color: var(--color-text-muted);
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.modal__contact-edit-btn:hover {
-    background: var(--color-card);
+.contacts-modal__edit-btn:hover {
+    background: var(--color-bg);
     color: var(--color-primary);
     border-color: var(--color-primary);
 }
 
-.modal__contact-display {
-    display: flex;
-    gap: 2rem;
-}
-
-.modal__contact-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-}
-
-.modal__contact-item-label {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.modal__contact-item-value {
-    font-size: 0.875rem;
-    color: var(--color-text);
-}
-
-.modal__contact-item-value--empty {
-    color: var(--color-text-muted);
-    font-style: italic;
-}
-
-.modal__contact-form {
+.contacts-modal__row-form {
+    padding: 0.75rem 1rem;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: flex-end;
 }
 
-.modal__contact-field {
+.contacts-modal__field {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     flex: 1;
-    min-width: 180px;
+    min-width: 160px;
 }
 
-.modal__contact-field label {
+.contacts-modal__field label {
     font-size: 0.6875rem;
     font-weight: 600;
     color: var(--color-text-muted);
@@ -811,7 +861,7 @@ tbody tr:last-child td {
     letter-spacing: 0.05em;
 }
 
-.modal__contact-field input {
+.contacts-modal__field input {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -821,19 +871,19 @@ tbody tr:last-child td {
     transition: border-color 0.2s;
 }
 
-.modal__contact-field input:focus {
+.contacts-modal__field input:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.modal__contact-actions {
+.contacts-modal__row-actions {
     display: flex;
     gap: 0.5rem;
     align-items: center;
 }
 
-.modal__contact-save-btn {
+.contacts-modal__save-btn {
     padding: 0.5rem 1rem;
     background: var(--color-primary);
     color: white;
@@ -845,11 +895,11 @@ tbody tr:last-child td {
     transition: background 0.2s;
 }
 
-.modal__contact-save-btn:hover {
+.contacts-modal__save-btn:hover {
     background: var(--color-primary-hover);
 }
 
-.modal__contact-cancel-btn {
+.contacts-modal__cancel-btn {
     padding: 0.5rem 1rem;
     background: none;
     color: var(--color-text-muted);
@@ -860,9 +910,16 @@ tbody tr:last-child td {
     transition: all 0.2s;
 }
 
-.modal__contact-cancel-btn:hover {
+.contacts-modal__cancel-btn:hover {
     background: var(--color-bg);
     color: var(--color-text);
+}
+
+.contacts-modal__empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
 }
 
 /* Owner Card Contact Indicator */

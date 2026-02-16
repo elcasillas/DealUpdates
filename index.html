@@ -85,7 +85,18 @@
                 </div>
             </div>
 
-            <h2 class="section-title">By Deal Owner</h2>
+            <div class="section-title-bar">
+                <h2 class="section-title">By Deal Owner</h2>
+                <button id="manage-contacts-btn" class="manage-contacts-btn hidden" title="Manage deal owner contact information">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Manage Contacts
+                </button>
+            </div>
             <div id="owner-cards" class="owner-cards-grid">
                 <!-- Owner cards will be generated dynamically -->
             </div>
@@ -223,42 +234,6 @@
                     <span class="modal__meta-value" id="modal-days-since"></span>
                 </div>
             </div>
-            <div class="modal__contact-section hidden" id="modal-contact-section">
-                <div class="modal__contact-header">
-                    <h3 class="modal__contact-label">Owner Contact Info</h3>
-                    <button class="modal__contact-edit-btn" id="modal-contact-edit-btn" title="Edit contact info">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Edit
-                    </button>
-                </div>
-                <div class="modal__contact-display" id="modal-contact-display">
-                    <div class="modal__contact-item">
-                        <span class="modal__contact-item-label">Email</span>
-                        <span class="modal__contact-item-value" id="modal-owner-email">Not set</span>
-                    </div>
-                    <div class="modal__contact-item">
-                        <span class="modal__contact-item-label">Phone</span>
-                        <span class="modal__contact-item-value" id="modal-owner-phone">Not set</span>
-                    </div>
-                </div>
-                <div class="modal__contact-form hidden" id="modal-contact-form">
-                    <div class="modal__contact-field">
-                        <label for="modal-contact-email">Email</label>
-                        <input type="email" id="modal-contact-email" placeholder="owner@example.com">
-                    </div>
-                    <div class="modal__contact-field">
-                        <label for="modal-contact-phone">Phone</label>
-                        <input type="tel" id="modal-contact-phone" placeholder="+1 (555) 000-0000">
-                    </div>
-                    <div class="modal__contact-actions">
-                        <button class="modal__contact-save-btn" id="modal-contact-save-btn">Save</button>
-                        <button class="modal__contact-cancel-btn" id="modal-contact-cancel-btn">Cancel</button>
-                    </div>
-                </div>
-            </div>
             <div class="modal__notes-section">
                 <h3 class="modal__notes-label">Description</h3>
                 <div class="modal__notes-content" id="modal-description"></div>
@@ -279,6 +254,19 @@
                     </svg>
                     Email Owner
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Contacts Modal -->
+    <div id="contacts-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="contacts-modal-title">
+        <div class="modal contacts-modal">
+            <button class="modal__close" id="contacts-modal-close">&times;</button>
+            <h2 class="modal__title" id="contacts-modal-title">Manage Contacts</h2>
+            <div class="contacts-modal__search">
+                <input type="text" id="contacts-search-input" placeholder="Search owners...">
+            </div>
+            <div class="contacts-modal__list" id="contacts-list">
             </div>
         </div>
     </div>

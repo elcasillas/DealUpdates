@@ -736,10 +736,6 @@
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
         document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
-        // Show contact info (only when online)
-        document.getElementById('modal-contact-section').classList.toggle('hidden', !isOnline);
-        updateContactDisplay(deal.dealOwner);
-        toggleContactEditMode(false);
         document.getElementById('deal-modal').classList.remove('hidden');
     }
 
@@ -756,8 +752,9 @@
         const firstName = (deal.dealOwner || '').split(' ')[0];
 
         if (!toAddress) {
-            if (confirm(`No email address found for ${deal.dealOwner}.\n\nWould you like to add their contact info now?`)) {
-                toggleContactEditMode(true);
+            if (confirm(`No email address found for ${deal.dealOwner}.\n\nWould you like to open Manage Contacts to add their info?`)) {
+                closeDealModal();
+                openContactsModal(deal.dealOwner);
             }
             return;
         }
@@ -791,56 +788,134 @@
         window.open(mailto, '_blank');
     }
 
-    function updateContactDisplay(ownerName) {
-        const contact = getOwnerContact(ownerName);
-        const emailEl = document.getElementById('modal-owner-email');
-        const phoneEl = document.getElementById('modal-owner-phone');
+    // ==================== Manage Contacts Modal ====================
+    function openContactsModal(focusOwnerName) {
+        renderContactsList();
+        document.getElementById('contacts-modal').classList.remove('hidden');
+        document.getElementById('contacts-search-input').value = '';
 
-        if (contact?.email) {
-            emailEl.textContent = contact.email;
-            emailEl.classList.remove('modal__contact-item-value--empty');
-        } else {
-            emailEl.textContent = 'Not set';
-            emailEl.classList.add('modal__contact-item-value--empty');
-        }
-
-        if (contact?.phone) {
-            phoneEl.textContent = contact.phone;
-            phoneEl.classList.remove('modal__contact-item-value--empty');
-        } else {
-            phoneEl.textContent = 'Not set';
-            phoneEl.classList.add('modal__contact-item-value--empty');
+        if (focusOwnerName) {
+            const normalizedName = focusOwnerName.toLowerCase().trim();
+            const row = document.querySelector(
+                `.contacts-modal__row[data-owner-normalized="${CSS.escape(normalizedName)}"]`
+            );
+            if (row) {
+                row.scrollIntoView({ block: 'center' });
+                startEditingContactRow(row);
+            }
         }
     }
 
-    function toggleContactEditMode(editing) {
-        const display = document.getElementById('modal-contact-display');
-        const form = document.getElementById('modal-contact-form');
-        if (editing) {
-            display.classList.add('hidden');
-            form.classList.remove('hidden');
-            const contact = getOwnerContact(currentModalDeal.dealOwner);
-            document.getElementById('modal-contact-email').value = contact?.email || '';
-            document.getElementById('modal-contact-phone').value = contact?.phone || '';
-            document.getElementById('modal-contact-email').focus();
-        } else {
-            display.classList.remove('hidden');
-            form.classList.add('hidden');
-        }
+    function closeContactsModal() {
+        document.getElementById('contacts-modal').classList.add('hidden');
     }
 
-    async function saveOwnerContact() {
-        if (!currentModalDeal) return;
-        const email = document.getElementById('modal-contact-email').value.trim();
-        const phone = document.getElementById('modal-contact-phone').value.trim();
-        const ownerName = currentModalDeal.dealOwner;
+    function renderContactsList(filter) {
+        const container = document.getElementById('contacts-list');
+        const ownerNames = [...new Set(allDeals.map(d => d.dealOwner).filter(Boolean))].sort();
+
+        const filterLower = (filter || '').toLowerCase();
+        const filtered = filterLower
+            ? ownerNames.filter(name => name.toLowerCase().includes(filterLower))
+            : ownerNames;
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="contacts-modal__empty">No owners found.</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(name => {
+            const contact = getOwnerContact(name);
+            const normalizedName = name.toLowerCase().trim();
+            const email = contact?.email || '';
+            const phone = contact?.phone || '';
+
+            return `
+            <div class="contacts-modal__row" data-owner="${escapeHTML(name)}" data-owner-normalized="${escapeHTML(normalizedName)}">
+                <div class="contacts-modal__row-display">
+                    <div class="contacts-modal__owner-name">${escapeHTML(name)}</div>
+                    <div class="contacts-modal__owner-email">${email ? escapeHTML(email) : '<span class="contacts-modal__not-set">No email</span>'}</div>
+                    <div class="contacts-modal__owner-phone">${phone ? escapeHTML(phone) : '<span class="contacts-modal__not-set">No phone</span>'}</div>
+                    <button class="contacts-modal__edit-btn" title="Edit contact">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="contacts-modal__row-form hidden">
+                    <div class="contacts-modal__field">
+                        <label>Email</label>
+                        <input type="email" class="contacts-modal__email-input" value="${escapeHTML(email)}" placeholder="owner@example.com">
+                    </div>
+                    <div class="contacts-modal__field">
+                        <label>Phone</label>
+                        <input type="tel" class="contacts-modal__phone-input" value="${escapeHTML(phone)}" placeholder="+1 (555) 000-0000">
+                    </div>
+                    <div class="contacts-modal__row-actions">
+                        <button class="contacts-modal__save-btn">Save</button>
+                        <button class="contacts-modal__cancel-btn">Cancel</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        // Attach event listeners
+        container.querySelectorAll('.contacts-modal__edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                startEditingContactRow(e.target.closest('.contacts-modal__row'));
+            });
+        });
+
+        container.querySelectorAll('.contacts-modal__save-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('.contacts-modal__row');
+                saveOwnerContactRow(row.dataset.owner, row.querySelector('.contacts-modal__email-input'), row.querySelector('.contacts-modal__phone-input'), row);
+            });
+        });
+
+        container.querySelectorAll('.contacts-modal__cancel-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                cancelEditingContactRow(e.target.closest('.contacts-modal__row'));
+            });
+        });
+    }
+
+    function startEditingContactRow(row) {
+        row.querySelector('.contacts-modal__row-display').classList.add('hidden');
+        row.querySelector('.contacts-modal__row-form').classList.remove('hidden');
+        row.querySelector('.contacts-modal__email-input').focus();
+    }
+
+    function cancelEditingContactRow(row) {
+        const contact = getOwnerContact(row.dataset.owner);
+        row.querySelector('.contacts-modal__email-input').value = contact?.email || '';
+        row.querySelector('.contacts-modal__phone-input').value = contact?.phone || '';
+        row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
+        row.querySelector('.contacts-modal__row-form').classList.add('hidden');
+    }
+
+    function setContactRowDisplayMode(row, contact) {
+        const emailEl = row.querySelector('.contacts-modal__owner-email');
+        const phoneEl = row.querySelector('.contacts-modal__owner-phone');
+        emailEl.innerHTML = contact.email
+            ? escapeHTML(contact.email)
+            : '<span class="contacts-modal__not-set">No email</span>';
+        phoneEl.innerHTML = contact.phone
+            ? escapeHTML(contact.phone)
+            : '<span class="contacts-modal__not-set">No phone</span>';
+        row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
+        row.querySelector('.contacts-modal__row-form').classList.add('hidden');
+    }
+
+    async function saveOwnerContactRow(ownerName, emailInput, phoneInput, row) {
+        const email = emailInput.value.trim();
+        const phone = phoneInput.value.trim();
 
         const result = await upsertOwnerContact(ownerName, email, phone);
         if (result) {
             updateOwnerContactCache(result);
-            updateContactDisplay(ownerName);
-            toggleContactEditMode(false);
-            // Refresh owner cards to show updated contact indicator
+            setContactRowDisplayMode(row, result);
             if (allDeals.length > 0) {
                 renderOwnerCards(allDeals);
             }
@@ -1347,15 +1422,30 @@
 
         // Deal detail modal
         document.getElementById('modal-email-btn').addEventListener('click', emailDealOwner);
-        document.getElementById('modal-contact-edit-btn').addEventListener('click', () => toggleContactEditMode(true));
-        document.getElementById('modal-contact-save-btn').addEventListener('click', saveOwnerContact);
-        document.getElementById('modal-contact-cancel-btn').addEventListener('click', () => toggleContactEditMode(false));
         document.getElementById('modal-close').addEventListener('click', closeDealModal);
         document.getElementById('deal-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeDealModal();
         });
+
+        // Manage Contacts modal
+        document.getElementById('manage-contacts-btn').addEventListener('click', () => openContactsModal());
+        document.getElementById('contacts-modal-close').addEventListener('click', closeContactsModal);
+        document.getElementById('contacts-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeContactsModal();
+        });
+        document.getElementById('contacts-search-input').addEventListener('input', (e) => {
+            renderContactsList(e.target.value);
+        });
+
+        // Escape key — close whichever modal is open
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeDealModal();
+            if (e.key === 'Escape') {
+                if (!document.getElementById('contacts-modal').classList.contains('hidden')) {
+                    closeContactsModal();
+                } else {
+                    closeDealModal();
+                }
+            }
         });
     }
 
@@ -1370,6 +1460,9 @@
             var badge = document.getElementById('ui-only-badge');
             if (badge) badge.classList.remove('hidden');
         }
+
+        // Show Manage Contacts button only when online
+        document.getElementById('manage-contacts-btn').classList.toggle('hidden', !isOnline);
 
         if (isOnline) {
             try {
