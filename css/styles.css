@@ -752,7 +752,7 @@ tbody tr:last-child td {
 
 /* Manage Contacts Modal */
 .contacts-modal {
-    max-width: 700px;
+    max-width: 900px;
     max-height: 85vh;
 }
 
