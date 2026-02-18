@@ -745,23 +745,8 @@
         currentModalDeal = null;
     }
 
-    function emailDealOwner() {
-        if (!currentModalDeal) return;
-        const deal = currentModalDeal;
-        const contact = getOwnerContact(deal.dealOwner);
-        const toAddress = contact?.email || '';
+    function buildDealMessageBody(deal) {
         const firstName = (deal.dealOwner || '').split(' ')[0];
-
-        if (!toAddress) {
-            if (confirm(`No email address found for ${deal.dealOwner}.\n\nWould you like to open Manage Contacts to add their info?`)) {
-                closeDealModal();
-                openContactsModal(deal.dealOwner);
-            }
-            return;
-        }
-
-        const subject = `Update Request - ${deal.dealName}`;
-
         const lines = [
             `Hi ${firstName},`,
             '',
@@ -783,8 +768,25 @@
             '',
             'Thanks,'
         ];
+        return lines.join('\n');
+    }
 
-        const body = lines.join('\n');
+    function emailDealOwner() {
+        if (!currentModalDeal) return;
+        const deal = currentModalDeal;
+        const contact = getOwnerContact(deal.dealOwner);
+        const toAddress = contact?.email || '';
+
+        if (!toAddress) {
+            if (confirm(`No email address found for ${deal.dealOwner}.\n\nWould you like to open Manage Contacts to add their info?`)) {
+                closeDealModal();
+                openContactsModal(deal.dealOwner);
+            }
+            return;
+        }
+
+        const subject = `Update Request - ${deal.dealName}`;
+        const body = buildDealMessageBody(deal);
         const mailto = `mailto:${encodeURIComponent(toAddress)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.open(mailto, '_blank');
     }
@@ -803,33 +805,21 @@
             return;
         }
 
-        const firstName = (deal.dealOwner || '').split(' ')[0];
-
-        const lines = [
-            `Hi ${firstName},`,
-            '',
-            'Could you please provide an update on the following deal?',
-            '',
-            '---',
-            `Deal Name: ${deal.dealName}`,
-            `Deal Owner: ${deal.dealOwner}`,
-            `Stage: ${deal.stage || '-'}`,
-            `ACV (CAD): ${deal.acvFormatted || '-'}`,
-            `Closing Date: ${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' (Overdue)' : deal.closingStatus === 'soon' ? ' (Closing Soon)' : ''}`,
-            `Modified Date: ${formatDate(deal.modifiedDate)}`,
-            `Days Since Update: ${deal.daysSince} days`,
-            '',
-            `Description: ${deal.description || 'No description available.'}`,
-            '',
-            `Notes: ${deal.noteContent || 'No notes available.'}`,
-            '---',
-            '',
-            'Thanks,'
-        ];
-
-        const message = lines.join('\n');
+        const message = buildDealMessageBody(deal);
         navigator.clipboard.writeText(message).then(() => {
             window.open(`slack://user?id=${encodeURIComponent(slackId)}`, '_blank');
+        });
+    }
+
+    function copyDealMessage() {
+        if (!currentModalDeal) return;
+        const message = buildDealMessageBody(currentModalDeal);
+        const btn = document.getElementById('modal-copy-btn');
+        navigator.clipboard.writeText(message).then(() => {
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Info';
+            }, 1500);
         });
     }
 
@@ -1480,6 +1470,7 @@
         // Deal detail modal
         document.getElementById('modal-email-btn').addEventListener('click', emailDealOwner);
         document.getElementById('modal-slack-btn').addEventListener('click', slackDealOwner);
+        document.getElementById('modal-copy-btn').addEventListener('click', copyDealMessage);
         document.getElementById('modal-close').addEventListener('click', closeDealModal);
         document.getElementById('deal-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeDealModal();
