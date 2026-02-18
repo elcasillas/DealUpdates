@@ -4,21 +4,21 @@
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 120000,
-    "closing_date": "2026-03-14",
-    "modified_date": "2026-02-07",
+    "closing_date": "2026-03-13",
+    "modified_date": "2026-02-06",
     "notes_count": 1,
-    "notes_hash": "3966d1fc08e2659ba48d4b6c62d8238e3ba4d7fe2690522daefcef715483a7c1",
-    "notes_summary_length": 22
+    "notes_hash": "6ec7130e68a9c49d9f8fe60c14e6140d850e66e4105f6723808bb90a6bfde949",
+    "notes_summary_length": 21
   },
   {
     "deal_key": "beta industries||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Qualification",
     "acv": 45000,
-    "closing_date": "2026-03-31",
-    "modified_date": "2026-01-24",
+    "closing_date": "2026-03-30",
+    "modified_date": "2026-01-23",
     "notes_count": 1,
-    "notes_hash": "7d4cd46daf584a5047b21e299e72ecd50fe40d33530fd8fbf9fa21dc3fb1842e",
+    "notes_hash": "aff770aff5abfc746dce9d260d184efbc5db9f5b52deb81a31d5535f33638f7d",
     "notes_summary_length": 150
   },
   {
@@ -26,21 +26,21 @@
     "deal_owner": "Carlos Diaz",
     "stage": "Proposal",
     "acv": 85000,
-    "closing_date": "2026-05-09",
-    "modified_date": "2026-01-31",
+    "closing_date": "2026-05-08",
+    "modified_date": "2026-01-30",
     "notes_count": 1,
-    "notes_hash": "060e165b0a8cd7eb0994df56d00ce107ee5873ff20446c683eb4083095f11703",
-    "notes_summary_length": 17
+    "notes_hash": "ed85da2542709068cd081c29473edda1dbaf65dcc99d878df2e0d6eed8b33560",
+    "notes_summary_length": 34
   },
   {
     "deal_key": "zeta logistics||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 60000,
-    "closing_date": "2026-07-14",
-    "modified_date": "2026-02-08",
+    "closing_date": "2026-07-13",
+    "modified_date": "2026-02-07",
     "notes_count": 1,
-    "notes_hash": "e2a9011895bfdc53331265cbcb8f1d1b61605bfe5003840cc5f9936b85aaca52",
-    "notes_summary_length": 24
+    "notes_hash": "7f2e3317b6250bf8f05bbbf927e7b8384b7f3e8d8fc6a3e5e9a96255b2301a27",
+    "notes_summary_length": 21
   }
 ]

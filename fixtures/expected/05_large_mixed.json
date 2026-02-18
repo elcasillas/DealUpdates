@@ -4,10 +4,10 @@
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 120000,
-    "closing_date": "2026-03-14",
-    "modified_date": "2026-02-07",
+    "closing_date": "2026-03-13",
+    "modified_date": "2026-02-06",
     "notes_count": 1,
-    "notes_hash": "96312516e1bdef1c503227f38c4e3e385fd17aa196fb783506b1d71be7dc6b08",
+    "notes_hash": "1cdaf1fef19a7528caa68c143fb2c577c6f68e3f93d22335d27fa229d4e9f0c0",
     "notes_summary_length": 29
   },
   {
@@ -15,10 +15,10 @@
     "deal_owner": "Carlos Diaz",
     "stage": "Qualification",
     "acv": 220000,
-    "closing_date": "2026-07-31",
-    "modified_date": "2026-01-21",
+    "closing_date": "2026-07-30",
+    "modified_date": "2026-01-20",
     "notes_count": 1,
-    "notes_hash": "4521bcf67605be9d7fd782f1125d48ea69ba89cd8887d27950e4867c4948a149",
+    "notes_hash": "e44830b269b8e15c8bbd6db2d5b5e1c758674ddb17aed49541d7053d8271451d",
     "notes_summary_length": 21
   },
   {
@@ -26,8 +26,8 @@
     "deal_owner": "Bob Jones",
     "stage": "Qualification",
     "acv": 45000,
-    "closing_date": "2026-03-31",
-    "modified_date": "2026-01-24",
+    "closing_date": "2026-03-30",
+    "modified_date": "2026-01-23",
     "notes_count": 1,
     "notes_hash": "1ea7d1daab4c0a927415c4e43338188a1bbd915512a84a58a1f57a8db84f32b4",
     "notes_summary_length": 33
@@ -37,32 +37,32 @@
     "deal_owner": "Bob Jones",
     "stage": "Proposal",
     "acv": 50000,
-    "closing_date": "2026-05-14",
-    "modified_date": "2026-02-01",
+    "closing_date": "2026-05-13",
+    "modified_date": "2026-01-31",
     "notes_count": 1,
-    "notes_hash": "e52c815c14ed868541e7842ac6be332b060e89dbabd0287a81e40c0272580dc3",
-    "notes_summary_length": 41
+    "notes_hash": "454aea8fc10475fe431aaac50d7fff0a2281244cead3adcd1f276e678c144ef5",
+    "notes_summary_length": 39
   },
   {
     "deal_key": "chi real estate||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Negotiation",
     "acv": 65000,
-    "closing_date": "2026-03-09",
-    "modified_date": "2026-02-06",
+    "closing_date": "2026-03-08",
+    "modified_date": "2026-02-05",
     "notes_count": 1,
-    "notes_hash": "82ee52c684444082417f61faf51294c1fdcd5d96976951ca8522c2c2e6d59343",
-    "notes_summary_length": 36
+    "notes_hash": "4f38102870158bfd4c2824451e651edf9c7af96bf91db47bb1b67a48172da24e",
+    "notes_summary_length": 42
   },
   {
     "deal_key": "delta financial||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Proposal",
     "acv": 85000,
-    "closing_date": "2026-05-09",
-    "modified_date": "2026-01-31",
+    "closing_date": "2026-05-08",
+    "modified_date": "2026-01-30",
     "notes_count": 1,
-    "notes_hash": "e6569c5d235e68753c5677b26df1418354886ab2921bc3b42d2133ba8e0928c1",
+    "notes_hash": "73c3ef74752ae0ea02964d165022449f0a9de0fe7179cd0ad1736bb5d8c2d5ae",
     "notes_summary_length": 14
   },
   {
@@ -70,43 +70,43 @@
     "deal_owner": "Carlos Diaz",
     "stage": "Qualification",
     "acv": 75000,
-    "closing_date": "2026-07-19",
-    "modified_date": "2026-01-28",
+    "closing_date": "2026-07-18",
+    "modified_date": "2026-01-27",
     "notes_count": 1,
-    "notes_hash": "cad4aee46d9014a5dd0f41b2dff2d1185177d1608a271f952c18728c324453d6",
-    "notes_summary_length": 26
+    "notes_hash": "b81f6e8ae260ff93d0c4de39d53718fa859d3fe3ef154c3fd4340f67cdc18241",
+    "notes_summary_length": 30
   },
   {
     "deal_key": "duplicate deal alpha||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 65000,
-    "closing_date": "2026-05-31",
-    "modified_date": "2026-02-07",
+    "closing_date": "2026-05-30",
+    "modified_date": "2026-02-06",
     "notes_count": 2,
-    "notes_hash": "d782e0a384034095549af5ba2cc2a79a1e1649736fb61481bb8a4b33b8d4b179",
-    "notes_summary_length": 52
+    "notes_hash": "f117d601ec10577954f112d883e76465c19d6baf117af7a563074635695eea20",
+    "notes_summary_length": 91
   },
   {
     "deal_key": "duplicate deal alpha||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Qualification",
     "acv": 58000,
-    "closing_date": "2026-05-31",
-    "modified_date": "2026-01-27",
+    "closing_date": "2026-05-30",
+    "modified_date": "2026-01-26",
     "notes_count": 1,
-    "notes_hash": "5a6a5430c826d6a0bf52436c7999647ac960dac3f507b27bb225001b031962a8",
-    "notes_summary_length": 19
+    "notes_hash": "950f402cc80a2b2d3d710bfa8d246fd73ed2393896727d56d9f23d29b39d8585",
+    "notes_summary_length": 22
   },
   {
     "deal_key": "epsilon retail||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Discovery",
     "acv": 30000,
-    "closing_date": "2026-06-29",
-    "modified_date": "2026-02-09",
+    "closing_date": "2026-06-28",
+    "modified_date": "2026-02-08",
     "notes_count": 1,
-    "notes_hash": "38ae33ace5ebbf876ceb344e75066adaaec644465f1b095b1cb5188063dd4a9b",
+    "notes_hash": "4a8e466830e007bda8fa8aac4ec7185e94acaa926af88fbfd6e5fee7f724a500",
     "notes_summary_length": 19
   },
   {
@@ -114,21 +114,21 @@
     "deal_owner": "Bob Jones",
     "stage": "Negotiation",
     "acv": 350000,
-    "closing_date": "2026-03-29",
-    "modified_date": "2026-02-05",
+    "closing_date": "2026-03-28",
+    "modified_date": "2026-02-04",
     "notes_count": 1,
-    "notes_hash": "e78e743a599a304fb64f40962fd763b28d17e01a10634775b593b3341f32ea45",
-    "notes_summary_length": 25
+    "notes_hash": "c110def7acf317b4fc1cf34b6c988a1371bac8c97afd7a3d9151cfc46229ae67",
+    "notes_summary_length": 28
   },
   {
     "deal_key": "eta manufacturing||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Closed Won",
     "acv": 150000,
-    "closing_date": "2026-01-14",
-    "modified_date": "2026-01-14",
+    "closing_date": "2026-01-13",
+    "modified_date": "2026-01-13",
     "notes_count": 1,
-    "notes_hash": "ebd20bf7b0ce9647cea4ea965bd81a1931a53026f4f0e9225bb45319ac78f172",
+    "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
     "notes_summary_length": 7
   },
   {
@@ -136,32 +136,32 @@
     "deal_owner": "Dana Lee",
     "stage": "Discovery",
     "acv": 55000,
-    "closing_date": "2026-09-14",
-    "modified_date": "2026-02-10",
+    "closing_date": "2026-09-13",
+    "modified_date": "2026-02-09",
     "notes_count": 1,
-    "notes_hash": "c7c7b6d8ba20f9319def72656ea7df23f9cf241b45d314e890ebe9a31f9d5e87",
-    "notes_summary_length": 38
+    "notes_hash": "ceedd6ad3bec5974e52fe357a9ebea4591c234170697824c122a51015474adcd",
+    "notes_summary_length": 41
   },
   {
     "deal_key": "gamma health||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Closed Won",
     "acv": 200000,
-    "closing_date": "2026-01-30",
-    "modified_date": "2026-01-30",
+    "closing_date": "2026-01-29",
+    "modified_date": "2026-01-29",
     "notes_count": 1,
-    "notes_hash": "81ef58db245d6d923e2e3e10ada39da4abbfe35254ac2b57b8fc4b26d6ccf8b3",
-    "notes_summary_length": 34
+    "notes_hash": "993a308b101ef639dddd02c1b39480240bd78b5e6422841bdd6ae3abb01e7b64",
+    "notes_summary_length": 30
   },
   {
     "deal_key": "gamma2 nonprofit||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 15000,
-    "closing_date": "2026-10-31",
-    "modified_date": "2026-02-09",
+    "closing_date": "2026-10-30",
+    "modified_date": "2026-02-08",
     "notes_count": 1,
-    "notes_hash": "8ecd0b8d0eb1e0020d5ad03272ee68beb768d61efbe3c132251ab557a8257b3a",
+    "notes_hash": "1a84eca2e1896950b6566b2f04bb34d1d762d210d89098ac7a2bd48924bd34c4",
     "notes_summary_length": 21
   },
   {
@@ -169,10 +169,10 @@
     "deal_owner": "Alice Smith",
     "stage": "Proposal",
     "acv": 40000,
-    "closing_date": "2026-07-31",
-    "modified_date": "2026-02-06",
+    "closing_date": "2026-07-30",
+    "modified_date": "2026-02-05",
     "notes_count": 1,
-    "notes_hash": "c3f02acc7f533c2b1674c510a8ab2cecd7c4f56381ad4170074cc500a3fa4653",
+    "notes_hash": "e5f33dfb3c8aab9b4c134d114b935a8497ac68b59133b4c27d27dec8826df456",
     "notes_summary_length": 14
   },
   {
@@ -180,32 +180,32 @@
     "deal_owner": "Dana Lee",
     "stage": "Proposal",
     "acv": 38000,
-    "closing_date": "2026-04-09",
-    "modified_date": "2026-02-02",
+    "closing_date": "2026-04-08",
+    "modified_date": "2026-02-01",
     "notes_count": 1,
-    "notes_hash": "725d17ebb93cfb0ac916206fffde52a8a2f6b56471369b12fd083d026999cee3",
-    "notes_summary_length": 44
+    "notes_hash": "749d58960c8be98d117dec4aa2e051a18e99b0e7087258a5adc7feeb2226af31",
+    "notes_summary_length": 45
   },
   {
     "deal_key": "kappa telecom||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Qualification",
     "acv": 175000,
-    "closing_date": "2026-05-31",
-    "modified_date": "2026-01-29",
+    "closing_date": "2026-05-30",
+    "modified_date": "2026-01-28",
     "notes_count": 1,
-    "notes_hash": "24af41b935c69c8e46c8a2f3b96ffe728b6ecc0e4434fc2d7bf1962399cee62b",
-    "notes_summary_length": 40
+    "notes_hash": "08425dcf11c209412dc32af57022ce0ce9b2183090c7f44ad2bb1060c5478132",
+    "notes_summary_length": 44
   },
   {
     "deal_key": "kappa2 defense||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Qualification",
     "acv": 500000,
-    "closing_date": "2026-12-14",
-    "modified_date": "2025-11-30",
+    "closing_date": "2026-12-13",
+    "modified_date": "2025-11-29",
     "notes_count": 1,
-    "notes_hash": "39ea63466c9161acccb4dc34de334d43f35b495c68aa355d1c3195381937ba42",
+    "notes_hash": "8515c08ad02bd42f372b86c60b5d493bd9d8c318397a0f99e1eda8e254f1821a",
     "notes_summary_length": 21
   },
   {
@@ -213,76 +213,76 @@
     "deal_owner": "Bob Jones",
     "stage": "Discovery",
     "acv": 25000,
-    "closing_date": "2026-08-31",
-    "modified_date": "2026-02-10",
+    "closing_date": "2026-08-30",
+    "modified_date": "2026-02-09",
     "notes_count": 1,
-    "notes_hash": "781a15012ac8f45ffde8b3a2bbfedf855ce30aa071450feb2a806cf4d44f1fa7",
-    "notes_summary_length": 31
+    "notes_hash": "8349dcaca4678b09fe56313181a6c4f09dbf2e852867bd4b7d0c1825403664a6",
+    "notes_summary_length": 34
   },
   {
     "deal_key": "lambda2 transport||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Negotiation",
     "acv": 88000,
-    "closing_date": "2026-03-17",
-    "modified_date": "2026-02-08",
+    "closing_date": "2026-03-16",
+    "modified_date": "2026-02-07",
     "notes_count": 1,
-    "notes_hash": "4f135fe5685d49be107ee599f8ccbe84f85c98bb6e8f563ed26cfe2c0ef16286",
-    "notes_summary_length": 17
+    "notes_hash": "9bbb9bc263fd9989e885dba09b63589a8ee3ef4f2c8e8fd1383c56d921f9b70d",
+    "notes_summary_length": 18
   },
   {
     "deal_key": "mu pharma||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 300000,
-    "closing_date": "2026-04-14",
-    "modified_date": "2026-02-05",
+    "closing_date": "2026-04-13",
+    "modified_date": "2026-02-04",
     "notes_count": 1,
-    "notes_hash": "43cda12ddb5436937b9a3ed8250cf07eabada6141573a2b4aa961b7ebaa4bc2d",
-    "notes_summary_length": 24
+    "notes_hash": "31394d883e801e1ab0dcb26ab6cc3f70b9516fc7971a6a77e42fb1c99f3360bb",
+    "notes_summary_length": 26
   },
   {
     "deal_key": "mu2 dental||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 22000,
-    "closing_date": "2026-10-14",
-    "modified_date": "2026-02-11",
+    "closing_date": "2026-10-13",
+    "modified_date": "2026-02-10",
     "notes_count": 1,
-    "notes_hash": "1c48081b47ad1d54e1995bcdf1e85bff75182a836c20df6a4d0264d0a13dc643",
-    "notes_summary_length": 39
+    "notes_hash": "1dfbea73e796dc139fa157c266590f709064abdfcf12c2e0550952ab02f1bab9",
+    "notes_summary_length": 41
   },
   {
     "deal_key": "nu energy||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Proposal",
     "acv": 110000,
-    "closing_date": "2026-05-29",
-    "modified_date": "2026-02-02",
+    "closing_date": "2026-05-28",
+    "modified_date": "2026-02-01",
     "notes_count": 1,
-    "notes_hash": "21604f693f683e07841f9194b0348cfca74fd96f96a4e2fef18d14377a2ad252",
-    "notes_summary_length": 20
+    "notes_hash": "35e511bb49f2d935642aad0f9ed0525ee1e5425ff5c1d219e0cd6d0ca87c2c3c",
+    "notes_summary_length": 21
   },
   {
     "deal_key": "nu2 telehealth||dana lee",
     "deal_owner": "Dana Lee",
     "stage": "Proposal",
     "acv": 95000,
-    "closing_date": "2026-05-24",
-    "modified_date": "2026-02-04",
+    "closing_date": "2026-05-23",
+    "modified_date": "2026-02-03",
     "notes_count": 1,
-    "notes_hash": "aa6e4a520bbd2d7e914a783f959bf8f972c715b1a982fec0dc0ad65681b0414c",
-    "notes_summary_length": 96
+    "notes_hash": "6802929d3c4056a5e5a80485b37c2671dd403d63453aef1d0ad00ce384029bea",
+    "notes_summary_length": 55
   },
   {
     "deal_key": "omega shipping||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Closed Won",
     "acv": 145000,
-    "closing_date": "2026-02-04",
-    "modified_date": "2026-02-04",
+    "closing_date": "2026-02-03",
+    "modified_date": "2026-02-03",
     "notes_count": 1,
-    "notes_hash": "ddcf9e36d61712a8c99a8fe30ebafe2b58e953a7f4856a7df2057585c74dc432",
+    "notes_hash": "44c3013e200ca12b29a84e787898f8aea5d1c4e15009f6e9fac1dec32b019406",
     "notes_summary_length": 12
   },
   {
@@ -290,10 +290,10 @@
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 55000,
-    "closing_date": "2026-08-14",
-    "modified_date": "2026-02-11",
+    "closing_date": "2026-08-13",
+    "modified_date": "2026-02-10",
     "notes_count": 1,
-    "notes_hash": "a8c1372b40d6a7093ac5c8230bda058d403cbcffffb505b7306ad1b36eaeb6c7",
+    "notes_hash": "04135a7f0abdf818e616503746215fdbff40a06decb3a5494ad5c05a76065bf8",
     "notes_summary_length": 17
   },
   {
@@ -301,21 +301,21 @@
     "deal_owner": "Bob Jones",
     "stage": "Discovery",
     "acv": 70000,
-    "closing_date": "2026-08-19",
-    "modified_date": "2026-02-07",
+    "closing_date": "2026-08-18",
+    "modified_date": "2026-02-06",
     "notes_count": 1,
-    "notes_hash": "9410b498166bfa07e26772d0c0bc7d57ee05d25beaec5f31885592ed49a25fc5",
-    "notes_summary_length": 22
+    "notes_hash": "4c283c1d1183bcc9de177c02e74a7b2dd5efa82dda3d2763fe2d5671efbaa791",
+    "notes_summary_length": 24
   },
   {
     "deal_key": "phi biotech||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Proposal",
     "acv": 185000,
-    "closing_date": "2026-06-14",
-    "modified_date": "2026-02-07",
+    "closing_date": "2026-06-13",
+    "modified_date": "2026-02-06",
     "notes_count": 1,
-    "notes_hash": "ae114a5cd037e104877cf022237dba2b57f609e44eb841c17af8ec976aed70f2",
+    "notes_hash": "c1b437904a3db834551cb0d41cb7f562e43ea3e280f2c8eb840456dba55448dc",
     "notes_summary_length": 150
   },
   {
@@ -323,10 +323,10 @@
     "deal_owner": "Carlos Diaz",
     "stage": "Closed Won",
     "acv": 90000,
-    "closing_date": "2026-01-31",
-    "modified_date": "2026-01-31",
+    "closing_date": "2026-01-30",
+    "modified_date": "2026-01-30",
     "notes_count": 1,
-    "notes_hash": "eb9fea5b1936858711b286a46173c07132dc04906ece4d51a44793c40291927b",
+    "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
     "notes_summary_length": 7
   },
   {
@@ -334,32 +334,32 @@
     "deal_owner": "Dana Lee",
     "stage": "Qualification",
     "acv": 125000,
-    "closing_date": "2026-06-29",
-    "modified_date": "2026-01-30",
+    "closing_date": "2026-06-28",
+    "modified_date": "2026-01-29",
     "notes_count": 1,
-    "notes_hash": "4ae520a7f3d064039d3575a16edd8c84f9415b8d8d9d5ca40740d23027ac912d",
-    "notes_summary_length": 46
+    "notes_hash": "6bf82e20709de3c484ea0e69e359d6c942cf67ee622c91fe7dc5fbe7afcd9d54",
+    "notes_summary_length": 53
   },
   {
     "deal_key": "psi agriculture||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Discovery",
     "acv": 35000,
-    "closing_date": "2026-09-30",
-    "modified_date": "2026-02-10",
+    "closing_date": "2026-09-29",
+    "modified_date": "2026-02-09",
     "notes_count": 1,
-    "notes_hash": "c5ea3018d16db7a1e93f5f4696587ebb7210f1816a20ef0074aeba83c21f04a7",
-    "notes_summary_length": 17
+    "notes_hash": "284f4c1db664543c49bb658fadcaa3fba96e28f955c1b61ebf0e3723fd1d6ef2",
+    "notes_summary_length": 20
   },
   {
     "deal_key": "rho insurance||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Proposal",
     "acv": 130000,
-    "closing_date": "2026-04-29",
-    "modified_date": "2026-02-03",
+    "closing_date": "2026-04-28",
+    "modified_date": "2026-02-02",
     "notes_count": 1,
-    "notes_hash": "d793171ed07273121422f52b2c4b3a1a93dc1a223e4fa8ddb5b8ccaff1bb56cb",
+    "notes_hash": "e5f33dfb3c8aab9b4c134d114b935a8497ac68b59133b4c27d27dec8826df456",
     "notes_summary_length": 14
   },
   {
@@ -367,76 +367,76 @@
     "deal_owner": "Alice Smith",
     "stage": "Negotiation",
     "acv": 80000,
-    "closing_date": "2026-03-24",
-    "modified_date": "2026-02-08",
+    "closing_date": "2026-03-23",
+    "modified_date": "2026-02-07",
     "notes_count": 1,
-    "notes_hash": "0348c9147792cbe89e2d09ebf7cc2ac83d3ba16d86b6308579b7c72669b2c240",
-    "notes_summary_length": 26
+    "notes_hash": "09f367ae94d0172b8e7638c1542ad704c7b74f9c73ff0ce8a88be753b2f0d9b2",
+    "notes_summary_length": 29
   },
   {
     "deal_key": "tau government||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Qualification",
     "acv": 250000,
-    "closing_date": "2026-09-29",
-    "modified_date": "2026-01-14",
+    "closing_date": "2026-09-28",
+    "modified_date": "2026-01-13",
     "notes_count": 1,
-    "notes_hash": "aecfc67a5a93bc1f983bce9b08fbbb9df72eb452a2ded3339ffc568eadef305c",
-    "notes_summary_length": 23
+    "notes_hash": "5e1ebc882b7ac1188d9f961db46d68e7119de4b424901f39960bc15fe4f96c07",
+    "notes_summary_length": 25
   },
   {
     "deal_key": "theta corp||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Negotiation",
     "acv": 95000,
-    "closing_date": "2026-03-19",
-    "modified_date": "2026-02-04",
+    "closing_date": "2026-03-18",
+    "modified_date": "2026-02-03",
     "notes_count": 1,
-    "notes_hash": "ec863911d8404b981a83584f865e5281da6652d914417a74f5ea21221ede86c5",
-    "notes_summary_length": 17
+    "notes_hash": "9bbb9bc263fd9989e885dba09b63589a8ee3ef4f2c8e8fd1383c56d921f9b70d",
+    "notes_summary_length": 18
   },
   {
     "deal_key": "theta2 utilities||dana lee",
     "deal_owner": "Dana Lee",
     "stage": "Qualification",
     "acv": 160000,
-    "closing_date": "2026-05-19",
-    "modified_date": "2026-01-26",
+    "closing_date": "2026-05-18",
+    "modified_date": "2026-01-25",
     "notes_count": 1,
-    "notes_hash": "4541973f3c30eb4ef9742c5a8ecebee79cee1c2c65b6dbc3714521046c8c45af",
-    "notes_summary_length": 45
+    "notes_hash": "487519b5c952f1cc583d3c61a2bad6eec7408953ad7f7f42a5e4a4eef191c4a5",
+    "notes_summary_length": 53
   },
   {
     "deal_key": "upsilon aerospace||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Discovery",
     "acv": 400000,
-    "closing_date": "2026-11-30",
-    "modified_date": "2025-12-19",
+    "closing_date": "2026-11-29",
+    "modified_date": "2025-12-18",
     "notes_count": 1,
-    "notes_hash": "ea671dbd0444dad957616e7bc4127e91b12fea4cf80f96fbbd0ab04fb0af9ddb",
-    "notes_summary_length": 16
+    "notes_hash": "ddef9f2f420c2a04040646f9ed2a9706ba04019099f71a4838e35a940b43ad19",
+    "notes_summary_length": 17
   },
   {
     "deal_key": "xi automotive||bob jones",
     "deal_owner": "Bob Jones",
     "stage": "Qualification",
     "acv": 70000,
-    "closing_date": "2026-06-30",
-    "modified_date": "2026-01-27",
+    "closing_date": "2026-06-29",
+    "modified_date": "2026-01-26",
     "notes_count": 1,
-    "notes_hash": "0a6174d2036437379de85bc08e7127093e62fd8088f7d97d600582bee1ef97d8",
-    "notes_summary_length": 27
+    "notes_hash": "6c05f1a6e1e0c47472cf6189f42c02ece4eb71da096391410d4c6f72c7e5887b",
+    "notes_summary_length": 31
   },
   {
     "deal_key": "xi2 robotics||carlos diaz",
     "deal_owner": "Carlos Diaz",
     "stage": "Closed Won",
     "acv": 180000,
-    "closing_date": "2026-02-09",
-    "modified_date": "2026-02-09",
+    "closing_date": "2026-02-08",
+    "modified_date": "2026-02-08",
     "notes_count": 1,
-    "notes_hash": "dd08f5d031ac5121235bfa8ad2b5ddf56c006995e8535dad61b46efaa9c8c62a",
+    "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
     "notes_summary_length": 7
   },
   {
@@ -444,21 +444,21 @@
     "deal_owner": "Alice Smith",
     "stage": "Discovery",
     "acv": 60000,
-    "closing_date": "2026-07-14",
-    "modified_date": "2026-02-08",
+    "closing_date": "2026-07-13",
+    "modified_date": "2026-02-07",
     "notes_count": 1,
-    "notes_hash": "75166057d76faef3ea8fa46bf693602108839894492a552e593ff017117846c9",
-    "notes_summary_length": 24
+    "notes_hash": "d068ab11bc6544993e3a0ce25ef4f2690ff0e47bed9fedaf307c4dc98efb59b7",
+    "notes_summary_length": 25
   },
   {
     "deal_key": "zeta2 food||alice smith",
     "deal_owner": "Alice Smith",
     "stage": "Proposal",
     "acv": 42000,
-    "closing_date": "2026-05-31",
-    "modified_date": "2026-02-03",
+    "closing_date": "2026-05-30",
+    "modified_date": "2026-02-02",
     "notes_count": 1,
-    "notes_hash": "5ba30fc348c1e528d79994854382f3c9460302ab09487561e5062e7e5cf86ff1",
-    "notes_summary_length": 35
+    "notes_hash": "5e90dca9a793d33f10908b38d197e112f698622e53f73ad9907b7729a18b61a7",
+    "notes_summary_length": 36
   }
 ]

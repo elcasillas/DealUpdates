@@ -1,5 +1,6 @@
-# CSV data files
+# CSV data files (but allow test fixtures)
 *.csv
+!fixtures/*.csv
 
 # OS files
 Thumbs.db
