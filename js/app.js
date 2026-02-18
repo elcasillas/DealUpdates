@@ -165,14 +165,15 @@
         return data || [];
     }
 
-    async function upsertOwnerContact(ownerName, email, phone) {
+    async function upsertOwnerContact(ownerName, email, phone, slackMemberId) {
         if (!supabaseClient) return null;
         const { data, error } = await supabaseClient
             .from('deal_owners')
             .upsert({
                 owner_name: ownerName,
                 email: email || null,
-                phone: phone || null
+                phone: phone || null,
+                slack_member_id: slackMemberId || null
             }, { onConflict: 'owner_name' })
             .select()
             .single();
@@ -788,6 +789,50 @@
         window.open(mailto, '_blank');
     }
 
+    function slackDealOwner() {
+        if (!currentModalDeal) return;
+        const deal = currentModalDeal;
+        const contact = getOwnerContact(deal.dealOwner);
+        const slackId = contact?.slack_member_id || '';
+
+        if (!slackId) {
+            if (confirm(`No Slack Member ID found for ${deal.dealOwner}.\n\nWould you like to open Manage Contacts to add their info?`)) {
+                closeDealModal();
+                openContactsModal(deal.dealOwner);
+            }
+            return;
+        }
+
+        const firstName = (deal.dealOwner || '').split(' ')[0];
+
+        const lines = [
+            `Hi ${firstName},`,
+            '',
+            'Could you please provide an update on the following deal?',
+            '',
+            '---',
+            `Deal Name: ${deal.dealName}`,
+            `Deal Owner: ${deal.dealOwner}`,
+            `Stage: ${deal.stage || '-'}`,
+            `ACV (CAD): ${deal.acvFormatted || '-'}`,
+            `Closing Date: ${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' (Overdue)' : deal.closingStatus === 'soon' ? ' (Closing Soon)' : ''}`,
+            `Modified Date: ${formatDate(deal.modifiedDate)}`,
+            `Days Since Update: ${deal.daysSince} days`,
+            '',
+            `Description: ${deal.description || 'No description available.'}`,
+            '',
+            `Notes: ${deal.noteContent || 'No notes available.'}`,
+            '---',
+            '',
+            'Thanks,'
+        ];
+
+        const message = lines.join('\n');
+        navigator.clipboard.writeText(message).then(() => {
+            window.open(`slack://user?id=${encodeURIComponent(slackId)}`, '_blank');
+        });
+    }
+
     // ==================== Manage Contacts Modal ====================
     function openContactsModal(focusOwnerName) {
         renderContactsList();
@@ -829,6 +874,7 @@
             const normalizedName = name.toLowerCase().trim();
             const email = contact?.email || '';
             const phone = contact?.phone || '';
+            const slackMemberId = contact?.slack_member_id || '';
 
             return `
             <div class="contacts-modal__row" data-owner="${escapeHTML(name)}" data-owner-normalized="${escapeHTML(normalizedName)}">
@@ -836,6 +882,7 @@
                     <div class="contacts-modal__owner-name">${escapeHTML(name)}</div>
                     <div class="contacts-modal__owner-email">${email ? escapeHTML(email) : '<span class="contacts-modal__not-set">No email</span>'}</div>
                     <div class="contacts-modal__owner-phone">${phone ? escapeHTML(phone) : '<span class="contacts-modal__not-set">No phone</span>'}</div>
+                    <div class="contacts-modal__owner-slack">${slackMemberId ? escapeHTML(slackMemberId) : '<span class="contacts-modal__not-set">No Slack ID</span>'}</div>
                     <button class="contacts-modal__edit-btn" title="Edit contact">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -851,6 +898,10 @@
                     <div class="contacts-modal__field">
                         <label>Phone</label>
                         <input type="tel" class="contacts-modal__phone-input" value="${escapeHTML(phone)}" placeholder="+1 (555) 000-0000">
+                    </div>
+                    <div class="contacts-modal__field">
+                        <label>Slack Member ID</label>
+                        <input type="text" class="contacts-modal__slack-input" value="${escapeHTML(slackMemberId)}" placeholder="U0XXXXXXXX">
                     </div>
                     <div class="contacts-modal__row-actions">
                         <button class="contacts-modal__save-btn">Save</button>
@@ -870,7 +921,7 @@
         container.querySelectorAll('.contacts-modal__save-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const row = e.target.closest('.contacts-modal__row');
-                saveOwnerContactRow(row.dataset.owner, row.querySelector('.contacts-modal__email-input'), row.querySelector('.contacts-modal__phone-input'), row);
+                saveOwnerContactRow(row.dataset.owner, row.querySelector('.contacts-modal__email-input'), row.querySelector('.contacts-modal__phone-input'), row.querySelector('.contacts-modal__slack-input'), row);
             });
         });
 
@@ -891,6 +942,7 @@
         const contact = getOwnerContact(row.dataset.owner);
         row.querySelector('.contacts-modal__email-input').value = contact?.email || '';
         row.querySelector('.contacts-modal__phone-input').value = contact?.phone || '';
+        row.querySelector('.contacts-modal__slack-input').value = contact?.slack_member_id || '';
         row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
         row.querySelector('.contacts-modal__row-form').classList.add('hidden');
     }
@@ -898,21 +950,26 @@
     function setContactRowDisplayMode(row, contact) {
         const emailEl = row.querySelector('.contacts-modal__owner-email');
         const phoneEl = row.querySelector('.contacts-modal__owner-phone');
+        const slackEl = row.querySelector('.contacts-modal__owner-slack');
         emailEl.innerHTML = contact.email
             ? escapeHTML(contact.email)
             : '<span class="contacts-modal__not-set">No email</span>';
         phoneEl.innerHTML = contact.phone
             ? escapeHTML(contact.phone)
             : '<span class="contacts-modal__not-set">No phone</span>';
+        slackEl.innerHTML = contact.slack_member_id
+            ? escapeHTML(contact.slack_member_id)
+            : '<span class="contacts-modal__not-set">No Slack ID</span>';
         row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
         row.querySelector('.contacts-modal__row-form').classList.add('hidden');
     }
 
-    async function saveOwnerContactRow(ownerName, emailInput, phoneInput, row) {
+    async function saveOwnerContactRow(ownerName, emailInput, phoneInput, slackInput, row) {
         const email = emailInput.value.trim();
         const phone = phoneInput.value.trim();
+        const slackMemberId = slackInput.value.trim();
 
-        const result = await upsertOwnerContact(ownerName, email, phone);
+        const result = await upsertOwnerContact(ownerName, email, phone, slackMemberId);
         if (result) {
             updateOwnerContactCache(result);
             setContactRowDisplayMode(row, result);
@@ -1422,6 +1479,7 @@
 
         // Deal detail modal
         document.getElementById('modal-email-btn').addEventListener('click', emailDealOwner);
+        document.getElementById('modal-slack-btn').addEventListener('click', slackDealOwner);
         document.getElementById('modal-close').addEventListener('click', closeDealModal);
         document.getElementById('deal-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeDealModal();

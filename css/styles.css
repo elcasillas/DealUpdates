@@ -728,6 +728,7 @@ tbody tr:last-child td {
     border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: flex-end;
+    gap: 0.5rem;
 }
 
 .modal__email-btn {
@@ -748,6 +749,26 @@ tbody tr:last-child td {
 .modal__email-btn:hover {
     background: #dbeafe;
     border-color: var(--color-primary);
+}
+
+.modal__slack-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    background: #f3e8f9;
+    color: #4A154B;
+    border: 1px solid #d4a5dc;
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal__slack-btn:hover {
+    background: #e8d0f0;
+    border-color: #4A154B;
 }
 
 /* Manage Contacts Modal */
