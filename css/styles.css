@@ -827,7 +827,8 @@ tbody tr:last-child td {
 }
 
 .contacts-modal__owner-email,
-.contacts-modal__owner-phone {
+.contacts-modal__owner-phone,
+.contacts-modal__owner-slack {
     font-size: 0.8125rem;
     color: var(--color-text);
 }
