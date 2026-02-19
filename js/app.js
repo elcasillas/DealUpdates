@@ -808,7 +808,7 @@
         const message = buildDealMessageBody(deal);
         const SLACK_TEAM_ID = 'T02FCU97B';
         navigator.clipboard.writeText(message).then(() => {
-            window.open(`https://app.slack.com/client/${SLACK_TEAM_ID}/${slackId}`, '_blank');
+            window.open(`https://slack.com/app_redirect?channel=${encodeURIComponent(slackId)}&team=${SLACK_TEAM_ID}`, '_blank');
         });
     }
 
