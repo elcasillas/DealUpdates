@@ -52,13 +52,22 @@
             <p class="subtitle">Deal Notes Dashboard</p>
             <span id="ui-only-badge" class="ui-only-badge hidden" aria-label="UI-only mode: no backend">UI-only</span>
         </div>
-        <button id="clear-data-btn" class="clear-data-btn" title="Clear locally stored deal data">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-            Clear Local Data
-        </button>
+        <div class="header-actions">
+            <button id="scoring-settings-btn" class="clear-data-btn" title="Configure health score weights and mappings">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                Scoring
+            </button>
+            <button id="clear-data-btn" class="clear-data-btn" title="Clear locally stored deal data">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Clear Local Data
+            </button>
+        </div>
     </header>
 
     <main>
@@ -337,6 +346,45 @@
                 <input type="text" id="contacts-search-input" placeholder="Search owners...">
             </div>
             <div class="contacts-modal__list" id="contacts-list">
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoring Settings Modal -->
+    <div id="scoring-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="scoring-modal-title">
+        <div class="modal scoring-modal">
+            <button class="modal__close" id="scoring-modal-close">&times;</button>
+            <h2 class="modal__title" id="scoring-modal-title">Scoring Settings</h2>
+            <div class="scoring-modal__body">
+                <!-- Weights -->
+                <div class="scoring-section">
+                    <h3 class="scoring-section__title">Component Weights <span class="scoring-weight-total" id="scoring-weight-total">(100)</span></h3>
+                    <p class="scoring-section__hint">Must sum to 100. Values auto-normalize on save if they don't.</p>
+                    <div class="scoring-weights-grid" id="scoring-weights-grid"></div>
+                </div>
+
+                <!-- Stage Mapping -->
+                <div class="scoring-section">
+                    <h3 class="scoring-section__title">Stage Probability (0-100)</h3>
+                    <p class="scoring-section__hint">Score assigned to each pipeline stage. Add rows for custom stages.</p>
+                    <div id="scoring-stage-rows"></div>
+                    <button class="scoring-add-btn" id="scoring-add-stage">+ Add Stage</button>
+                </div>
+
+                <!-- Keywords -->
+                <div class="scoring-section">
+                    <h3 class="scoring-section__title">Notes Keywords</h3>
+                    <p class="scoring-section__hint">Comma-separated phrases. Each match shifts score +10 or -10.</p>
+                    <label class="scoring-kw-label">Positive keywords</label>
+                    <textarea class="scoring-kw-input" id="scoring-kw-positive" rows="2"></textarea>
+                    <label class="scoring-kw-label">Negative keywords</label>
+                    <textarea class="scoring-kw-input" id="scoring-kw-negative" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="scoring-save-btn" id="scoring-save-btn">Save &amp; Recompute</button>
+                <button class="scoring-reset-btn" id="scoring-reset-btn">Reset to Defaults</button>
+                <span class="scoring-validation" id="scoring-validation"></span>
             </div>
         </div>
     </div>

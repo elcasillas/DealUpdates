@@ -136,21 +136,23 @@
         return 40;
     }
 
-    function scoreNotesSignal(noteContent, notesCanonical) {
+    function scoreNotesSignal(noteContent, notesCanonical, posKw, negKw) {
         var text = ((noteContent || '') + ' ' + (notesCanonical || '')).toLowerCase();
         var score = 50;
         var positiveMatched = [];
         var negativeMatched = [];
+        var posWords = posKw || POSITIVE_KEYWORDS;
+        var negWords = negKw || NEGATIVE_KEYWORDS;
 
-        for (var i = 0; i < POSITIVE_KEYWORDS.length; i++) {
-            if (text.indexOf(POSITIVE_KEYWORDS[i]) !== -1) {
-                positiveMatched.push(POSITIVE_KEYWORDS[i]);
+        for (var i = 0; i < posWords.length; i++) {
+            if (text.indexOf(posWords[i].toLowerCase()) !== -1) {
+                positiveMatched.push(posWords[i]);
                 score += 10;
             }
         }
-        for (var i = 0; i < NEGATIVE_KEYWORDS.length; i++) {
-            if (text.indexOf(NEGATIVE_KEYWORDS[i]) !== -1) {
-                negativeMatched.push(NEGATIVE_KEYWORDS[i]);
+        for (var i = 0; i < negWords.length; i++) {
+            if (text.indexOf(negWords[i].toLowerCase()) !== -1) {
+                negativeMatched.push(negWords[i]);
                 score -= 10;
             }
         }
@@ -277,7 +279,9 @@
         var activityRecency = scoreActivityRecency(metrics.lastActivityDaysSince);
         var closeDateIntegrity = scoreCloseDateIntegrity(deal);
         var acvScore = scoreAcv(deal.acv, ctx.acvDistribution);
-        var notesResult = scoreNotesSignal(deal.noteContent, deal.notesCanonical);
+        var posKw = (config && config.positiveKeywords) || null;
+        var negKw = (config && config.negativeKeywords) || null;
+        var notesResult = scoreNotesSignal(deal.noteContent, deal.notesCanonical, posKw, negKw);
 
         var components = {
             stageProbability: stageProbability,

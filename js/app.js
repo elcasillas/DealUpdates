@@ -11,7 +11,9 @@
             getClosingStatus, getHealthLevel } = window.DealDomain;
 
     // ==================== Health Score imports ====================
-    const { computeDealHealthScore, buildContext: buildHealthContext } = window.DealHealthScore;
+    const { computeDealHealthScore, buildContext: buildHealthContext,
+            defaultWeights, DEFAULT_STAGE_SCORES,
+            POSITIVE_KEYWORDS, NEGATIVE_KEYWORDS } = window.DealHealthScore;
 
     // ==================== Ingest imports ====================
     const { COLUMN_MAPPINGS, parseCSV, parseCSVText, processRow, validateRow,
@@ -21,6 +23,7 @@
     // ==================== Configuration ====================
     const STORAGE_KEY = 'dealUpdates_data';
     const SCHEMA_VERSION_KEY = 'dealUpdates_schema_version';
+    const SCORING_CONFIG_KEY = 'dealUpdates_scoringConfig';
     const SCHEMA_VERSION = 1;
     const BATCH_SIZE = 500;
 
@@ -374,10 +377,38 @@
     }
 
     // ==================== Health Score ====================
+    function loadScoringConfig() {
+        try {
+            const raw = localStorage.getItem(SCORING_CONFIG_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (e) { /* ignore */ }
+        return null;
+    }
+
+    function saveScoringConfig(config) {
+        try {
+            localStorage.setItem(SCORING_CONFIG_KEY, JSON.stringify(config));
+        } catch (e) {
+            console.error('Failed to save scoring config:', e);
+        }
+    }
+
+    function buildScoringConfigArg() {
+        const saved = loadScoringConfig();
+        if (!saved) return undefined;
+        const config = {};
+        if (saved.weights) config.weights = saved.weights;
+        if (saved.stageScoreMap) config.stageScoreMap = saved.stageScoreMap;
+        if (saved.positiveKeywords) config.positiveKeywords = saved.positiveKeywords;
+        if (saved.negativeKeywords) config.negativeKeywords = saved.negativeKeywords;
+        return config;
+    }
+
     function attachHealthScores(deals) {
         const context = buildHealthContext(deals);
+        const config = buildScoringConfigArg();
         for (const deal of deals) {
-            const result = computeDealHealthScore(deal, context);
+            const result = computeDealHealthScore(deal, context, config);
             deal.healthScore = result.score;
             deal.healthComponents = result.components;
             deal.healthDebug = result.debug;
@@ -1403,6 +1434,156 @@
         }
     }
 
+    // ==================== Scoring Settings Modal ====================
+    const WEIGHT_LABELS = {
+        stageProbability: 'Stage Probability',
+        velocity: 'Velocity',
+        activityRecency: 'Activity Recency',
+        closeDateIntegrity: 'Close Date Integrity',
+        acv: 'ACV',
+        notesSignal: 'Notes Signal'
+    };
+
+    function openScoringModal() {
+        const config = loadScoringConfig() || {};
+        const weights = config.weights || defaultWeights();
+        const stageMap = config.stageScoreMap || { ...DEFAULT_STAGE_SCORES };
+        const posKw = config.positiveKeywords || [...POSITIVE_KEYWORDS];
+        const negKw = config.negativeKeywords || [...NEGATIVE_KEYWORDS];
+
+        // Populate weights grid
+        const grid = document.getElementById('scoring-weights-grid');
+        grid.innerHTML = '';
+        const weightKeys = Object.keys(defaultWeights());
+        for (const key of weightKeys) {
+            const item = document.createElement('div');
+            item.className = 'scoring-weight-item';
+            item.innerHTML = '<label>' + WEIGHT_LABELS[key] + '</label>' +
+                '<input type="number" min="0" max="100" data-weight-key="' + key + '" value="' + (weights[key] || 0) + '">';
+            grid.appendChild(item);
+        }
+        updateWeightTotal();
+
+        // Populate stage rows
+        const container = document.getElementById('scoring-stage-rows');
+        container.innerHTML = '';
+        const stages = Object.keys(stageMap);
+        for (const stage of stages) {
+            addStageRow(container, stage, stageMap[stage]);
+        }
+
+        // Populate keywords
+        document.getElementById('scoring-kw-positive').value = posKw.join(', ');
+        document.getElementById('scoring-kw-negative').value = negKw.join(', ');
+
+        // Clear validation
+        document.getElementById('scoring-validation').textContent = '';
+
+        document.getElementById('scoring-modal').classList.remove('hidden');
+    }
+
+    function closeScoringModal() {
+        document.getElementById('scoring-modal').classList.add('hidden');
+    }
+
+    function addStageRow(container, stageName, stageScore) {
+        const row = document.createElement('div');
+        row.className = 'scoring-stage-row';
+        row.innerHTML = '<input type="text" placeholder="Stage name" value="' + (stageName || '') + '">' +
+            '<input type="number" min="0" max="100" placeholder="0" value="' + (stageScore != null ? stageScore : '') + '">' +
+            '<button class="scoring-stage-remove" title="Remove">&times;</button>';
+        row.querySelector('.scoring-stage-remove').addEventListener('click', () => row.remove());
+        container.appendChild(row);
+    }
+
+    function updateWeightTotal() {
+        const inputs = document.querySelectorAll('#scoring-weights-grid input[data-weight-key]');
+        let total = 0;
+        inputs.forEach(inp => { total += parseFloat(inp.value) || 0; });
+        const el = document.getElementById('scoring-weight-total');
+        el.textContent = '(' + total + ')';
+        el.classList.toggle('scoring-weight-total--invalid', total !== 100);
+    }
+
+    function saveScoringSettings() {
+        const validation = document.getElementById('scoring-validation');
+        validation.textContent = '';
+
+        // Read weights
+        const inputs = document.querySelectorAll('#scoring-weights-grid input[data-weight-key]');
+        const weights = {};
+        let total = 0;
+        inputs.forEach(inp => {
+            const val = parseFloat(inp.value) || 0;
+            weights[inp.dataset.weightKey] = val;
+            total += val;
+        });
+
+        // Auto-normalize if not summing to 100
+        if (total > 0 && total !== 100) {
+            const factor = 100 / total;
+            for (const key of Object.keys(weights)) {
+                weights[key] = Math.round(weights[key] * factor * 100) / 100;
+            }
+            // Fix rounding: adjust largest weight
+            let roundedTotal = Object.values(weights).reduce((a, b) => a + b, 0);
+            if (roundedTotal !== 100) {
+                const maxKey = Object.keys(weights).reduce((a, b) => weights[a] >= weights[b] ? a : b);
+                weights[maxKey] = Math.round((weights[maxKey] + (100 - roundedTotal)) * 100) / 100;
+            }
+            validation.textContent = 'Weights auto-normalized to 100.';
+            validation.style.color = '#2563eb';
+        }
+
+        if (total === 0) {
+            validation.textContent = 'All weights are zero. Please set at least one weight.';
+            validation.style.color = '#dc2626';
+            return;
+        }
+
+        // Read stage mapping
+        const stageRows = document.querySelectorAll('#scoring-stage-rows .scoring-stage-row');
+        const stageScoreMap = {};
+        stageRows.forEach(row => {
+            const name = row.querySelector('input[type="text"]').value.trim();
+            const score = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+            if (name) {
+                stageScoreMap[name.toLowerCase()] = Math.max(0, Math.min(100, score));
+            }
+        });
+
+        // Read keywords
+        const posText = document.getElementById('scoring-kw-positive').value;
+        const negText = document.getElementById('scoring-kw-negative').value;
+        const positiveKeywords = posText.split(',').map(s => s.trim()).filter(Boolean);
+        const negativeKeywords = negText.split(',').map(s => s.trim()).filter(Boolean);
+
+        const config = { weights, stageScoreMap, positiveKeywords, negativeKeywords };
+        saveScoringConfig(config);
+
+        // Recompute scores if deals are loaded
+        if (allDeals.length > 0) {
+            attachHealthScores(allDeals);
+            filteredDeals = [...allDeals];
+            applyFilters();
+            renderStats(allDeals);
+        }
+
+        closeScoringModal();
+    }
+
+    function resetScoringDefaults() {
+        localStorage.removeItem(SCORING_CONFIG_KEY);
+        // Recompute with defaults if deals are loaded
+        if (allDeals.length > 0) {
+            attachHealthScores(allDeals);
+            filteredDeals = [...allDeals];
+            applyFilters();
+            renderStats(allDeals);
+        }
+        closeScoringModal();
+    }
+
     // ==================== Event Listeners ====================
     function setupEventListeners() {
         // File input
@@ -1551,10 +1732,25 @@
             renderContactsList(e.target.value);
         });
 
+        // Scoring Settings modal
+        document.getElementById('scoring-settings-btn').addEventListener('click', openScoringModal);
+        document.getElementById('scoring-modal-close').addEventListener('click', closeScoringModal);
+        document.getElementById('scoring-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeScoringModal();
+        });
+        document.getElementById('scoring-save-btn').addEventListener('click', saveScoringSettings);
+        document.getElementById('scoring-reset-btn').addEventListener('click', resetScoringDefaults);
+        document.getElementById('scoring-add-stage').addEventListener('click', () => {
+            addStageRow(document.getElementById('scoring-stage-rows'), '', '');
+        });
+        document.getElementById('scoring-weights-grid').addEventListener('input', updateWeightTotal);
+
         // Escape key — close whichever modal is open
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (!document.getElementById('contacts-modal').classList.contains('hidden')) {
+                if (!document.getElementById('scoring-modal').classList.contains('hidden')) {
+                    closeScoringModal();
+                } else if (!document.getElementById('contacts-modal').classList.contains('hidden')) {
                     closeContactsModal();
                 } else {
                     closeDealModal();
