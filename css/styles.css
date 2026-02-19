@@ -673,27 +673,70 @@ tbody tr:last-child td {
     white-space: nowrap;
 }
 
-.health-badge--excellent {
+.health-badge--good {
     background: #dcfce7;
     color: #166534;
 }
 
-.health-badge--good {
+.health-badge--watch {
     background: #dbeafe;
     color: #1e40af;
 }
 
-.health-badge--fair {
+.health-badge--risk {
     background: #ffedd5;
     color: #9a3412;
 }
 
-.health-badge--poor {
+.health-badge--dead {
     background: #fee2e2;
     color: #991b1b;
 }
 
-/* Health Component Tooltip */
+/* Health Score Popover (inline tooltip on table cells) */
+.health-cell {
+    position: relative;
+}
+
+.health-popover {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    right: 0;
+    top: 100%;
+    margin-top: 0.25rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0.625rem;
+    white-space: nowrap;
+    min-width: 140px;
+}
+
+.health-cell:hover .health-popover,
+.health-cell:focus-within .health-popover {
+    display: block;
+}
+
+.health-popover__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.125rem 0;
+    font-size: 0.6875rem;
+    color: #374151;
+}
+
+.health-popover__label {
+    color: #6b7280;
+}
+
+.health-popover__value {
+    font-weight: 600;
+}
+
+/* Health Component Breakdown (modal) */
 .health-breakdown {
     display: flex;
     flex-wrap: wrap;

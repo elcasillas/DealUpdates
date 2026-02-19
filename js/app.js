@@ -731,10 +731,18 @@
                         ${deal.daysSince} days
                     </span>
                 </td>
-                <td>
+                <td class="health-cell">
                     <span class="health-badge health-badge--${getHealthLevel(deal.healthScore || 0)}">
                         ${deal.healthScore != null ? deal.healthScore : '-'}
                     </span>
+                    ${deal.healthComponents ? `<div class="health-popover">
+                        <div class="health-popover__row"><span class="health-popover__label">Stage</span><span class="health-popover__value">${deal.healthComponents.stageProbability}</span></div>
+                        <div class="health-popover__row"><span class="health-popover__label">Velocity</span><span class="health-popover__value">${deal.healthComponents.velocity}</span></div>
+                        <div class="health-popover__row"><span class="health-popover__label">Recency</span><span class="health-popover__value">${deal.healthComponents.activityRecency}</span></div>
+                        <div class="health-popover__row"><span class="health-popover__label">Close Date</span><span class="health-popover__value">${deal.healthComponents.closeDateIntegrity}</span></div>
+                        <div class="health-popover__row"><span class="health-popover__label">ACV</span><span class="health-popover__value">${deal.healthComponents.acv}</span></div>
+                        <div class="health-popover__row"><span class="health-popover__label">Notes</span><span class="health-popover__value">${deal.healthComponents.notesSignal}</span></div>
+                    </div>` : ''}
                 </td>
                 <td class="note-cell">
                     <div class="note-preview">${escapeHTML(deal.noteContent) || '-'}</div>
@@ -1201,8 +1209,8 @@
                 return false;
             }
 
-            // Health filter
-            if (healthFilter && getHealthLevel(deal.healthScore || 0) !== healthFilter) {
+            // Health filter (min threshold)
+            if (healthFilter && (deal.healthScore || 0) < parseInt(healthFilter, 10)) {
                 return false;
             }
 

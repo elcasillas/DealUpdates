@@ -149,10 +149,10 @@
     }
 
     function getHealthLevel(score) {
-        if (score >= 80) return 'excellent';
-        if (score >= 60) return 'good';
-        if (score >= 40) return 'fair';
-        return 'poor';
+        if (score >= 80) return 'good';
+        if (score >= 60) return 'watch';
+        if (score >= 40) return 'risk';
+        return 'dead';
     }
 
     // ==================== Exports ====================
