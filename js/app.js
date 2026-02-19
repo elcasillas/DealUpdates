@@ -775,9 +775,6 @@
                         <div class="health-popover__row"><span class="health-popover__label">Notes</span><span class="health-popover__value">${deal.healthComponents.notesSignal}</span></div>
                     </div>` : ''}
                 </td>
-                <td class="note-cell">
-                    <div class="note-preview">${escapeHTML(deal.noteContent) || '-'}</div>
-                </td>
             `;
             row.addEventListener('click', () => openDealModal(deal));
             elements.tbody.appendChild(row);
