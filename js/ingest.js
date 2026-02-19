@@ -206,8 +206,9 @@
     }
 
     // ==================== Data Processing ====================
-    function processRow(row) {
+    function processRow(row, options) {
         const deal = {};
+        const referenceDate = (options && options.referenceDate) || undefined;
 
         // Map columns
         for (const [csvCol, internalField] of Object.entries(COLUMN_MAPPINGS)) {
@@ -227,11 +228,11 @@
         deal.modifiedDate = parseDate(deal.modifiedDate);
 
         // Calculate days since
-        deal.daysSince = calculateDaysSince(deal.modifiedDate);
+        deal.daysSince = calculateDaysSince(deal.modifiedDate, referenceDate);
         deal.urgency = getUrgencyLevel(deal.daysSince);
 
         // Closing date awareness
-        deal.daysUntilClosing = calculateDaysUntilClosing(deal.closingDate);
+        deal.daysUntilClosing = calculateDaysUntilClosing(deal.closingDate, referenceDate);
         deal.closingStatus = getClosingStatus(deal.daysUntilClosing);
 
         // Strip HTML from notes

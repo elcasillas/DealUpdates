@@ -105,6 +105,14 @@
     <button id="contacts-modal-close"></button>
     <input id="contacts-search-input">
     <div id="contacts-list"></div>
+    <!-- Scoring modal stubs -->
+    <button id="scoring-settings-btn"></button>
+    <div id="scoring-modal" class="hidden"></div>
+    <button id="scoring-modal-close"></button>
+    <button id="scoring-save-btn"></button>
+    <button id="scoring-reset-btn"></button>
+    <button id="scoring-add-stage"></button>
+    <div id="scoring-weights-grid"></div>
 </div>
 
 <script src="js/domain.js"></script>
@@ -116,13 +124,18 @@
 (function() {
     'use strict';
 
+    // Fixed reference date for deterministic scoring (must match generate-golden.js)
+    const FIXED_NOW = new Date('2026-02-19T00:00:00.000Z').getTime();
+    const FIXED_REF_DATE = new Date('2026-02-19T00:00:00.000Z');
+
     const FIXTURES = [
         '01_clean_small',
         '02_multiline_notes',
         '03_malformed_rows',
         '04_duplicate_deals',
         '05_large_mixed',
-        '06_currency_edge_cases'
+        '06_currency_edge_cases',
+        '07_health_scoring'
     ];
 
     // Build a snapshot from processed deals
@@ -148,13 +161,13 @@
         const api = window._testAPI;
         const { rows: rawRows } = api.parseCSV(csvText);
         const processed = rawRows
-            .map(api.processRow)
+            .map(r => api.processRow(r, { referenceDate: FIXED_REF_DATE }))
             .filter(d => d !== null)
             .filter(api.validateRow);
         const deduped = await api.deduplicateDeals(processed);
-        // Attach health scores
+        // Attach health scores (fixed reference date for determinism)
         const HS = window.DealHealthScore;
-        const ctx = HS.buildContext(deduped);
+        const ctx = HS.buildContext(deduped, { now: FIXED_NOW });
         for (const deal of deduped) {
             const result = HS.computeDealHealthScore(deal, ctx);
             deal.healthScore = result.score;

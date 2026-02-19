@@ -20,6 +20,10 @@ if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
     globalThis.crypto = webcrypto;
 }
 
+// ==================== Fixed reference date for deterministic scoring ====================
+const FIXED_NOW = new Date('2026-02-19T00:00:00.000Z').getTime();
+const FIXED_REF_DATE = new Date('2026-02-19T00:00:00.000Z');
+
 // ==================== Shared modules ====================
 const { parseCSV, processRow, validateRow,
         deduplicateDeals } = require('../js/ingest.js');
@@ -52,7 +56,8 @@ const FIXTURES = [
     '03_malformed_rows',
     '04_duplicate_deals',
     '05_large_mixed',
-    '06_currency_edge_cases'
+    '06_currency_edge_cases',
+    '07_health_scoring'
 ];
 
 (async function main() {
@@ -76,10 +81,13 @@ const FIXTURES = [
 
         const csvText = fs.readFileSync(csvPath, 'utf-8');
         const { rows: rawRows } = parseCSV(csvText);
-        const processed = rawRows.map(processRow).filter(d => d !== null).filter(validateRow);
+        const processed = rawRows
+            .map(r => processRow(r, { referenceDate: FIXED_REF_DATE }))
+            .filter(d => d !== null)
+            .filter(validateRow);
         const deduped = await deduplicateDeals(processed, [], async () => null);
-        // Attach health scores
-        const ctx = buildHealthContext(deduped);
+        // Attach health scores (fixed reference date for determinism)
+        const ctx = buildHealthContext(deduped, { now: FIXED_NOW });
         for (const deal of deduped) {
             const result = computeDealHealthScore(deal, ctx);
             deal.healthScore = result.score;

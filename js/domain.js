@@ -113,10 +113,10 @@
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
-    function calculateDaysSince(date) {
+    function calculateDaysSince(date, referenceDate) {
         if (!date) return 999; // High number for unknown dates
 
-        const today = new Date();
+        const today = referenceDate ? new Date(referenceDate) : new Date();
         today.setHours(0, 0, 0, 0);
 
         const diffTime = today - date;
@@ -125,9 +125,9 @@
         return Math.max(0, diffDays);
     }
 
-    function calculateDaysUntilClosing(date) {
+    function calculateDaysUntilClosing(date, referenceDate) {
         if (!date) return null;
-        const today = new Date();
+        const today = referenceDate ? new Date(referenceDate) : new Date();
         today.setHours(0, 0, 0, 0);
         const diffTime = date - today;
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));

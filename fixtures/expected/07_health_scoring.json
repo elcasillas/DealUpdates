@@ -1,0 +1,38 @@
+[
+  {
+    "deal_key": "healthfallback ltd||carlos diaz",
+    "deal_owner": "Carlos Diaz",
+    "stage": "",
+    "acv": 0,
+    "closing_date": null,
+    "modified_date": "2026-02-11",
+    "notes_count": 1,
+    "notes_hash": "c1102bb5f05856bc8f76c4a517fb2c07d07839717c3503f6d46841807bd81b54",
+    "notes_summary_length": 45,
+    "health_score": 57
+  },
+  {
+    "deal_key": "healthhigh corp||alice smith",
+    "deal_owner": "Alice Smith",
+    "stage": "Negotiation",
+    "acv": 180000,
+    "closing_date": "2026-04-14",
+    "modified_date": "2026-02-16",
+    "notes_count": 1,
+    "notes_hash": "913b80c01f7b42fcf5588537b6740ce47fd7f95dc80aa19cf700448837d7cb6a",
+    "notes_summary_length": 55,
+    "health_score": 85
+  },
+  {
+    "deal_key": "healthlow inc||bob jones",
+    "deal_owner": "Bob Jones",
+    "stage": "Proposal",
+    "acv": 50000,
+    "closing_date": "2026-02-09",
+    "modified_date": "2026-01-04",
+    "notes_count": 1,
+    "notes_hash": "74d1f641282804caf110c6832b3f14dd0025cbdd23b7b444ca384f31deeeae7c",
+    "notes_summary_length": 24,
+    "health_score": 27
+  }
+]

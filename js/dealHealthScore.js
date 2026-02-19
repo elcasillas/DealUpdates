@@ -166,8 +166,8 @@
 
     // ==================== Context Building ====================
 
-    function buildContext(deals) {
-        var now = Date.now();
+    function buildContext(deals, options) {
+        var now = (options && options.now) ? options.now : Date.now();
 
         if (!deals || deals.length === 0) {
             return { now: now, acvDistribution: [], stageBenchmarks: STAGE_BENCHMARKS };
