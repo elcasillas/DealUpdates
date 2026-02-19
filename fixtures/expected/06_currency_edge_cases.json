@@ -8,7 +8,8 @@
     "modified_date": "2026-01-23",
     "notes_count": 1,
     "notes_hash": "447f985afcb50e1ae2921fb347f178774ecedf1faded7ecd5fa25131f8c7c708",
-    "notes_summary_length": 32
+    "notes_summary_length": 32,
+    "health_score": 52
   },
   {
     "deal_key": "c dollar sign||alice smith",
@@ -19,7 +20,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "5ff45ed74ec45f91d7da9b5f6f0d8a96742e9f9d17a84bcc35312cbed9754b66",
-    "notes_summary_length": 19
+    "notes_summary_length": 19,
+    "health_score": 68
   },
   {
     "deal_key": "ca dollar sign||alice smith",
@@ -30,7 +32,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "803655f2ff548c5f4d50b9274cc49e6cc688b6088643b80cc4fec157b9020ef0",
-    "notes_summary_length": 20
+    "notes_summary_length": 20,
+    "health_score": 68
   },
   {
     "deal_key": "commas thousands||carlos diaz",
@@ -41,7 +44,8 @@
     "modified_date": "2026-01-30",
     "notes_count": 1,
     "notes_hash": "88c8534c6b8aef76cb92da1cfb6e3cf3f37c1408496eb2fdaf088a8564091aaf",
-    "notes_summary_length": 31
+    "notes_summary_length": 31,
+    "health_score": 66
   },
   {
     "deal_key": "european format||alice smith",
@@ -52,7 +56,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "99100b8c997be6b3bfa0d6579891268c58166e97bc1b13093740ce0c5b7db53d",
-    "notes_summary_length": 23
+    "notes_summary_length": 23,
+    "health_score": 64
   },
   {
     "deal_key": "parentheses negative||bob jones",
@@ -63,7 +68,8 @@
     "modified_date": "2026-02-08",
     "notes_count": 1,
     "notes_hash": "398008027a716dc08c436f6236df6f84d3b341958ce095adc2902d1850af8819",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 53
   },
   {
     "deal_key": "plain number||bob jones",
@@ -74,7 +80,8 @@
     "modified_date": "2026-02-07",
     "notes_count": 1,
     "notes_hash": "bced082dc7a923066f35501c8e7fc7f36490a7b5a7ad544125fe96852fcd13c9",
-    "notes_summary_length": 30
+    "notes_summary_length": 30,
+    "health_score": 71
   },
   {
     "deal_key": "spaces thousands||carlos diaz",
@@ -85,7 +92,8 @@
     "modified_date": "2026-01-30",
     "notes_count": 1,
     "notes_hash": "d6701916b063e393c0d23300598076b8b186f9b5d29214531072436268a2912b",
-    "notes_summary_length": 31
+    "notes_summary_length": 31,
+    "health_score": 57
   },
   {
     "deal_key": "zero acv||alice smith",
@@ -96,6 +104,7 @@
     "modified_date": "2026-01-29",
     "notes_count": 1,
     "notes_hash": "bb2b435fd06395c6e4c9ea961ed72ef7c3f3b2cdb95e5cc5d24273a36d7ac7a0",
-    "notes_summary_length": 18
+    "notes_summary_length": 18,
+    "health_score": 52
   }
 ]

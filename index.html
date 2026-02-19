@@ -122,6 +122,10 @@
                     <span class="stat-label">Overdue Deals</span>
                     <span class="stat-value" id="stat-overdue">0</span>
                 </div>
+                <div class="stat-card">
+                    <span class="stat-label">Avg Health Score</span>
+                    <span class="stat-value" id="stat-avg-health">-</span>
+                </div>
             </div>
 
             <div class="section-title-bar">
@@ -196,6 +200,16 @@
                         <option value="critical">Critical (60+ days)</option>
                     </select>
                 </div>
+                <div class="filter-group">
+                    <label for="filter-health">Health</label>
+                    <select id="filter-health">
+                        <option value="">All</option>
+                        <option value="excellent">Excellent (80-100)</option>
+                        <option value="good">Good (60-79)</option>
+                        <option value="fair">Fair (40-59)</option>
+                        <option value="poor">Poor (0-39)</option>
+                    </select>
+                </div>
                 <div class="filter-group filter-group--changes hidden" id="filter-changes-group">
                     <label for="filter-changes">Changes</label>
                     <select id="filter-changes">
@@ -229,6 +243,7 @@
                             <th scope="col" data-sort="closingDate" aria-sort="none">Closing Date <span class="sort-indicator"></span></th>
                             <th scope="col" data-sort="modifiedDate" aria-sort="none">Modified Date <span class="sort-indicator"></span></th>
                             <th scope="col" data-sort="daysSince" aria-sort="none">Days Since <span class="sort-indicator"></span></th>
+                            <th scope="col" data-sort="healthScore" aria-sort="none">Health <span class="sort-indicator"></span></th>
                             <th scope="col">Notes</th>
                         </tr>
                     </thead>
@@ -271,6 +286,10 @@
                 <div class="modal__meta-item">
                     <span class="modal__meta-label">Days Since Update</span>
                     <span class="modal__meta-value" id="modal-days-since"></span>
+                </div>
+                <div class="modal__meta-item">
+                    <span class="modal__meta-label">Health Score</span>
+                    <span class="modal__meta-value" id="modal-health-score"></span>
                 </div>
             </div>
             <div class="modal__notes-section">
@@ -340,6 +359,8 @@
     <script>if (typeof SUPABASE_URL === 'undefined') document.write('<script src="js/supabase-config.js"><\/script>');</script>
     <!-- Domain (pure functions shared with test harness / golden generator) -->
     <script src="js/domain.js"></script>
+    <!-- Deal Health Score (composite scoring module) -->
+    <script src="js/dealHealthScore.js"></script>
     <!-- Ingest (CSV parsing, row processing, deduplication) -->
     <script src="js/ingest.js"></script>
     <!-- App -->

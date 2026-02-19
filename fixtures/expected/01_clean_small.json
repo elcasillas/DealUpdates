@@ -8,7 +8,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "1cdaf1fef19a7528caa68c143fb2c577c6f68e3f93d22335d27fa229d4e9f0c0",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 68
   },
   {
     "deal_key": "beta industries||bob jones",
@@ -19,7 +20,8 @@
     "modified_date": "2026-01-23",
     "notes_count": 1,
     "notes_hash": "1ea7d1daab4c0a927415c4e43338188a1bbd915512a84a58a1f57a8db84f32b4",
-    "notes_summary_length": 33
+    "notes_summary_length": 33,
+    "health_score": 52
   },
   {
     "deal_key": "delta financial||carlos diaz",
@@ -30,7 +32,8 @@
     "modified_date": "2026-01-30",
     "notes_count": 1,
     "notes_hash": "73c3ef74752ae0ea02964d165022449f0a9de0fe7179cd0ad1736bb5d8c2d5ae",
-    "notes_summary_length": 14
+    "notes_summary_length": 14,
+    "health_score": 62
   },
   {
     "deal_key": "epsilon retail||bob jones",
@@ -41,7 +44,8 @@
     "modified_date": "2026-02-08",
     "notes_count": 1,
     "notes_hash": "4a8e466830e007bda8fa8aac4ec7185e94acaa926af88fbfd6e5fee7f724a500",
-    "notes_summary_length": 19
+    "notes_summary_length": 19,
+    "health_score": 53
   },
   {
     "deal_key": "gamma health||alice smith",
@@ -52,6 +56,7 @@
     "modified_date": "2026-01-29",
     "notes_count": 1,
     "notes_hash": "993a308b101ef639dddd02c1b39480240bd78b5e6422841bdd6ae3abb01e7b64",
-    "notes_summary_length": 30
+    "notes_summary_length": 30,
+    "health_score": 61
   }
 ]

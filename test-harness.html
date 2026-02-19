@@ -108,6 +108,7 @@
 </div>
 
 <script src="js/domain.js"></script>
+<script src="js/dealHealthScore.js"></script>
 <script src="js/ingest.js"></script>
 <script src="js/app.js"></script>
 
@@ -136,7 +137,8 @@
                 modified_date: d.modifiedDate ? d.modifiedDate.toISOString().slice(0, 10) : null,
                 notes_count: d.notesCount,
                 notes_hash: d.notesHash,
-                notes_summary_length: (d.notesSummary || '').length
+                notes_summary_length: (d.notesSummary || '').length,
+                health_score: d.healthScore != null ? d.healthScore : null
             }))
             .sort((a, b) => a.deal_key.localeCompare(b.deal_key));
     }
@@ -150,12 +152,20 @@
             .filter(d => d !== null)
             .filter(api.validateRow);
         const deduped = await api.deduplicateDeals(processed);
+        // Attach health scores
+        const HS = window.DealHealthScore;
+        const ctx = HS.buildContext(deduped);
+        for (const deal of deduped) {
+            const result = HS.computeDealHealthScore(deal, ctx);
+            deal.healthScore = result.score;
+            deal.healthComponents = result.components;
+        }
         return deduped;
     }
 
     // Compare two snapshots, return per-deal diff
     function compareSnapshots(actual, expected) {
-        const fields = ['deal_key', 'deal_owner', 'stage', 'acv', 'closing_date', 'modified_date', 'notes_hash', 'notes_summary_length'];
+        const fields = ['deal_key', 'deal_owner', 'stage', 'acv', 'closing_date', 'modified_date', 'notes_hash', 'notes_summary_length', 'health_score'];
         const expectedByKey = {};
         for (const e of expected) expectedByKey[e.deal_key] = e;
 

@@ -148,6 +148,13 @@
         return 'normal';
     }
 
+    function getHealthLevel(score) {
+        if (score >= 80) return 'excellent';
+        if (score >= 60) return 'good';
+        if (score >= 40) return 'fair';
+        return 'poor';
+    }
+
     // ==================== Exports ====================
     exports.URGENCY_THRESHOLDS = URGENCY_THRESHOLDS;
     exports.CLOSING_SOON_DAYS = CLOSING_SOON_DAYS;
@@ -161,6 +168,7 @@
     exports.calculateDaysUntilClosing = calculateDaysUntilClosing;
     exports.getUrgencyLevel = getUrgencyLevel;
     exports.getClosingStatus = getClosingStatus;
+    exports.getHealthLevel = getHealthLevel;
 
 })(typeof module !== 'undefined' && module.exports
     ? module.exports

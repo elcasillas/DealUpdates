@@ -8,7 +8,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "1cdaf1fef19a7528caa68c143fb2c577c6f68e3f93d22335d27fa229d4e9f0c0",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 68
   },
   {
     "deal_key": "alpha2 mining||carlos diaz",
@@ -19,7 +20,8 @@
     "modified_date": "2026-01-20",
     "notes_count": 1,
     "notes_hash": "e44830b269b8e15c8bbd6db2d5b5e1c758674ddb17aed49541d7053d8271451d",
-    "notes_summary_length": 21
+    "notes_summary_length": 21,
+    "health_score": 55
   },
   {
     "deal_key": "beta industries||bob jones",
@@ -30,7 +32,8 @@
     "modified_date": "2026-01-23",
     "notes_count": 1,
     "notes_hash": "1ea7d1daab4c0a927415c4e43338188a1bbd915512a84a58a1f57a8db84f32b4",
-    "notes_summary_length": 33
+    "notes_summary_length": 33,
+    "health_score": 52
   },
   {
     "deal_key": "beta2 legal||bob jones",
@@ -41,7 +44,8 @@
     "modified_date": "2026-01-31",
     "notes_count": 1,
     "notes_hash": "454aea8fc10475fe431aaac50d7fff0a2281244cead3adcd1f276e678c144ef5",
-    "notes_summary_length": 39
+    "notes_summary_length": 39,
+    "health_score": 57
   },
   {
     "deal_key": "chi real estate||carlos diaz",
@@ -52,7 +56,8 @@
     "modified_date": "2026-02-05",
     "notes_count": 1,
     "notes_hash": "4f38102870158bfd4c2824451e651edf9c7af96bf91db47bb1b67a48172da24e",
-    "notes_summary_length": 42
+    "notes_summary_length": 42,
+    "health_score": 64
   },
   {
     "deal_key": "delta financial||carlos diaz",
@@ -63,7 +68,8 @@
     "modified_date": "2026-01-30",
     "notes_count": 1,
     "notes_hash": "73c3ef74752ae0ea02964d165022449f0a9de0fe7179cd0ad1736bb5d8c2d5ae",
-    "notes_summary_length": 14
+    "notes_summary_length": 14,
+    "health_score": 62
   },
   {
     "deal_key": "delta2 sports||carlos diaz",
@@ -74,7 +80,8 @@
     "modified_date": "2026-01-27",
     "notes_count": 1,
     "notes_hash": "b81f6e8ae260ff93d0c4de39d53718fa859d3fe3ef154c3fd4340f67cdc18241",
-    "notes_summary_length": 30
+    "notes_summary_length": 30,
+    "health_score": 57
   },
   {
     "deal_key": "duplicate deal alpha||alice smith",
@@ -85,7 +92,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 2,
     "notes_hash": "f117d601ec10577954f112d883e76465c19d6baf117af7a563074635695eea20",
-    "notes_summary_length": 91
+    "notes_summary_length": 91,
+    "health_score": 67
   },
   {
     "deal_key": "duplicate deal alpha||bob jones",
@@ -96,7 +104,8 @@
     "modified_date": "2026-01-26",
     "notes_count": 1,
     "notes_hash": "950f402cc80a2b2d3d710bfa8d246fd73ed2393896727d56d9f23d29b39d8585",
-    "notes_summary_length": 22
+    "notes_summary_length": 22,
+    "health_score": 52
   },
   {
     "deal_key": "epsilon retail||bob jones",
@@ -107,7 +116,8 @@
     "modified_date": "2026-02-08",
     "notes_count": 1,
     "notes_hash": "4a8e466830e007bda8fa8aac4ec7185e94acaa926af88fbfd6e5fee7f724a500",
-    "notes_summary_length": 19
+    "notes_summary_length": 19,
+    "health_score": 53
   },
   {
     "deal_key": "epsilon2 banking||bob jones",
@@ -118,7 +128,8 @@
     "modified_date": "2026-02-04",
     "notes_count": 1,
     "notes_hash": "c110def7acf317b4fc1cf34b6c988a1371bac8c97afd7a3d9151cfc46229ae67",
-    "notes_summary_length": 28
+    "notes_summary_length": 28,
+    "health_score": 71
   },
   {
     "deal_key": "eta manufacturing||carlos diaz",
@@ -129,7 +140,8 @@
     "modified_date": "2026-01-13",
     "notes_count": 1,
     "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
-    "notes_summary_length": 7
+    "notes_summary_length": 7,
+    "health_score": 40
   },
   {
     "deal_key": "eta2 fashion||dana lee",
@@ -140,7 +152,8 @@
     "modified_date": "2026-02-09",
     "notes_count": 1,
     "notes_hash": "ceedd6ad3bec5974e52fe357a9ebea4591c234170697824c122a51015474adcd",
-    "notes_summary_length": 41
+    "notes_summary_length": 41,
+    "health_score": 53
   },
   {
     "deal_key": "gamma health||alice smith",
@@ -151,7 +164,8 @@
     "modified_date": "2026-01-29",
     "notes_count": 1,
     "notes_hash": "993a308b101ef639dddd02c1b39480240bd78b5e6422841bdd6ae3abb01e7b64",
-    "notes_summary_length": 30
+    "notes_summary_length": 30,
+    "health_score": 61
   },
   {
     "deal_key": "gamma2 nonprofit||alice smith",
@@ -162,7 +176,8 @@
     "modified_date": "2026-02-08",
     "notes_count": 1,
     "notes_hash": "1a84eca2e1896950b6566b2f04bb34d1d762d210d89098ac7a2bd48924bd34c4",
-    "notes_summary_length": 21
+    "notes_summary_length": 21,
+    "health_score": 53
   },
   {
     "deal_key": "iota services||alice smith",
@@ -173,7 +188,8 @@
     "modified_date": "2026-02-05",
     "notes_count": 1,
     "notes_hash": "e5f33dfb3c8aab9b4c134d114b935a8497ac68b59133b4c27d27dec8826df456",
-    "notes_summary_length": 14
+    "notes_summary_length": 14,
+    "health_score": 62
   },
   {
     "deal_key": "iota2 consulting||dana lee",
@@ -184,7 +200,8 @@
     "modified_date": "2026-02-01",
     "notes_count": 1,
     "notes_hash": "749d58960c8be98d117dec4aa2e051a18e99b0e7087258a5adc7feeb2226af31",
-    "notes_summary_length": 45
+    "notes_summary_length": 45,
+    "health_score": 57
   },
   {
     "deal_key": "kappa telecom||carlos diaz",
@@ -195,7 +212,8 @@
     "modified_date": "2026-01-28",
     "notes_count": 1,
     "notes_hash": "08425dcf11c209412dc32af57022ce0ce9b2183090c7f44ad2bb1060c5478132",
-    "notes_summary_length": 44
+    "notes_summary_length": 44,
+    "health_score": 57
   },
   {
     "deal_key": "kappa2 defense||carlos diaz",
@@ -206,7 +224,8 @@
     "modified_date": "2025-11-29",
     "notes_count": 1,
     "notes_hash": "8515c08ad02bd42f372b86c60b5d493bd9d8c318397a0f99e1eda8e254f1821a",
-    "notes_summary_length": 21
+    "notes_summary_length": 21,
+    "health_score": 45
   },
   {
     "deal_key": "lambda education||bob jones",
@@ -217,7 +236,8 @@
     "modified_date": "2026-02-09",
     "notes_count": 1,
     "notes_hash": "8349dcaca4678b09fe56313181a6c4f09dbf2e852867bd4b7d0c1825403664a6",
-    "notes_summary_length": 34
+    "notes_summary_length": 34,
+    "health_score": 53
   },
   {
     "deal_key": "lambda2 transport||bob jones",
@@ -228,7 +248,8 @@
     "modified_date": "2026-02-07",
     "notes_count": 1,
     "notes_hash": "9bbb9bc263fd9989e885dba09b63589a8ee3ef4f2c8e8fd1383c56d921f9b70d",
-    "notes_summary_length": 18
+    "notes_summary_length": 18,
+    "health_score": 68
   },
   {
     "deal_key": "mu pharma||alice smith",
@@ -239,7 +260,8 @@
     "modified_date": "2026-02-04",
     "notes_count": 1,
     "notes_hash": "31394d883e801e1ab0dcb26ab6cc3f70b9516fc7971a6a77e42fb1c99f3360bb",
-    "notes_summary_length": 26
+    "notes_summary_length": 26,
+    "health_score": 71
   },
   {
     "deal_key": "mu2 dental||alice smith",
@@ -250,7 +272,8 @@
     "modified_date": "2026-02-10",
     "notes_count": 1,
     "notes_hash": "1dfbea73e796dc139fa157c266590f709064abdfcf12c2e0550952ab02f1bab9",
-    "notes_summary_length": 41
+    "notes_summary_length": 41,
+    "health_score": 53
   },
   {
     "deal_key": "nu energy||carlos diaz",
@@ -261,7 +284,8 @@
     "modified_date": "2026-02-01",
     "notes_count": 1,
     "notes_hash": "35e511bb49f2d935642aad0f9ed0525ee1e5425ff5c1d219e0cd6d0ca87c2c3c",
-    "notes_summary_length": 21
+    "notes_summary_length": 21,
+    "health_score": 62
   },
   {
     "deal_key": "nu2 telehealth||dana lee",
@@ -272,7 +296,8 @@
     "modified_date": "2026-02-03",
     "notes_count": 1,
     "notes_hash": "6802929d3c4056a5e5a80485b37c2671dd403d63453aef1d0ad00ce384029bea",
-    "notes_summary_length": 55
+    "notes_summary_length": 55,
+    "health_score": 62
   },
   {
     "deal_key": "omega shipping||alice smith",
@@ -283,7 +308,8 @@
     "modified_date": "2026-02-03",
     "notes_count": 1,
     "notes_hash": "44c3013e200ca12b29a84e787898f8aea5d1c4e15009f6e9fac1dec32b019406",
-    "notes_summary_length": 12
+    "notes_summary_length": 12,
+    "health_score": 63
   },
   {
     "deal_key": "omicron media||alice smith",
@@ -294,7 +320,8 @@
     "modified_date": "2026-02-10",
     "notes_count": 1,
     "notes_hash": "04135a7f0abdf818e616503746215fdbff40a06decb3a5494ad5c05a76065bf8",
-    "notes_summary_length": 17
+    "notes_summary_length": 17,
+    "health_score": 53
   },
   {
     "deal_key": "omicron2 gaming||bob jones",
@@ -305,7 +332,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "4c283c1d1183bcc9de177c02e74a7b2dd5efa82dda3d2763fe2d5671efbaa791",
-    "notes_summary_length": 24
+    "notes_summary_length": 24,
+    "health_score": 47
   },
   {
     "deal_key": "phi biotech||alice smith",
@@ -316,7 +344,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "c1b437904a3db834551cb0d41cb7f562e43ea3e280f2c8eb840456dba55448dc",
-    "notes_summary_length": 150
+    "notes_summary_length": 150,
+    "health_score": 77
   },
   {
     "deal_key": "pi construction||carlos diaz",
@@ -327,7 +356,8 @@
     "modified_date": "2026-01-30",
     "notes_count": 1,
     "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
-    "notes_summary_length": 7
+    "notes_summary_length": 7,
+    "health_score": 57
   },
   {
     "deal_key": "pi2 renewable||dana lee",
@@ -338,7 +368,8 @@
     "modified_date": "2026-01-29",
     "notes_count": 1,
     "notes_hash": "6bf82e20709de3c484ea0e69e359d6c942cf67ee622c91fe7dc5fbe7afcd9d54",
-    "notes_summary_length": 53
+    "notes_summary_length": 53,
+    "health_score": 57
   },
   {
     "deal_key": "psi agriculture||bob jones",
@@ -349,7 +380,8 @@
     "modified_date": "2026-02-09",
     "notes_count": 1,
     "notes_hash": "284f4c1db664543c49bb658fadcaa3fba96e28f955c1b61ebf0e3723fd1d6ef2",
-    "notes_summary_length": 20
+    "notes_summary_length": 20,
+    "health_score": 53
   },
   {
     "deal_key": "rho insurance||bob jones",
@@ -360,7 +392,8 @@
     "modified_date": "2026-02-02",
     "notes_count": 1,
     "notes_hash": "e5f33dfb3c8aab9b4c134d114b935a8497ac68b59133b4c27d27dec8826df456",
-    "notes_summary_length": 14
+    "notes_summary_length": 14,
+    "health_score": 62
   },
   {
     "deal_key": "sigma hospitality||alice smith",
@@ -371,7 +404,8 @@
     "modified_date": "2026-02-07",
     "notes_count": 1,
     "notes_hash": "09f367ae94d0172b8e7638c1542ad704c7b74f9c73ff0ce8a88be753b2f0d9b2",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 71
   },
   {
     "deal_key": "tau government||carlos diaz",
@@ -382,7 +416,8 @@
     "modified_date": "2026-01-13",
     "notes_count": 1,
     "notes_hash": "5e1ebc882b7ac1188d9f961db46d68e7119de4b424901f39960bc15fe4f96c07",
-    "notes_summary_length": 25
+    "notes_summary_length": 25,
+    "health_score": 45
   },
   {
     "deal_key": "theta corp||bob jones",
@@ -393,7 +428,8 @@
     "modified_date": "2026-02-03",
     "notes_count": 1,
     "notes_hash": "9bbb9bc263fd9989e885dba09b63589a8ee3ef4f2c8e8fd1383c56d921f9b70d",
-    "notes_summary_length": 18
+    "notes_summary_length": 18,
+    "health_score": 64
   },
   {
     "deal_key": "theta2 utilities||dana lee",
@@ -404,7 +440,8 @@
     "modified_date": "2026-01-25",
     "notes_count": 1,
     "notes_hash": "487519b5c952f1cc583d3c61a2bad6eec7408953ad7f7f42a5e4a4eef191c4a5",
-    "notes_summary_length": 53
+    "notes_summary_length": 53,
+    "health_score": 57
   },
   {
     "deal_key": "upsilon aerospace||bob jones",
@@ -415,7 +452,8 @@
     "modified_date": "2025-12-18",
     "notes_count": 1,
     "notes_hash": "ddef9f2f420c2a04040646f9ed2a9706ba04019099f71a4838e35a940b43ad19",
-    "notes_summary_length": 17
+    "notes_summary_length": 17,
+    "health_score": 41
   },
   {
     "deal_key": "xi automotive||bob jones",
@@ -426,7 +464,8 @@
     "modified_date": "2026-01-26",
     "notes_count": 1,
     "notes_hash": "6c05f1a6e1e0c47472cf6189f42c02ece4eb71da096391410d4c6f72c7e5887b",
-    "notes_summary_length": 31
+    "notes_summary_length": 31,
+    "health_score": 52
   },
   {
     "deal_key": "xi2 robotics||carlos diaz",
@@ -437,7 +476,8 @@
     "modified_date": "2026-02-08",
     "notes_count": 1,
     "notes_hash": "e01c351df5b7bfe2a3c22ee4a021e7d081e4b6afe6562d6b6fce28f2419d43dd",
-    "notes_summary_length": 7
+    "notes_summary_length": 7,
+    "health_score": 67
   },
   {
     "deal_key": "zeta logistics||alice smith",
@@ -448,7 +488,8 @@
     "modified_date": "2026-02-07",
     "notes_count": 1,
     "notes_hash": "d068ab11bc6544993e3a0ce25ef4f2690ff0e47bed9fedaf307c4dc98efb59b7",
-    "notes_summary_length": 25
+    "notes_summary_length": 25,
+    "health_score": 53
   },
   {
     "deal_key": "zeta2 food||alice smith",
@@ -459,6 +500,7 @@
     "modified_date": "2026-02-02",
     "notes_count": 1,
     "notes_hash": "5e90dca9a793d33f10908b38d197e112f698622e53f73ad9907b7729a18b61a7",
-    "notes_summary_length": 36
+    "notes_summary_length": 36,
+    "health_score": 57
   }
 ]

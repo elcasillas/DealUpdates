@@ -8,7 +8,8 @@
     "modified_date": "2026-02-10",
     "notes_count": 4,
     "notes_hash": "90cc4ea4ea78153414977575de86a36e270179ec94ac5306a6b7dd40341b2acc",
-    "notes_summary_length": 151
+    "notes_summary_length": 151,
+    "health_score": 58
   },
   {
     "deal_key": "beta industries||bob jones",
@@ -19,7 +20,8 @@
     "modified_date": "2026-01-23",
     "notes_count": 1,
     "notes_hash": "1ea7d1daab4c0a927415c4e43338188a1bbd915512a84a58a1f57a8db84f32b4",
-    "notes_summary_length": 33
+    "notes_summary_length": 33,
+    "health_score": 46
   },
   {
     "deal_key": "delta financial||carlos diaz",
@@ -30,7 +32,8 @@
     "modified_date": "2026-02-07",
     "notes_count": 2,
     "notes_hash": "9cb13f7c5c0ccb2eb133e34bbebce5726b4b7002050e179cee4c25e99d8587d9",
-    "notes_summary_length": 70
+    "notes_summary_length": 70,
+    "health_score": 71
   },
   {
     "deal_key": "epsilon retail||bob jones",
@@ -41,6 +44,7 @@
     "modified_date": "2026-02-08",
     "notes_count": 2,
     "notes_hash": "d09acd2ae30413ffa09bfed719099ecbdfd4e3da295daea5c5c2b0ed786fc2f4",
-    "notes_summary_length": 76
+    "notes_summary_length": 76,
+    "health_score": 63
   }
 ]

@@ -8,7 +8,8 @@
     "modified_date": "2026-02-06",
     "notes_count": 1,
     "notes_hash": "1cdaf1fef19a7528caa68c143fb2c577c6f68e3f93d22335d27fa229d4e9f0c0",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 68
   },
   {
     "deal_key": "eta manufacturing||carlos diaz",
@@ -19,7 +20,8 @@
     "modified_date": "2026-01-13",
     "notes_count": 1,
     "notes_hash": "41743964bfb9e8cd3c074e5e9c4e968d70cd72d67a2427420ce8ad76094455e6",
-    "notes_summary_length": 29
+    "notes_summary_length": 29,
+    "health_score": 48
   },
   {
     "deal_key": "iota services||alice smith",
@@ -30,7 +32,8 @@
     "modified_date": "2026-02-05",
     "notes_count": 1,
     "notes_hash": "aae439b4072e390521af268a1de055e44e5e965647659d2d61f00161905a0914",
-    "notes_summary_length": 47
+    "notes_summary_length": 47,
+    "health_score": 62
   },
   {
     "deal_key": "zeta logistics||alice smith",
@@ -41,6 +44,7 @@
     "modified_date": null,
     "notes_count": 1,
     "notes_hash": "d068ab11bc6544993e3a0ce25ef4f2690ff0e47bed9fedaf307c4dc98efb59b7",
-    "notes_summary_length": 25
+    "notes_summary_length": 25,
+    "health_score": 49
   }
 ]

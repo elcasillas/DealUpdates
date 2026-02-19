@@ -23,6 +23,7 @@ if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {
 // ==================== Shared modules ====================
 const { parseCSV, processRow, validateRow,
         deduplicateDeals } = require('../js/ingest.js');
+const { computeDealHealthScore, buildContext: buildHealthContext } = require('../js/dealHealthScore.js');
 
 // ==================== Snapshot building ====================
 
@@ -37,7 +38,8 @@ function buildSnapshot(deals) {
             modified_date: d.modifiedDate ? d.modifiedDate.toISOString().slice(0, 10) : null,
             notes_count: d.notesCount,
             notes_hash: d.notesHash,
-            notes_summary_length: (d.notesSummary || '').length
+            notes_summary_length: (d.notesSummary || '').length,
+            health_score: d.healthScore != null ? d.healthScore : null
         }))
         .sort((a, b) => a.deal_key.localeCompare(b.deal_key));
 }
@@ -76,6 +78,12 @@ const FIXTURES = [
         const { rows: rawRows } = parseCSV(csvText);
         const processed = rawRows.map(processRow).filter(d => d !== null).filter(validateRow);
         const deduped = await deduplicateDeals(processed, [], async () => null);
+        // Attach health scores
+        const ctx = buildHealthContext(deduped);
+        for (const deal of deduped) {
+            const result = computeDealHealthScore(deal, ctx);
+            deal.healthScore = result.score;
+        }
         const snapshot = buildSnapshot(deduped);
 
         const outPath = path.join(expectedDir, `${name}.json`);

@@ -8,7 +8,10 @@
     const { URGENCY_THRESHOLDS, CLOSING_SOON_DAYS, normalizeString, makeDealKey,
             sha256Hex, buildNotesCanonical, parseACV, parseDate,
             calculateDaysSince, getUrgencyLevel, calculateDaysUntilClosing,
-            getClosingStatus } = window.DealDomain;
+            getClosingStatus, getHealthLevel } = window.DealDomain;
+
+    // ==================== Health Score imports ====================
+    const { computeDealHealthScore, buildContext: buildHealthContext } = window.DealHealthScore;
 
     // ==================== Ingest imports ====================
     const { COLUMN_MAPPINGS, parseCSV, parseCSVText, processRow, validateRow,
@@ -222,6 +225,7 @@
         filterStage: document.getElementById('filter-stage'),
         filterUrgency: document.getElementById('filter-urgency'),
         filterChanges: document.getElementById('filter-changes'),
+        filterHealth: document.getElementById('filter-health'),
         filterChangesGroup: document.getElementById('filter-changes-group'),
         changesSummaryEl: document.getElementById('changes-summary'),
         resetFiltersBtn: document.getElementById('reset-filters-btn'),
@@ -232,6 +236,7 @@
         statAvgDays: document.getElementById('stat-avg-days'),
         statStale: document.getElementById('stat-stale'),
         statOverdue: document.getElementById('stat-overdue'),
+        statAvgHealth: document.getElementById('stat-avg-health'),
         ownerCards: document.getElementById('owner-cards'),
         reuploadZone: document.getElementById('reupload-zone'),
         reuploadDropzone: document.getElementById('reupload-dropzone'),
@@ -366,6 +371,17 @@
             removedCount,
             unchangedCount
         };
+    }
+
+    // ==================== Health Score ====================
+    function attachHealthScores(deals) {
+        const context = buildHealthContext(deals);
+        for (const deal of deals) {
+            const result = computeDealHealthScore(deal, context);
+            deal.healthScore = result.score;
+            deal.healthComponents = result.components;
+            deal.healthDebug = result.debug;
+        }
     }
 
     // ==================== Storage (offline fallback) ====================
@@ -525,6 +541,7 @@
         showLoading();
         try {
             const primaryDeals = await loadUploadById(primaryId, signal);
+            attachHealthScores(primaryDeals);
 
             if (compareId) {
                 const compareDeals = await loadUploadById(compareId, signal);
@@ -576,12 +593,16 @@
             : 0;
         const staleDeals = deals.filter(d => d.daysSince > 30).length;
         const overdueDeals = deals.filter(d => d.closingStatus === 'overdue').length;
+        const avgHealth = deals.length > 0
+            ? Math.round(deals.reduce((sum, d) => sum + (d.healthScore || 0), 0) / deals.length)
+            : 0;
 
         elements.statTotal.textContent = totalDeals.toLocaleString();
         elements.statAcv.textContent = formatCurrency(totalACV);
         elements.statAvgDays.textContent = avgDays;
         elements.statStale.textContent = staleDeals;
         elements.statOverdue.textContent = overdueDeals;
+        elements.statAvgHealth.textContent = deals.length > 0 ? avgHealth : '-';
 
         // Render owner cards
         renderOwnerCards(deals);
@@ -710,6 +731,11 @@
                         ${deal.daysSince} days
                     </span>
                 </td>
+                <td>
+                    <span class="health-badge health-badge--${getHealthLevel(deal.healthScore || 0)}">
+                        ${deal.healthScore != null ? deal.healthScore : '-'}
+                    </span>
+                </td>
                 <td class="note-cell">
                     <div class="note-preview">${escapeHTML(deal.noteContent) || '-'}</div>
                 </td>
@@ -734,6 +760,23 @@
         document.getElementById('modal-modified-date').textContent = formatDate(deal.modifiedDate) || '-';
         document.getElementById('modal-days-since').innerHTML =
             `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
+        const healthEl = document.getElementById('modal-health-score');
+        if (deal.healthScore != null) {
+            const level = getHealthLevel(deal.healthScore);
+            const comp = deal.healthComponents || {};
+            healthEl.innerHTML =
+                `<span class="health-badge health-badge--${level}">${deal.healthScore}</span>` +
+                `<div class="health-breakdown">` +
+                `<span class="health-component">Stage ${comp.stageProbability || 0}</span>` +
+                `<span class="health-component">Velocity ${comp.velocity || 0}</span>` +
+                `<span class="health-component">Recency ${comp.activityRecency || 0}</span>` +
+                `<span class="health-component">Close ${comp.closeDateIntegrity || 0}</span>` +
+                `<span class="health-component">ACV ${comp.acv || 0}</span>` +
+                `<span class="health-component">Notes ${comp.notesSignal || 0}</span>` +
+                `</div>`;
+        } else {
+            healthEl.textContent = '-';
+        }
         document.getElementById('modal-description').textContent = deal.description || 'No description available.';
         document.getElementById('modal-notes').textContent = deal.noteContent || 'No notes available.';
         document.getElementById('modal-notes-summary').textContent = deal.notesSummary || 'No summary available.';
@@ -1011,7 +1054,7 @@
     }
 
     function exportToCSV() {
-        const headers = ['Deal Owner', 'Deal Name', 'Stage', 'ACV (CAD)', 'Closing Date', 'Modified Date', 'Days Since', 'Notes'];
+        const headers = ['Deal Owner', 'Deal Name', 'Stage', 'ACV (CAD)', 'Closing Date', 'Modified Date', 'Days Since', 'Health Score', 'Notes'];
         const rows = filteredDeals.map(deal => [
             escapeCSVField(deal.dealOwner),
             escapeCSVField(deal.dealName),
@@ -1020,6 +1063,7 @@
             escapeCSVField(deal.closingDate ? formatDate(deal.closingDate) : ''),
             escapeCSVField(deal.modifiedDate ? formatDate(deal.modifiedDate) : ''),
             escapeCSVField(deal.daysSince),
+            escapeCSVField(deal.healthScore != null ? deal.healthScore : ''),
             escapeCSVField(deal.noteContent)
         ].join(','));
 
@@ -1042,6 +1086,7 @@
             elements.filterOwner.value ||
             elements.filterStage.value ||
             elements.filterUrgency.value ||
+            elements.filterHealth.value ||
             elements.filterChanges.value;
 
         if (hasFilters) {
@@ -1113,6 +1158,7 @@
         elements.filterOwner.value = '';
         elements.filterStage.value = '';
         elements.filterUrgency.value = '';
+        elements.filterHealth.value = '';
         elements.filterChanges.value = '';
         applyFilters();
     }
@@ -1122,6 +1168,7 @@
         const ownerFilter = elements.filterOwner.value;
         const stageFilter = elements.filterStage.value;
         const urgencyFilter = elements.filterUrgency.value;
+        const healthFilter = elements.filterHealth.value;
         const changesFilter = elements.filterChanges.value;
 
         filteredDeals = allDeals.filter(deal => {
@@ -1151,6 +1198,11 @@
 
             // Urgency filter
             if (urgencyFilter && deal.urgency !== urgencyFilter) {
+                return false;
+            }
+
+            // Health filter
+            if (healthFilter && getHealthLevel(deal.healthScore || 0) !== healthFilter) {
                 return false;
             }
 
@@ -1284,6 +1336,9 @@
             let processed = await applyAISummaries(workerDeals, allDeals, generateAISummaries);
             console.log(`After worker + AI: ${processed.length} deals`);
 
+            // Compute health scores
+            attachHealthScores(processed);
+
             if (processed.length === 0) {
                 alert('No valid CAD deals found in the CSV file.');
                 return;
@@ -1379,6 +1434,7 @@
         elements.filterOwner.addEventListener('change', applyFilters);
         elements.filterStage.addEventListener('change', applyFilters);
         elements.filterUrgency.addEventListener('change', applyFilters);
+        elements.filterHealth.addEventListener('change', applyFilters);
         elements.filterChanges.addEventListener('change', applyFilters);
 
         // Sorting
@@ -1544,6 +1600,7 @@
         populateDatePicker(); // Shows disabled state when offline
         const savedDeals = loadFromStorage();
         if (savedDeals && savedDeals.length > 0) {
+            attachHealthScores(savedDeals);
             allDeals = savedDeals;
             filteredDeals = [...allDeals];
             populateFilterDropdowns(allDeals);
