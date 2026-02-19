@@ -7,6 +7,45 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Password Gate -->
+    <div id="password-gate" style="position:fixed;inset:0;z-index:9999;background:#1a1a2e;display:flex;align-items:center;justify-content:center">
+        <div style="background:#16213e;padding:2rem;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.4);text-align:center;max-width:320px;width:90%">
+            <h2 style="color:#e2e8f0;margin:0 0 1.5rem;font-size:1.25rem">Deal Notes Dashboard</h2>
+            <input id="password-input" type="password" placeholder="Enter password" autocomplete="off"
+                style="width:100%;padding:0.625rem 0.75rem;border:1px solid #334155;border-radius:6px;background:#0f172a;color:#e2e8f0;font-size:0.9rem;box-sizing:border-box;outline:none">
+            <p id="password-error" style="color:#f87171;font-size:0.8rem;margin:0.5rem 0 0;display:none">Incorrect password</p>
+        </div>
+    </div>
+    <script>
+    (function(){
+        var PASS_HASH = '6856cc36b165d42ac018a650ecc4f8b4e27ad3ed6d1fda0b7460eb0ffd84fa8c';
+        var KEY = 'dealUpdates_auth';
+        async function checkPass(s){
+            var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+            var hex = Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+            return hex === PASS_HASH;
+        }
+        if(localStorage.getItem(KEY)==='1'){
+            document.getElementById('password-gate').style.display='none';
+        } else {
+            var input=document.getElementById('password-input');
+            var err=document.getElementById('password-error');
+            input.addEventListener('keydown',async function(e){
+                if(e.key==='Enter'){
+                    if(await checkPass(input.value)){
+                        localStorage.setItem(KEY,'1');
+                        document.getElementById('password-gate').style.display='none';
+                    } else {
+                        err.style.display='block';
+                        input.value='';
+                    }
+                } else { err.style.display='none'; }
+            });
+            input.focus();
+        }
+    })();
+    </script>
+
     <header>
         <div class="header-left">
             <img src="assets/logo.png" alt="Hostopia - HostPapa" class="header-logo">
