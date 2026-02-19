@@ -806,8 +806,9 @@
         }
 
         const message = buildDealMessageBody(deal);
+        const SLACK_TEAM_ID = 'T02FCU97B';
         navigator.clipboard.writeText(message).then(() => {
-            window.open(`slack://user?id=${encodeURIComponent(slackId)}`, '_blank');
+            window.open(`https://app.slack.com/client/${SLACK_TEAM_ID}/${slackId}`, '_blank');
         });
     }
 
