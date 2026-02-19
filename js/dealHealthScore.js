@@ -47,6 +47,17 @@
 
     const PUSH_SIGNALS = ['pushed', 'delayed', 'moved out', 'rescheduled'];
 
+    // Constant benchmark: expected days a deal spends in each stage
+    var STAGE_BENCHMARKS = {
+        'discovery': 14,
+        'qualification': 21,
+        'proposal': 21,
+        'negotiation': 28,
+        'verbal commit': 14
+    };
+
+    var MS_PER_DAY = 86400000;
+
     // ==================== Component Scoring Functions ====================
 
     function scoreStageProbability(stage, stageScoreMap) {
@@ -56,29 +67,20 @@
         return (key in map) ? map[key] : 35;
     }
 
-    function scoreVelocity(deal, medianDaysInStage) {
-        if (!deal || !medianDaysInStage) return 70;
-
-        const stage = (deal.stage || '').trim().toLowerCase();
-        const benchmark = medianDaysInStage[stage];
-
-        if (!benchmark || benchmark <= 0) return 70;
-
-        const daysSince = (typeof deal.daysSince === 'number' && !isNaN(deal.daysSince))
-            ? deal.daysSince : 0;
-        const ratio = daysSince / benchmark;
-
+    function scoreVelocity(daysInStage, benchmarkDays) {
+        if (daysInStage == null || benchmarkDays == null || benchmarkDays <= 0) return 70;
+        var ratio = daysInStage / benchmarkDays;
         if (ratio <= 0.8) return 100;
         if (ratio <= 1.2) return 70;
         if (ratio <= 1.5) return 40;
         return 10;
     }
 
-    function scoreActivityRecency(daysSince) {
-        if (daysSince == null || isNaN(daysSince) || daysSince >= 999) return 40;
-        if (daysSince <= 7) return 100;
-        if (daysSince <= 14) return 70;
-        if (daysSince <= 30) return 40;
+    function scoreActivityRecency(lastActivityDaysSince) {
+        if (lastActivityDaysSince == null || isNaN(lastActivityDaysSince) || lastActivityDaysSince >= 999) return 40;
+        if (lastActivityDaysSince <= 7) return 100;
+        if (lastActivityDaysSince <= 14) return 70;
+        if (lastActivityDaysSince <= 30) return 40;
         return 10;
     }
 
@@ -163,8 +165,10 @@
     // ==================== Context Building ====================
 
     function buildContext(deals) {
+        var now = Date.now();
+
         if (!deals || deals.length === 0) {
-            return { acvDistribution: [], medianDaysInStage: {} };
+            return { now: now, acvDistribution: [], stageBenchmarks: STAGE_BENCHMARKS };
         }
 
         // ACV distribution: sorted array of all non-zero ACV values
@@ -177,7 +181,7 @@
         }
         acvValues.sort(function(a, b) { return a - b; });
 
-        // Median days-in-stage by stage (approximated from daysSince)
+        // Dataset median days-in-stage by stage (approximated from daysSince)
         var stageGroups = {};
         for (var i = 0; i < deals.length; i++) {
             var stage = (deals[i].stage || '').trim().toLowerCase();
@@ -188,19 +192,72 @@
             stageGroups[stage].push(ds);
         }
 
-        var medianDaysInStage = {};
-        var stages = Object.keys(stageGroups);
-        for (var i = 0; i < stages.length; i++) {
-            var vals = stageGroups[stages[i]].sort(function(a, b) { return a - b; });
-            var mid = Math.floor(vals.length / 2);
-            medianDaysInStage[stages[i]] = (vals.length % 2 === 0)
-                ? (vals[mid - 1] + vals[mid]) / 2
-                : vals[mid];
+        // Start with constant benchmarks, overlay dataset medians where available
+        var stageBenchmarks = {};
+        var k;
+        for (k in STAGE_BENCHMARKS) {
+            stageBenchmarks[k] = STAGE_BENCHMARKS[k];
+        }
+        var stageKeys = Object.keys(stageGroups);
+        for (var i = 0; i < stageKeys.length; i++) {
+            var vals = stageGroups[stageKeys[i]].sort(function(a, b) { return a - b; });
+            if (vals.length >= 3) {
+                // Only override constant if we have enough data
+                var mid = Math.floor(vals.length / 2);
+                stageBenchmarks[stageKeys[i]] = (vals.length % 2 === 0)
+                    ? (vals[mid - 1] + vals[mid]) / 2
+                    : vals[mid];
+            }
         }
 
         return {
+            now: now,
             acvDistribution: acvValues,
-            medianDaysInStage: medianDaysInStage
+            stageBenchmarks: stageBenchmarks
+        };
+    }
+
+    // ==================== Per-Deal Metric Derivation ====================
+
+    function deriveDealMetrics(deal, ctx) {
+        var now = ctx.now || Date.now();
+
+        // Last activity date: max of modifiedDate (which is "Modified Time (Notes)")
+        // In the current data model these are the same field; this picks the
+        // most recent date available per deal to be forward-compatible.
+        var lastActivityDate = null;
+        if (deal.modifiedDate) {
+            lastActivityDate = deal.modifiedDate instanceof Date
+                ? deal.modifiedDate : new Date(deal.modifiedDate);
+        }
+
+        var lastActivityDaysSince;
+        if (lastActivityDate && !isNaN(lastActivityDate.getTime())) {
+            var todayMidnight = new Date(now);
+            todayMidnight.setHours(0, 0, 0, 0);
+            lastActivityDaysSince = Math.max(0, Math.floor((todayMidnight - lastActivityDate) / MS_PER_DAY));
+        } else {
+            lastActivityDaysSince = 999;
+        }
+
+        // Days in stage: approximate from earliest record at current stage.
+        // After dedup we have one record per deal, so we fall back to daysSince
+        // as the best proxy (time since last modification while in this stage).
+        var daysInStage = null;
+        if (typeof deal.daysInStage === 'number') {
+            daysInStage = deal.daysInStage; // pre-computed upstream
+        } else if (typeof deal.daysSince === 'number' && deal.daysSince < 999) {
+            daysInStage = deal.daysSince; // best available approximation
+        }
+
+        var stage = (deal.stage || '').trim().toLowerCase();
+        var benchmark = (ctx.stageBenchmarks || STAGE_BENCHMARKS)[stage] || null;
+
+        return {
+            lastActivityDate: lastActivityDate,
+            lastActivityDaysSince: lastActivityDaysSince,
+            daysInStage: daysInStage,
+            stageBenchmark: benchmark
         };
     }
 
@@ -209,12 +266,15 @@
     function computeDealHealthScore(deal, context, config) {
         var weights = (config && config.weights) || defaultWeights();
         var stageScoreMap = (config && config.stageScoreMap) || DEFAULT_STAGE_SCORES;
-        var ctx = context || { acvDistribution: [], medianDaysInStage: {} };
+        var ctx = context || { now: Date.now(), acvDistribution: [], stageBenchmarks: STAGE_BENCHMARKS };
+
+        // Derive per-deal metrics
+        var metrics = deriveDealMetrics(deal, ctx);
 
         // Compute each component
         var stageProbability = scoreStageProbability(deal.stage, stageScoreMap);
-        var velocity = scoreVelocity(deal, ctx.medianDaysInStage);
-        var activityRecency = scoreActivityRecency(deal.daysSince);
+        var velocity = scoreVelocity(metrics.daysInStage, metrics.stageBenchmark);
+        var activityRecency = scoreActivityRecency(metrics.lastActivityDaysSince);
         var closeDateIntegrity = scoreCloseDateIntegrity(deal);
         var acvScore = scoreAcv(deal.acv, ctx.acvDistribution);
         var notesResult = scoreNotesSignal(deal.noteContent, deal.notesCanonical);
@@ -243,10 +303,8 @@
         score = Math.max(0, Math.min(100, score));
 
         // Velocity ratio for debug
-        var stage = (deal.stage || '').trim().toLowerCase();
-        var benchmark = ctx.medianDaysInStage[stage];
-        var velocityRatio = (benchmark && benchmark > 0 && deal.daysSince != null)
-            ? deal.daysSince / benchmark : null;
+        var velocityRatio = (metrics.stageBenchmark && metrics.daysInStage != null)
+            ? metrics.daysInStage / metrics.stageBenchmark : null;
 
         // ACV percentile for debug
         var acvPercentile = null;
@@ -262,13 +320,15 @@
             score: score,
             components: components,
             debug: {
+                lastActivityDaysSince: metrics.lastActivityDaysSince,
+                daysInStage: metrics.daysInStage,
+                stageBenchmark: metrics.stageBenchmark,
+                velocityRatio: velocityRatio,
+                acvPercentile: acvPercentile,
                 notesKeywordsMatched: {
                     positive: notesResult.positive,
                     negative: notesResult.negative
-                },
-                velocityRatio: velocityRatio,
-                acvPercentile: acvPercentile,
-                velocityBenchmark: benchmark || null
+                }
             }
         };
     }
@@ -277,6 +337,7 @@
     exports.defaultWeights = defaultWeights;
     exports.computeDealHealthScore = computeDealHealthScore;
     exports.buildContext = buildContext;
+    exports.deriveDealMetrics = deriveDealMetrics;
     exports.scoreStageProbability = scoreStageProbability;
     exports.scoreVelocity = scoreVelocity;
     exports.scoreActivityRecency = scoreActivityRecency;
@@ -284,6 +345,7 @@
     exports.scoreAcv = scoreAcv;
     exports.scoreNotesSignal = scoreNotesSignal;
     exports.DEFAULT_STAGE_SCORES = DEFAULT_STAGE_SCORES;
+    exports.STAGE_BENCHMARKS = STAGE_BENCHMARKS;
     exports.POSITIVE_KEYWORDS = POSITIVE_KEYWORDS;
     exports.NEGATIVE_KEYWORDS = NEGATIVE_KEYWORDS;
 
