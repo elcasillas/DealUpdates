@@ -111,12 +111,13 @@
         return true;
     }
 
-    async function insertUpload(generatedDate, filename, dealCount) {
+    async function insertUpload(generatedDate, filename, dealCount, scoringConfig) {
         if (!supabaseClient) return null;
         const payload = {
             generated_date: generatedDate,
             filename: filename,
-            deal_count: dealCount
+            deal_count: dealCount,
+            scoring_config: scoringConfig || null
         };
         console.log('insertUpload payload:', JSON.stringify(payload));
         const { data, error } = await supabaseClient
@@ -143,7 +144,19 @@
             modified_date: deal.modifiedDate ? deal.modifiedDate.toISOString().slice(0, 10) : null,
             note_content: deal.noteContent,
             description: deal.description,
-            notes_summary: deal.notesSummary
+            notes_summary: deal.notesSummary,
+            deal_key: deal.dealKey || null,
+            notes_canonical: deal.notesCanonical || null,
+            notes_hash: deal.notesHash || null,
+            notes_count: deal.notesCount || 0,
+            health_score: deal.healthScore != null ? deal.healthScore : null,
+            hs_stage_probability: deal.healthComponents?.stageProbability ?? null,
+            hs_velocity: deal.healthComponents?.velocity ?? null,
+            hs_activity_recency: deal.healthComponents?.activityRecency ?? null,
+            hs_close_date: deal.healthComponents?.closeDateIntegrity ?? null,
+            hs_acv: deal.healthComponents?.acv ?? null,
+            hs_notes_signal: deal.healthComponents?.notesSignal ?? null,
+            health_debug: deal.healthDebug || null
         }));
 
         for (let i = 0; i < rows.length; i += BATCH_SIZE) {
@@ -415,6 +428,24 @@
         }
     }
 
+    function attachHealthScoresIfMissing(deals) {
+        const needsScoring = deals.filter(d => d.healthScore == null);
+        if (needsScoring.length === 0) return;
+        if (needsScoring.length === deals.length) {
+            attachHealthScores(deals);
+            return;
+        }
+        // Partial: recompute only missing, using full dataset for context
+        const context = buildHealthContext(deals);
+        const config = buildScoringConfigArg();
+        for (const deal of needsScoring) {
+            const result = computeDealHealthScore(deal, context, config);
+            deal.healthScore = result.score;
+            deal.healthComponents = result.components;
+            deal.healthDebug = result.debug;
+        }
+    }
+
     // ==================== Storage (offline fallback) ====================
     function saveToStorage(deals) {
         try {
@@ -535,9 +566,10 @@
         const modifiedDate = row.modified_date ? new Date(row.modified_date + 'T00:00:00') : null;
         const daysSince = calculateDaysSince(modifiedDate);
         const daysUntilClosing = calculateDaysUntilClosing(closingDate);
-        return {
+        const deal = {
             dealOwner: row.deal_owner,
             dealName: row.deal_name,
+            dealKey: row.deal_key || null,
             stage: row.stage,
             acv: parseFloat(row.acv) || 0,
             acvFormatted: formatCurrency(parseFloat(row.acv) || 0),
@@ -548,9 +580,28 @@
             daysUntilClosing,
             closingStatus: getClosingStatus(daysUntilClosing),
             noteContent: row.note_content || '',
+            notesCanonical: row.notes_canonical || '',
+            notesHash: row.notes_hash || '',
+            notesCount: row.notes_count || 0,
             description: row.description || '',
             notesSummary: row.notes_summary || ''
         };
+
+        // Restore stored health score if available
+        if (row.health_score != null) {
+            deal.healthScore = row.health_score;
+            deal.healthComponents = {
+                stageProbability: row.hs_stage_probability,
+                velocity: row.hs_velocity,
+                activityRecency: row.hs_activity_recency,
+                closeDateIntegrity: row.hs_close_date,
+                acv: row.hs_acv,
+                notesSignal: row.hs_notes_signal
+            };
+            deal.healthDebug = row.health_debug || null;
+        }
+
+        return deal;
     }
 
     async function loadUploadById(uploadId, signal) {
@@ -572,7 +623,7 @@
         showLoading();
         try {
             const primaryDeals = await loadUploadById(primaryId, signal);
-            attachHealthScores(primaryDeals);
+            attachHealthScoresIfMissing(primaryDeals);
 
             if (compareId) {
                 const compareDeals = await loadUploadById(compareId, signal);
@@ -1383,7 +1434,13 @@
             // Upload to Supabase if online
             if (isOnline) {
                 console.log('Supabase is online. Inserting upload record...');
-                const upload = await insertUpload(uploadDate, filename || 'unknown.csv', processed.length);
+                const scoringConfig = buildScoringConfigArg() || {
+                    weights: defaultWeights(),
+                    stageScoreMap: { ...DEFAULT_STAGE_SCORES },
+                    positiveKeywords: [...POSITIVE_KEYWORDS],
+                    negativeKeywords: [...NEGATIVE_KEYWORDS]
+                };
+                const upload = await insertUpload(uploadDate, filename || 'unknown.csv', processed.length, scoringConfig);
                 if (upload) {
                     console.log('Upload record created:', upload.id, '- Inserting', processed.length, 'deals...');
                     const success = await insertDealsBatch(upload.id, processed);
