@@ -20,6 +20,26 @@
             deduplicateDeals, applyAISummaries, stripHTML, formatCurrency,
             generateFallbackSummary } = window.DealIngest;
 
+    // ==================== Tailwind class maps ====================
+    const URGENCY_CLASSES = {
+        fresh:    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-green-100 text-green-700',
+        warning:  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-orange-100 text-orange-600',
+        stale:    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-red-100 text-red-600',
+        critical: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-red-200 text-red-900',
+    };
+    const CLOSING_CLASSES = {
+        overdue: 'inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-semibold whitespace-nowrap ml-1.5 bg-red-100 text-red-900',
+        soon:    'inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-semibold whitespace-nowrap ml-1.5 bg-orange-100 text-orange-600',
+    };
+    const HEALTH_BADGE_CLASSES = {
+        good:  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-green-100 text-green-800',
+        watch: 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-blue-100 text-blue-800',
+        risk:  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-orange-100 text-orange-800',
+        dead:  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-red-100 text-red-800',
+    };
+    // Common td classes applied to every table cell
+    const TD = 'px-4 py-3.5 border-b border-slate-200 text-sm align-top';
+
     // ==================== Configuration ====================
     const STORAGE_KEY = 'dealUpdates_data';
     const SCHEMA_VERSION_KEY = 'dealUpdates_schema_version';
@@ -722,28 +742,28 @@
         elements.ownerCards.innerHTML = owners.map(owner => {
             const contact = getOwnerContact(owner.name);
             const contactIndicator = contact && contact.email
-                ? `<div class="owner-card__contact"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>${escapeHTML(contact.email)}</div>`
-                : '<div class="owner-card__contact owner-card__contact--empty">No email set</div>';
+                ? `<div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3 pb-3 border-b border-slate-200 overflow-hidden text-ellipsis whitespace-nowrap"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>${escapeHTML(contact.email)}</div>`
+                : '<div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3 pb-3 border-b border-slate-200 italic opacity-60">No email set</div>';
             return `
-            <div class="owner-card" data-owner="${escapeHTML(owner.name)}">
-                <div class="owner-card__name">${escapeHTML(owner.name)}</div>
+            <div class="owner-card bg-white border border-slate-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all hover:shadow-md" data-owner="${escapeHTML(owner.name)}">
+                <div class="text-lg font-semibold text-slate-800 mb-1">${escapeHTML(owner.name)}</div>
                 ${contactIndicator}
-                <div class="owner-card__stats">
-                    <div class="owner-card__stat">
-                        <span class="owner-card__stat-value">${owner.deals}</span>
-                        <span class="owner-card__stat-label">Deals</span>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="text-center">
+                        <span class="block text-xl font-bold text-slate-800">${owner.deals}</span>
+                        <span class="block text-[0.6875rem] text-slate-500 uppercase tracking-wide">Deals</span>
                     </div>
-                    <div class="owner-card__stat">
-                        <span class="owner-card__stat-value">${formatCurrencyCompact(owner.totalACV)}</span>
-                        <span class="owner-card__stat-label">ACV</span>
+                    <div class="text-center">
+                        <span class="block text-xl font-bold text-slate-800">${formatCurrencyCompact(owner.totalACV)}</span>
+                        <span class="block text-[0.6875rem] text-slate-500 uppercase tracking-wide">ACV</span>
                     </div>
-                    <div class="owner-card__stat">
-                        <span class="owner-card__stat-value">${owner.avgDays}</span>
-                        <span class="owner-card__stat-label">Avg Days</span>
+                    <div class="text-center">
+                        <span class="block text-xl font-bold text-slate-800">${owner.avgDays}</span>
+                        <span class="block text-[0.6875rem] text-slate-500 uppercase tracking-wide">Avg Days</span>
                     </div>
-                    <div class="owner-card__stat">
-                        <span class="owner-card__stat-value${owner.overdue > 0 ? ' owner-card__stat-value--danger' : ''}">${owner.overdue}</span>
-                        <span class="owner-card__stat-label">Overdue</span>
+                    <div class="text-center">
+                        <span class="block text-xl font-bold ${owner.overdue > 0 ? 'text-[#721c24]' : 'text-slate-800'}">${owner.overdue}</span>
+                        <span class="block text-[0.6875rem] text-slate-500 uppercase tracking-wide">Overdue</span>
                     </div>
                 </div>
             </div>
@@ -797,33 +817,37 @@
                 row.classList.add(`change--${deal.changeType}`);
             }
             const changeDetail = deal.changeType === 'updated' && deal.changes && deal.changes.length > 0
-                ? `<div class="change-detail">${deal.changes.map(c => escapeHTML(c)).join(' &middot; ')}</div>`
+                ? `<div class="text-[0.6875rem] text-blue-600 mt-1">${deal.changes.map(c => escapeHTML(c)).join(' &middot; ')}</div>`
                 : deal.changeType === 'new'
-                ? '<div class="change-detail">New deal</div>'
+                ? '<div class="text-[0.6875rem] text-blue-600 mt-1">New deal</div>'
                 : '';
+            const closingBadge = deal.closingStatus && CLOSING_CLASSES[deal.closingStatus]
+                ? ` <span class="${CLOSING_CLASSES[deal.closingStatus]}">${deal.closingStatus === 'overdue' ? 'Overdue' : 'Closing Soon'}</span>`
+                : '';
+            const healthLevel = getHealthLevel(deal.healthScore || 0);
             row.innerHTML = `
-                <td>${escapeHTML(deal.dealOwner)}</td>
-                <td>${escapeHTML(deal.dealName)}${changeDetail}</td>
-                <td>${escapeHTML(deal.stage)}</td>
-                <td class="acv-value">${deal.acvFormatted}</td>
-                <td class="date-value">${formatDate(deal.closingDate)}${deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' : deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : ''}</td>
-                <td class="date-value">${formatDate(deal.modifiedDate)}</td>
-                <td>
-                    <span class="urgency-badge urgency-badge--${deal.urgency}">
+                <td class="${TD}">${escapeHTML(deal.dealOwner)}</td>
+                <td class="${TD}">${escapeHTML(deal.dealName)}${changeDetail}</td>
+                <td class="${TD}">${escapeHTML(deal.stage)}</td>
+                <td class="${TD} tabular-nums text-right">${deal.acvFormatted}</td>
+                <td class="${TD} tabular-nums">${formatDate(deal.closingDate)}${closingBadge}</td>
+                <td class="${TD} tabular-nums">${formatDate(deal.modifiedDate)}</td>
+                <td class="${TD}">
+                    <span class="${URGENCY_CLASSES[deal.urgency] || URGENCY_CLASSES.fresh}">
                         ${deal.daysSince} days
                     </span>
                 </td>
-                <td class="health-cell">
-                    <span class="health-badge health-badge--${getHealthLevel(deal.healthScore || 0)}">
+                <td class="${TD} health-cell">
+                    <span class="${HEALTH_BADGE_CLASSES[healthLevel] || HEALTH_BADGE_CLASSES.good}">
                         ${deal.healthScore != null ? deal.healthScore : '-'}
                     </span>
                     ${deal.healthComponents ? `<div class="health-popover">
-                        <div class="health-popover__row"><span class="health-popover__label">Stage</span><span class="health-popover__value">${deal.healthComponents.stageProbability}</span></div>
-                        <div class="health-popover__row"><span class="health-popover__label">Velocity</span><span class="health-popover__value">${deal.healthComponents.velocity}</span></div>
-                        <div class="health-popover__row"><span class="health-popover__label">Recency</span><span class="health-popover__value">${deal.healthComponents.activityRecency}</span></div>
-                        <div class="health-popover__row"><span class="health-popover__label">Close Date</span><span class="health-popover__value">${deal.healthComponents.closeDateIntegrity}</span></div>
-                        <div class="health-popover__row"><span class="health-popover__label">ACV</span><span class="health-popover__value">${deal.healthComponents.acv}</span></div>
-                        <div class="health-popover__row"><span class="health-popover__label">Notes</span><span class="health-popover__value">${deal.healthComponents.notesSignal}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">Stage</span><span class="font-medium">${deal.healthComponents.stageProbability}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">Velocity</span><span class="font-medium">${deal.healthComponents.velocity}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">Recency</span><span class="font-medium">${deal.healthComponents.activityRecency}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">Close Date</span><span class="font-medium">${deal.healthComponents.closeDateIntegrity}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">ACV</span><span class="font-medium">${deal.healthComponents.acv}</span></div>
+                        <div class="flex justify-between gap-3 text-xs"><span class="text-slate-500">Notes</span><span class="font-medium">${deal.healthComponents.notesSignal}</span></div>
                     </div>` : ''}
                 </td>
             `;
@@ -841,25 +865,26 @@
         document.getElementById('modal-deal-owner').textContent = deal.dealOwner || '-';
         document.getElementById('modal-stage').textContent = deal.stage || '-';
         document.getElementById('modal-acv').textContent = deal.acvFormatted || '-';
-        document.getElementById('modal-closing-date').innerHTML = formatDate(deal.closingDate) +
-            (deal.closingStatus === 'overdue' ? ' <span class="closing-badge closing-badge--overdue">Overdue</span>' :
-             deal.closingStatus === 'soon' ? ' <span class="closing-badge closing-badge--soon">Closing Soon</span>' : '');
+        const modalClosingBadge = deal.closingStatus && CLOSING_CLASSES[deal.closingStatus]
+            ? ` <span class="${CLOSING_CLASSES[deal.closingStatus]}">${deal.closingStatus === 'overdue' ? 'Overdue' : 'Closing Soon'}</span>`
+            : '';
+        document.getElementById('modal-closing-date').innerHTML = formatDate(deal.closingDate) + modalClosingBadge;
         document.getElementById('modal-modified-date').textContent = formatDate(deal.modifiedDate) || '-';
         document.getElementById('modal-days-since').innerHTML =
-            `<span class="urgency-badge urgency-badge--${deal.urgency}">${deal.daysSince} days</span>`;
+            `<span class="${URGENCY_CLASSES[deal.urgency] || URGENCY_CLASSES.fresh}">${deal.daysSince} days</span>`;
         const healthEl = document.getElementById('modal-health-score');
         if (deal.healthScore != null) {
             const level = getHealthLevel(deal.healthScore);
             const comp = deal.healthComponents || {};
             healthEl.innerHTML =
-                `<span class="health-badge health-badge--${level}">${deal.healthScore}</span>` +
-                `<div class="health-breakdown">` +
-                `<span class="health-component">Stage ${comp.stageProbability || 0}</span>` +
-                `<span class="health-component">Velocity ${comp.velocity || 0}</span>` +
-                `<span class="health-component">Recency ${comp.activityRecency || 0}</span>` +
-                `<span class="health-component">Close ${comp.closeDateIntegrity || 0}</span>` +
-                `<span class="health-component">ACV ${comp.acv || 0}</span>` +
-                `<span class="health-component">Notes ${comp.notesSignal || 0}</span>` +
+                `<span class="${HEALTH_BADGE_CLASSES[level] || HEALTH_BADGE_CLASSES.good}">${deal.healthScore}</span>` +
+                `<div class="flex flex-wrap gap-1.5 mt-1.5">` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">Stage ${comp.stageProbability || 0}</span>` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">Velocity ${comp.velocity || 0}</span>` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">Recency ${comp.activityRecency || 0}</span>` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">Close ${comp.closeDateIntegrity || 0}</span>` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">ACV ${comp.acv || 0}</span>` +
+                `<span class="text-xs bg-slate-100 px-2 py-0.5 rounded">Notes ${comp.notesSignal || 0}</span>` +
                 `</div>`;
         } else {
             healthEl.textContent = '-';
@@ -963,7 +988,7 @@
         if (focusOwnerName) {
             const normalizedName = focusOwnerName.toLowerCase().trim();
             const row = document.querySelector(
-                `.contacts-modal__row[data-owner-normalized="${CSS.escape(normalizedName)}"]`
+                `[data-role="contact-row"][data-owner-normalized="${CSS.escape(normalizedName)}"]`
             );
             if (row) {
                 row.scrollIntoView({ block: 'center' });
@@ -986,7 +1011,7 @@
             : ownerNames;
 
         if (filtered.length === 0) {
-            container.innerHTML = '<div class="contacts-modal__empty">No owners found.</div>';
+            container.innerHTML = '<div class="py-8 text-center text-slate-400 text-sm">No owners found.</div>';
             return;
         }
 
@@ -998,91 +1023,93 @@
             const slackMemberId = contact?.slack_member_id || '';
 
             return `
-            <div class="contacts-modal__row" data-owner="${escapeHTML(name)}" data-owner-normalized="${escapeHTML(normalizedName)}">
-                <div class="contacts-modal__row-display">
-                    <div class="contacts-modal__owner-name">${escapeHTML(name)}</div>
-                    <div class="contacts-modal__owner-email">${email ? escapeHTML(email) : '<span class="contacts-modal__not-set">No email</span>'}</div>
-                    <div class="contacts-modal__owner-phone">${phone ? escapeHTML(phone) : '<span class="contacts-modal__not-set">No phone</span>'}</div>
-                    <div class="contacts-modal__owner-slack">${slackMemberId ? escapeHTML(slackMemberId) : '<span class="contacts-modal__not-set">No Slack ID</span>'}</div>
-                    <button class="contacts-modal__edit-btn" title="Edit contact">
+            <div data-role="contact-row" data-owner="${escapeHTML(name)}" data-owner-normalized="${escapeHTML(normalizedName)}" class="border-b border-slate-100 last:border-0">
+                <div data-role="row-display" class="flex items-center gap-4 px-2 py-3">
+                    <div class="font-medium text-slate-800 w-36 shrink-0">${escapeHTML(name)}</div>
+                    <div data-role="owner-email" class="text-sm text-slate-600 flex-1 min-w-0 truncate">${email ? escapeHTML(email) : '<span class="text-slate-400 italic">No email</span>'}</div>
+                    <div data-role="owner-phone" class="text-sm text-slate-600 w-36 shrink-0">${phone ? escapeHTML(phone) : '<span class="text-slate-400 italic">No phone</span>'}</div>
+                    <div data-role="owner-slack" class="text-sm text-slate-600 w-28 shrink-0 font-mono">${slackMemberId ? escapeHTML(slackMemberId) : '<span class="text-slate-400 italic not-italic">No Slack ID</span>'}</div>
+                    <button data-role="edit-btn" title="Edit contact" class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 shrink-0">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                     </button>
                 </div>
-                <div class="contacts-modal__row-form hidden">
-                    <div class="contacts-modal__field">
-                        <label>Email</label>
-                        <input type="email" class="contacts-modal__email-input" value="${escapeHTML(email)}" placeholder="owner@example.com">
+                <div data-role="row-form" class="hidden px-2 pb-3">
+                    <div class="flex flex-wrap gap-3 mb-2">
+                        <div class="flex flex-col gap-1 flex-1 min-w-[160px]">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Email</label>
+                            <input type="email" data-role="email-input" value="${escapeHTML(email)}" placeholder="owner@example.com" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10">
+                        </div>
+                        <div class="flex flex-col gap-1 flex-1 min-w-[140px]">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Phone</label>
+                            <input type="tel" data-role="phone-input" value="${escapeHTML(phone)}" placeholder="+1 (555) 000-0000" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10">
+                        </div>
+                        <div class="flex flex-col gap-1 flex-1 min-w-[140px]">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Slack Member ID</label>
+                            <input type="text" data-role="slack-input" value="${escapeHTML(slackMemberId)}" placeholder="U0XXXXXXXX" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10">
+                        </div>
                     </div>
-                    <div class="contacts-modal__field">
-                        <label>Phone</label>
-                        <input type="tel" class="contacts-modal__phone-input" value="${escapeHTML(phone)}" placeholder="+1 (555) 000-0000">
-                    </div>
-                    <div class="contacts-modal__field">
-                        <label>Slack Member ID</label>
-                        <input type="text" class="contacts-modal__slack-input" value="${escapeHTML(slackMemberId)}" placeholder="U0XXXXXXXX">
-                    </div>
-                    <div class="contacts-modal__row-actions">
-                        <button class="contacts-modal__save-btn">Save</button>
-                        <button class="contacts-modal__cancel-btn">Cancel</button>
+                    <div class="flex gap-2">
+                        <button data-role="save-btn" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700">Save</button>
+                        <button data-role="cancel-btn" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-200">Cancel</button>
                     </div>
                 </div>
             </div>`;
         }).join('');
 
         // Attach event listeners
-        container.querySelectorAll('.contacts-modal__edit-btn').forEach(btn => {
+        container.querySelectorAll('[data-role="edit-btn"]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                startEditingContactRow(e.target.closest('.contacts-modal__row'));
+                startEditingContactRow(e.target.closest('[data-role="contact-row"]'));
             });
         });
 
-        container.querySelectorAll('.contacts-modal__save-btn').forEach(btn => {
+        container.querySelectorAll('[data-role="save-btn"]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const row = e.target.closest('.contacts-modal__row');
-                saveOwnerContactRow(row.dataset.owner, row.querySelector('.contacts-modal__email-input'), row.querySelector('.contacts-modal__phone-input'), row.querySelector('.contacts-modal__slack-input'), row);
+                const row = e.target.closest('[data-role="contact-row"]');
+                saveOwnerContactRow(row.dataset.owner, row.querySelector('[data-role="email-input"]'), row.querySelector('[data-role="phone-input"]'), row.querySelector('[data-role="slack-input"]'), row);
             });
         });
 
-        container.querySelectorAll('.contacts-modal__cancel-btn').forEach(btn => {
+        container.querySelectorAll('[data-role="cancel-btn"]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                cancelEditingContactRow(e.target.closest('.contacts-modal__row'));
+                cancelEditingContactRow(e.target.closest('[data-role="contact-row"]'));
             });
         });
     }
 
     function startEditingContactRow(row) {
-        row.querySelector('.contacts-modal__row-display').classList.add('hidden');
-        row.querySelector('.contacts-modal__row-form').classList.remove('hidden');
-        row.querySelector('.contacts-modal__email-input').focus();
+        row.querySelector('[data-role="row-display"]').classList.add('hidden');
+        row.querySelector('[data-role="row-form"]').classList.remove('hidden');
+        row.querySelector('[data-role="email-input"]').focus();
     }
 
     function cancelEditingContactRow(row) {
         const contact = getOwnerContact(row.dataset.owner);
-        row.querySelector('.contacts-modal__email-input').value = contact?.email || '';
-        row.querySelector('.contacts-modal__phone-input').value = contact?.phone || '';
-        row.querySelector('.contacts-modal__slack-input').value = contact?.slack_member_id || '';
-        row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
-        row.querySelector('.contacts-modal__row-form').classList.add('hidden');
+        row.querySelector('[data-role="email-input"]').value = contact?.email || '';
+        row.querySelector('[data-role="phone-input"]').value = contact?.phone || '';
+        row.querySelector('[data-role="slack-input"]').value = contact?.slack_member_id || '';
+        row.querySelector('[data-role="row-display"]').classList.remove('hidden');
+        row.querySelector('[data-role="row-form"]').classList.add('hidden');
     }
 
     function setContactRowDisplayMode(row, contact) {
-        const emailEl = row.querySelector('.contacts-modal__owner-email');
-        const phoneEl = row.querySelector('.contacts-modal__owner-phone');
-        const slackEl = row.querySelector('.contacts-modal__owner-slack');
+        const emailEl = row.querySelector('[data-role="owner-email"]');
+        const phoneEl = row.querySelector('[data-role="owner-phone"]');
+        const slackEl = row.querySelector('[data-role="owner-slack"]');
         emailEl.innerHTML = contact.email
             ? escapeHTML(contact.email)
-            : '<span class="contacts-modal__not-set">No email</span>';
+            : '<span class="text-slate-400 italic">No email</span>';
         phoneEl.innerHTML = contact.phone
             ? escapeHTML(contact.phone)
-            : '<span class="contacts-modal__not-set">No phone</span>';
+            : '<span class="text-slate-400 italic">No phone</span>';
         slackEl.innerHTML = contact.slack_member_id
             ? escapeHTML(contact.slack_member_id)
-            : '<span class="contacts-modal__not-set">No Slack ID</span>';
-        row.querySelector('.contacts-modal__row-display').classList.remove('hidden');
-        row.querySelector('.contacts-modal__row-form').classList.add('hidden');
+            : '<span class="text-slate-400 italic">No Slack ID</span>';
+        row.querySelector('[data-role="row-display"]').classList.remove('hidden');
+        row.querySelector('[data-role="row-form"]').classList.add('hidden');
     }
 
     async function saveOwnerContactRow(ownerName, emailInput, phoneInput, slackInput, row) {
@@ -1192,14 +1219,14 @@
 
         const { newCount, updatedCount, removedCount, unchangedCount } = changesSummary;
         elements.changesSummaryEl.innerHTML = `
-            <span class="changes-summary__label">Changes detected:</span>
-            <span class="changes-summary__counts">
-                <span class="changes-summary__count changes-summary__count--new">${newCount} new</span>
-                <span class="changes-summary__count changes-summary__count--updated">${updatedCount} updated</span>
-                <span class="changes-summary__count changes-summary__count--removed">${removedCount} removed</span>
-                <span class="changes-summary__count changes-summary__count--unchanged">${unchangedCount} unchanged</span>
+            <span class="font-semibold text-slate-700">Changes detected:</span>
+            <span class="flex items-center gap-3 flex-wrap">
+                <span class="font-semibold text-green-700">${newCount} new</span>
+                <span class="font-semibold text-blue-600">${updatedCount} updated</span>
+                <span class="font-semibold text-red-600">${removedCount} removed</span>
+                <span class="text-slate-500">${unchangedCount} unchanged</span>
             </span>
-            <button class="changes-summary__dismiss" id="dismiss-changes-btn">Dismiss</button>
+            <button class="ml-auto text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded hover:bg-slate-100" id="dismiss-changes-btn">Dismiss</button>
         `;
         elements.changesSummaryEl.classList.remove('hidden');
         elements.filterChangesGroup.classList.remove('hidden');
